@@ -3,429 +3,514 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Reservas.web · Vuelos</title>
-<meta name="description" content="Prototipo de sitio de reservas de vuelos: buscador, resultados con familias tarifarias, pasajeros, extras, pago y confirmación.">
+<title>Estela · Vuelos</title>
+<meta name="description" content="Estela: demo de reservas de vuelos con tablero de salidas, buscador en forma de frase, tarifas, pasajeros, extras, pago simulado y pase de abordar.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
-   Sistema de diseño (brand-guidelines)
+   ESTELA · Sistema de diseño "Señalética de aeropuerto"
    Cambiar marca = cambiar estas variables.
    ============================================================ */
 :root{
-  --ink:#141413;        /* texto principal / fondos oscuros */
-  --paper:#faf9f5;      /* fondo claro */
-  --mid:#b0aea5;        /* elementos secundarios */
-  --line:#e8e6dc;       /* fondos sutiles / bordes */
-  --orange:#d97757;     /* acento primario */
-  --blue:#6a9bcc;       /* acento secundario */
-  --green:#788c5d;      /* acento terciario */
+  --sign:#FFC629;       /* amarillo señalética: CTA y acentos */
+  --sign-2:#F2B300;     /* hover */
+  --sign-soft:#FFF4CC;  /* fondos de campos */
+  --night:#0E1526;      /* azul noche: texto y fondos oscuros */
+  --night-2:#1A2338;
+  --board:#070B14;      /* tablero de salidas */
+  --sky:#2B54D6;        /* azul cielo (AA sobre claro) */
+  --sky-soft:#E3EAFF;
+  --floor:#F3F1EC;      /* piso de terminal: fondo general */
+  --card:#FFFFFF;
+  --line:#DCD8CE;
+  --muted:#5A6072;      /* texto secundario (AA) */
+  --mute-dark:#A9B1C7;  /* texto secundario sobre oscuro */
+  --ok:#1B7F55; --ok-soft:#DDF3E8; --ok-led:#3DDC97;
+  --warn:#9A3412; --warn-soft:#FFE4D6; --warn-led:#FF8A5B;
+  --danger:#B42318;
 
-  --ink-2:#3d3d3a;
-  --muted:#6b6a64;      /* texto secundario (AA sobre --paper) */
-  --orange-text:#b4532f;/* naranja para texto pequeño (AA sobre --paper) */
-  --card:#fffdf8;
-  --danger:#a3402a;
+  --f-display:"Bricolage Grotesque", "Hanken Grotesk", system-ui, sans-serif;
+  --f-body:"Hanken Grotesk", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, monospace;
 
-  --f-head:"Poppins", Arial, sans-serif;
-  --f-body:"Lora", Georgia, serif;
-
-  --r-sm:8px; --r-md:14px; --r-lg:22px;
-  --shadow:0 1px 0 rgba(20,20,19,.04), 0 12px 32px -12px rgba(20,20,19,.18);
-  --wrap:1180px;
+  --r-sm:8px; --r-md:12px; --r-lg:18px;
+  --hard:4px 4px 0 var(--night);
+  --wrap:1200px;
+  --z-header:40; --z-pop:60; --z-sheet:70; --z-overlay:100; --z-toast:110;
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
-h1,h2,h3,h4,.head{font-family:var(--f-head);line-height:1.1;letter-spacing:-.01em;margin:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--floor);color:var(--night);font-family:var(--f-body);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased;touch-action:manipulation}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.05;letter-spacing:-.02em;margin:0}
 button,input,select{font:inherit;color:inherit}
-button{cursor:pointer}
+button,select,[role=button]{cursor:pointer}
 a{color:inherit}
-.wrap{max-width:var(--wrap);margin:0 auto;padding:0 20px}
-.num{font-family:var(--f-head);font-variant-numeric:tabular-nums}
+.wrap{max-width:var(--wrap);margin:0 auto;padding-left:20px;padding-right:20px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums;letter-spacing:0}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+:focus-visible{outline:3px solid var(--sky);outline-offset:2px;border-radius:4px}
+.dark :focus-visible{outline-color:var(--sign)}
 [hidden]{display:none !important}
+.eyebrow{font-family:var(--f-mono);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
 
-/* ---------- Barra demo + header ---------- */
-.demo-bar{background:var(--orange);color:var(--ink);font-family:var(--f-head);font-size:13px;font-weight:500;text-align:center;padding:6px 12px}
-.site-header{position:sticky;top:0;z-index:40;background:rgba(250,249,245,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.site-header .wrap{display:flex;align-items:center;gap:28px;height:64px}
-.logo{display:flex;align-items:center;gap:10px;font-family:var(--f-head);font-weight:700;font-size:19px;text-decoration:none;letter-spacing:-.02em;background:none;border:0;padding:0}
-.logo-mark{width:30px;height:30px;border-radius:50%;background:var(--ink);display:grid;place-items:center}
-.logo-mark svg{width:18px;height:18px}
-.logo span b{color:var(--orange-text);font-weight:700}
-.nav{display:flex;gap:4px;margin-left:auto}
-.nav button{background:none;border:0;font-family:var(--f-head);font-size:14px;font-weight:500;padding:8px 12px;border-radius:999px;color:var(--ink-2)}
-.nav button:hover{background:var(--line)}
-.locale{font-family:var(--f-head);font-size:13px;border:1px solid var(--line);border-radius:999px;padding:6px 12px;color:var(--muted)}
+/* ---------- Cinta demo + header ---------- */
+.tape{background:repeating-linear-gradient(-45deg,var(--sign) 0 14px,var(--night) 14px 28px);padding:5px 0;text-align:center}
+.tape span{display:inline-block;background:var(--sign);color:var(--night);font-family:var(--f-mono);font-size:12px;font-weight:700;padding:3px 12px;border-radius:4px;letter-spacing:.04em}
+.site-header{position:sticky;top:0;z-index:var(--z-header);background:rgba(14,21,38,.94);backdrop-filter:blur(10px);color:#fff;border-bottom:1px solid #222c45}
+.site-header .wrap{display:flex;align-items:center;gap:24px;height:64px}
+.logo{display:flex;align-items:center;gap:8px;background:none;border:0;padding:0;color:inherit;text-decoration:none}
+.logo svg{width:44px;height:22px}
+.logo b{font-family:var(--f-display);font-weight:800;font-size:25px;letter-spacing:-.04em}
+.nav{display:flex;gap:2px;margin-left:auto}
+.nav button{background:none;border:0;color:#D5DBEA;font-weight:600;font-size:15px;padding:9px 13px;border-radius:999px;min-height:40px}
+.nav button:hover{background:#1f2a44;color:#fff}
+.locale{font-family:var(--f-mono);font-size:12px;border:1px solid #2d3858;border-radius:999px;padding:6px 12px;color:var(--mute-dark)}
 
 /* ---------- Hero ---------- */
-.hero{position:relative;background:var(--ink);color:var(--paper);overflow:hidden;padding:64px 0 150px}
-.hero::before{content:"";position:absolute;inset:0;opacity:.18;pointer-events:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-.hero::after{content:"";position:absolute;right:-180px;top:-220px;width:620px;height:620px;border-radius:50%;background:radial-gradient(circle,rgba(217,119,87,.28),transparent 65%);pointer-events:none}
-.hero .wrap{position:relative;display:grid;grid-template-columns:1.05fr 1fr;gap:40px;align-items:center}
-.eyebrow{font-family:var(--f-head);font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--orange)}
-.hero h1{font-size:clamp(38px,5.4vw,68px);font-weight:600;margin:14px 0 18px}
-.hero h1 em{font-family:var(--f-body);font-style:italic;font-weight:400;color:var(--orange)}
-.hero p.lead{font-size:19px;color:#d8d6cc;max-width:30ch;margin:0}
-.route{position:relative;padding:10px 0}
-.route-codes{display:flex;justify-content:space-between;align-items:flex-end;font-family:var(--f-head)}
-.route-code b{display:block;font-size:clamp(46px,6vw,84px);font-weight:700;letter-spacing:-.03em;line-height:1}
-.route-code span{font-family:var(--f-body);font-style:italic;color:var(--mid);font-size:16px}
-.route-code.dest{text-align:right}
-.route svg{width:100%;height:120px;display:block;margin:-6px 0 -10px}
-.route .arc{fill:none;stroke:var(--orange);stroke-width:2;stroke-dasharray:4 7;stroke-linecap:round;animation:dash 1.6s linear infinite}
-@keyframes dash{to{stroke-dashoffset:-22}}
-.route-meta{display:flex;gap:18px;font-family:var(--f-head);font-size:13px;color:var(--mid);justify-content:center}
+.hero{position:relative;background:var(--night);color:#fff;overflow:hidden;padding:56px 0 132px}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;
+  background-image:radial-gradient(#2a3552 1.2px,transparent 1.3px);background-size:22px 22px;
+  mask-image:linear-gradient(180deg,#000 30%,transparent)}
+.hero::after{content:"";position:absolute;left:-10%;top:-40%;width:60%;height:120%;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(255,198,41,.16),transparent)}
+.hero .wrap{position:relative;z-index:1;display:grid;grid-template-columns:.85fr 1.15fr;gap:44px;align-items:center}
+.hero .eyebrow{color:var(--sign)}
+.hero h1{font-size:clamp(38px,4.7vw,64px);font-weight:800;letter-spacing:-.045em;line-height:.95;margin:16px 0 20px}
+.hero h1 mark{background:none;color:var(--night);position:relative;z-index:0;padding:0 .08em;white-space:nowrap}
+.hero h1 mark::before{content:"";position:absolute;inset:.12em -.02em .02em;background:var(--sign);z-index:-1;transform:skewX(-8deg) rotate(-1.5deg);border-radius:4px}
+.hero .lead{font-size:19px;color:#C4CBDD;max-width:34ch;margin:0}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.stats span{font-family:var(--f-mono);font-size:12.5px;border:1px solid #2d3858;border-radius:999px;padding:6px 12px;color:#D5DBEA}
+.stats b{color:var(--sign)}
 
-.reveal{opacity:0;transform:translateY(14px);animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards}
-.d1{animation-delay:.05s}.d2{animation-delay:.15s}.d3{animation-delay:.25s}.d4{animation-delay:.35s}
+/* Tablero de salidas (split-flap) */
+.board{background:var(--board);border:2px solid #232B40;border-radius:16px;padding:16px 16px 12px;box-shadow:0 30px 60px -20px rgba(0,0,0,.6),inset 0 1px 0 #1b2336}
+.board-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px}
+.board-top .t{display:flex;align-items:center;gap:10px}
+.board-top .t svg{width:22px;height:22px;color:var(--sign)}
+.board-top h2{font-family:var(--f-mono);font-size:15px;font-weight:700;letter-spacing:.14em;color:var(--sign)}
+.board-top h2 small{color:#6f7a96;font-weight:500;margin-left:8px}
+.board-clock{font-family:var(--f-mono);font-size:22px;font-weight:700;color:#fff;letter-spacing:.06em}
+.b-head,.b-row{display:grid;grid-template-columns:5fr 11fr 6fr 3fr 9fr;gap:10px;align-items:center}
+.b-head{font-family:var(--f-mono);font-size:10.5px;color:#6f7a96;letter-spacing:.12em;padding:0 8px 6px}
+.b-row{width:100%;background:none;border:0;border-top:1px solid #151c2c;padding:7px 8px;text-align:left;border-radius:8px;transition:background .15s}
+.b-row:hover{background:#111a2c}
+.b-row:hover .cells .ch{background:#1a2438}
+.cells{display:flex;gap:2px;min-width:0}
+.ch{flex:1 1 0;min-width:0;max-width:17px;height:24px;display:grid;place-items:center;background:#131a29;border-radius:3px;font-family:var(--f-mono);font-weight:700;font-size:14px;color:#F4F6FB;position:relative;overflow:hidden}
+.ch::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(0,0,0,.65)}
+.ch.f{animation:flap .11s ease-in}
+@keyframes flap{0%{transform:scaleY(1)}50%{transform:scaleY(.15);filter:brightness(1.6)}100%{transform:scaleY(1)}}
+.b-row[data-st="ok"] .c-st .ch{color:var(--ok-led)}
+.b-row[data-st="board"] .c-st .ch{color:var(--sign)}
+.b-row[data-st="late"] .c-st .ch{color:var(--warn-led)}
+.board-foot{display:flex;justify-content:space-between;gap:8px;font-family:var(--f-mono);font-size:11px;color:#6f7a96;margin-top:10px;padding:0 8px}
+
+.reveal{opacity:0;transform:translateY(16px);animation:rise .75s cubic-bezier(.2,.7,.2,1) forwards}
+.d1{animation-delay:.05s}.d2{animation-delay:.15s}.d3{animation-delay:.25s}.d4{animation-delay:.4s}
 @keyframes rise{to{opacity:1;transform:none}}
 
-/* ---------- Widget de búsqueda ---------- */
-.widget-wrap{position:relative;margin-top:-104px;z-index:5}
-.widget{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--shadow);border:1px solid var(--line)}
-.tabs{display:flex;gap:4px;padding:10px 10px 0;border-bottom:1px solid var(--line);overflow-x:auto}
-.tab{background:none;border:0;font-family:var(--f-head);font-weight:500;font-size:15px;padding:12px 16px 14px;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap;display:flex;gap:8px;align-items:center}
+/* ---------- Widget: frase de búsqueda ---------- */
+.widget-wrap{position:relative;margin-top:-86px;z-index:5}
+.widget{background:var(--card);border:2px solid var(--night);border-radius:var(--r-lg);box-shadow:6px 6px 0 var(--night)}
+.tabs{display:flex;gap:8px;padding:14px 16px 0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{display:flex;align-items:center;gap:8px;background:transparent;border:2px solid transparent;border-radius:999px;font-weight:600;font-size:15px;padding:8px 14px;color:var(--muted);white-space:nowrap;min-height:44px}
 .tab svg{width:18px;height:18px}
-.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--orange)}
-.panel{padding:22px}
-.trip-type{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-.pill{font-family:var(--f-head);font-size:14px;font-weight:500;border:1px solid var(--line);background:transparent;border-radius:999px;padding:7px 14px}
-.pill[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.search-grid{display:grid;grid-template-columns:1.25fr auto 1.25fr 1fr 1fr 1fr auto;gap:10px;align-items:stretch}
-.search-grid.oneway .f-ret{display:none}
-.search-grid.oneway{grid-template-columns:1.25fr auto 1.25fr 1fr 1fr auto}
-.field{position:relative;border:1px solid var(--line);border-radius:var(--r-md);padding:8px 14px 10px;background:var(--paper);min-width:0;transition:border-color .15s}
-.field:focus-within{border-color:var(--ink)}
-.field label,.field .lbl{display:block;font-family:var(--f-head);font-size:12px;font-weight:500;color:var(--muted);letter-spacing:.02em}
-.field input,.field select,.field .val{width:100%;border:0;background:transparent;font-family:var(--f-head);font-size:16px;font-weight:600;padding:2px 0 0;outline:none;min-width:0}
-.field .sub{display:block;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.field.err{border-color:var(--danger)}
-.swap{align-self:center;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;transition:transform .3s}
-.swap:hover{transform:rotate(180deg)}
-.swap svg{width:18px;height:18px}
-.btn{font-family:var(--f-head);font-weight:600;font-size:16px;border:0;border-radius:var(--r-md);padding:14px 22px;background:var(--orange);color:var(--ink);display:inline-flex;align-items:center;justify-content:center;gap:10px;transition:transform .12s,background .15s;text-decoration:none}
-.btn:hover{background:#e0876a}
-.btn:active{transform:scale(.98)}
-.btn.dark{background:var(--ink);color:var(--paper)}
-.btn.dark:hover{background:#2a2a28}
-.btn.ghost{background:transparent;border:1px solid var(--ink);color:var(--ink)}
-.btn.ghost:hover{background:var(--line)}
-.btn.sm{font-size:14px;padding:9px 14px;border-radius:var(--r-sm)}
-.btn svg{width:18px;height:18px}
-.btn[disabled]{opacity:.45;cursor:not-allowed}
-.search-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap}
-.promo{display:flex;align-items:center;gap:8px;font-family:var(--f-head);font-size:14px}
-.promo input{border:1px dashed var(--mid);border-radius:var(--r-sm);padding:7px 10px;background:transparent;width:170px;text-transform:uppercase;font-family:var(--f-head);font-size:14px}
+.tab:hover{color:var(--night);background:var(--floor)}
+.tab[aria-selected="true"]{background:var(--sign);border-color:var(--night);color:var(--night)}
+.panel{padding:22px 26px 24px}
+.sentence{font-family:var(--f-display);font-weight:700;font-size:clamp(22px,2.7vw,34px);line-height:2;letter-spacing:-.02em;color:var(--night)}
+.sentence .w{color:#8A8FA0;font-weight:500}
+.bw{position:relative;display:inline-block;vertical-align:baseline}
+.blank{font:inherit;letter-spacing:inherit;color:var(--night);background:var(--sign-soft);border:0;border-bottom:3px solid var(--sign);border-radius:8px 8px 2px 2px;padding:0 .28em;margin:0 .06em;line-height:1.35;min-width:2ch;max-width:100%;outline:none;transition:background .15s,border-color .15s}
+.blank:hover{background:#FFEBA6}
+.blank:focus,.blank:focus-visible,.blank[aria-expanded="true"]{background:var(--sign);border-bottom-color:var(--night);outline:none}
+select.blank{appearance:none;-webkit-appearance:none;padding-right:1.05em;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%230E1526' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .3em center;background-size:.42em}
+.blank.err{border-bottom-color:var(--danger);background:#FDE2DF}
+.date-native{position:absolute;left:0;bottom:0;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0}
+.swap{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:50%;border:2px solid var(--night);background:var(--card);vertical-align:middle;margin:0 .1em;transition:transform .35s cubic-bezier(.2,.7,.2,1),background .15s}
+.swap:hover{transform:rotate(180deg);background:var(--sign)}
+.swap svg{width:17px;height:17px}
+.search-actions{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:18px;padding-top:18px;border-top:2px dashed var(--line);flex-wrap:wrap}
+.promo{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.promo label{font-weight:600;font-size:15px}
+.promo input{font-family:var(--f-mono);font-size:15px;text-transform:uppercase;border:2px dashed #b9b4a6;border-radius:var(--r-sm);padding:8px 12px;background:var(--floor);width:180px;min-height:44px}
+.promo input:focus{outline:none;border-color:var(--sky);border-style:solid}
 .promo-msg{font-size:14px;color:var(--muted)}
-.promo-msg.ok{color:var(--green)}
-.form-error{color:var(--danger);font-family:var(--f-head);font-size:14px;margin:10px 0 0}
+.promo-msg.ok{color:var(--ok);font-weight:600}
+.form-error{color:var(--danger);font-weight:600;font-size:15px;margin:12px 0 0}
 
-/* Autocompletar */
-.ac-list{position:absolute;left:-1px;right:-1px;top:calc(100% + 6px);z-index:30;background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--shadow);list-style:none;margin:0;padding:6px;max-height:320px;overflow:auto;min-width:280px}
-.ac-list li{display:flex;gap:12px;align-items:center;padding:9px 10px;border-radius:var(--r-sm);cursor:pointer}
-.ac-list li[aria-selected="true"],.ac-list li:hover{background:var(--line)}
-.ac-list .code{font-family:var(--f-head);font-weight:700;font-size:14px;background:var(--ink);color:var(--paper);border-radius:6px;padding:3px 7px;min-width:48px;text-align:center}
-.ac-list .city{font-family:var(--f-head);font-weight:500;font-size:15px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;font-family:var(--f-body);font-weight:700;font-size:16px;min-height:48px;padding:12px 22px;border-radius:var(--r-md);border:2px solid var(--night);background:var(--sign);color:var(--night);box-shadow:var(--hard);text-decoration:none;transition:transform .12s,box-shadow .12s,background .15s}
+.btn:hover{background:var(--sign-2)}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--night)}
+.btn.dark{background:var(--night);color:#fff}
+.btn.dark:hover{background:var(--night-2)}
+.btn.ghost{background:var(--card);box-shadow:none}
+.btn.ghost:hover{background:var(--floor)}
+.btn.sm{font-size:14px;min-height:40px;padding:8px 14px;box-shadow:3px 3px 0 var(--night)}
+.btn.big{font-size:18px;min-height:56px;padding:14px 28px}
+.btn svg{width:19px;height:19px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+
+/* Popovers (autocompletar / pasajeros) */
+.pop{position:fixed;z-index:var(--z-pop);background:var(--card);border:2px solid var(--night);border-radius:var(--r-md);box-shadow:var(--hard);font-family:var(--f-body);font-size:16px;line-height:1.4;letter-spacing:0;font-weight:400}
+.ac-list{list-style:none;margin:0;padding:6px;max-height:330px;overflow:auto}
+.ac-list li{display:flex;gap:12px;align-items:center;padding:9px 10px;border-radius:var(--r-sm);cursor:pointer;min-height:48px}
+.ac-list li[aria-selected="true"],.ac-list li:hover{background:var(--sign-soft)}
+.ac-list .code{font-family:var(--f-mono);font-weight:700;font-size:14px;background:var(--night);color:var(--sign);border-radius:6px;padding:4px 8px;min-width:50px;text-align:center}
+.ac-list .city{font-weight:700}
 .ac-list .ap{display:block;font-size:13px;color:var(--muted)}
-.ac-empty{padding:10px;color:var(--muted);font-size:14px}
-
-/* Pasajeros popover */
-.pax-pop{position:absolute;right:-1px;top:calc(100% + 6px);z-index:30;background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--shadow);padding:14px 16px;width:300px}
+.ac-empty{padding:12px;color:var(--muted);font-size:15px}
+.pax-pop{padding:10px 16px 14px;width:310px}
 .pax-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
 .pax-row:last-of-type{border-bottom:0}
-.pax-row .head{font-size:15px;font-weight:600}
+.pax-row .h{font-weight:700}
 .pax-row small{display:block;color:var(--muted);font-size:13px}
-.counter{display:flex;align-items:center;gap:12px}
-.counter button{width:32px;height:32px;border-radius:50%;border:1px solid var(--ink);background:transparent;font-family:var(--f-head);font-size:18px;line-height:1}
+.counter{display:flex;align-items:center;gap:10px}
+.counter button{width:40px;height:40px;border-radius:50%;border:2px solid var(--night);background:var(--card);font-size:20px;line-height:1;font-weight:600}
+.counter button:hover:not(:disabled){background:var(--sign)}
 .counter button:disabled{opacity:.3;cursor:not-allowed}
-.counter output{min-width:14px;text-align:center;font-family:var(--f-head);font-weight:600}
+.counter output{min-width:18px;text-align:center;font-family:var(--f-mono);font-weight:700;font-size:17px}
 .pax-note{font-size:13px;color:var(--muted);margin:6px 0 10px}
 
 /* Paneles secundarios */
-.mini-grid{display:grid;grid-template-columns:1fr 1fr auto;gap:10px}
-.status-card{margin-top:16px;border:1px solid var(--line);border-radius:var(--r-md);padding:16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
-.badge{font-family:var(--f-head);font-size:12px;font-weight:600;border-radius:999px;padding:4px 10px;background:var(--line);color:var(--ink);white-space:nowrap}
-.badge.green{background:#e3e8da;color:#3f4f2c}
-.badge.orange{background:#f6ddd2;color:#8a3d22}
-.badge.blue{background:#dde8f3;color:#2c4d70}
+.mini-grid{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
+.in label{display:block;font-weight:600;font-size:14px;margin-bottom:6px}
+.in input,.in select{width:100%;min-height:48px;border:2px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;background:var(--floor);font-size:16px}
+.in input:focus,.in select:focus{outline:none;border-color:var(--sky);background:var(--card)}
+.in input[aria-invalid="true"]{border-color:var(--danger);background:#FFF5F4}
+.in .msg{display:block;color:var(--danger);font-size:13px;font-weight:600;margin-top:4px}
+.in .code-in{font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.1em}
+.panel-intro{margin:0 0 16px;color:var(--muted)}
+.status-card{margin-top:16px;border:2px solid var(--night);border-radius:var(--r-md);padding:14px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:var(--floor)}
+.badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-mono);font-size:12px;font-weight:700;letter-spacing:.04em;border-radius:6px;padding:4px 9px;background:var(--floor);color:var(--night);white-space:nowrap;text-transform:uppercase}
+.badge.ok{background:var(--ok-soft);color:var(--ok)}
+.badge.warn{background:var(--warn-soft);color:var(--warn)}
+.badge.sky{background:var(--sky-soft);color:var(--sky)}
+.badge.sign{background:var(--sign);color:var(--night)}
 
 /* ---------- Secciones home ---------- */
-section.block{padding:72px 0 0}
-.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:26px;flex-wrap:wrap}
-.sec-head h2{font-size:clamp(28px,3.4vw,40px);font-weight:600}
-.sec-head p{margin:6px 0 0;color:var(--muted)}
-.deals{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.deal{position:relative;text-align:left;border:0;border-radius:var(--r-lg);padding:20px;min-height:230px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;color:var(--ink);transition:transform .25s cubic-bezier(.2,.7,.2,1)}
-.deal:hover{transform:translateY(-4px)}
-.deal .big{font-family:var(--f-head);font-weight:700;font-size:64px;letter-spacing:-.04em;line-height:.9;opacity:.95}
-.deal .city{font-family:var(--f-head);font-weight:600;font-size:19px}
-.deal .country{font-style:italic;font-size:15px}
-.deal .from{display:block;font-family:var(--f-head);font-size:13px;margin-top:10px}
-.deal .from b{font-size:24px;display:block}
-.deal .arrow{position:absolute;right:18px;bottom:18px;width:38px;height:38px;border-radius:50%;background:rgba(20,20,19,.1);display:grid;place-items:center;transition:background .2s}
-.deal:hover .arrow{background:var(--ink);color:var(--paper)}
-.deal .arrow svg{width:18px;height:18px}
-.deal.c0{background:var(--orange)}
-.deal.c1{background:var(--blue)}
-.deal.c2{background:var(--green);color:var(--paper)}
-.deal.c3{background:var(--ink);color:var(--paper)}
-.deal.c2 .arrow,.deal.c3 .arrow{background:rgba(250,249,245,.15)}
-.deal.c2:hover .arrow,.deal.c3:hover .arrow{background:var(--paper);color:var(--ink)}
-.perks{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--ink)}
-.perk{padding:24px 22px 8px 0;border-right:1px solid var(--line);margin-right:22px}
-.perk:last-child{border-right:0;margin-right:0}
-.perk .n{font-family:var(--f-head);font-size:13px;color:var(--orange-text);font-weight:600}
-.perk h3{font-size:19px;font-weight:600;margin:8px 0 6px}
-.perk p{margin:0;color:var(--muted);font-size:16px}
-.band{margin-top:72px;background:var(--line)}
-.band .wrap{display:flex;align-items:center;justify-content:space-between;gap:24px;padding-top:40px;padding-bottom:40px;flex-wrap:wrap}
-.band h2{font-size:clamp(24px,3vw,34px);font-weight:600;max-width:22ch}
-.band p{margin:6px 0 0;color:var(--muted)}
+section.block{padding:84px 0 0}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:30px;flex-wrap:wrap}
+.sec-head .eyebrow{color:var(--sky)}
+.sec-head h2{font-size:clamp(30px,3.8vw,48px);font-weight:800;letter-spacing:-.035em;margin-top:8px;max-width:20ch}
+.sec-head p{margin:0;color:var(--muted);max-width:34ch}
 
-footer{background:var(--ink);color:var(--mid);margin-top:0;padding:48px 0 32px;font-size:15px}
+/* Ofertas como etiquetas de equipaje */
+.deals{display:grid;grid-template-columns:repeat(4,1fr);gap:34px 22px;padding-top:26px}
+.deal{position:relative;background:none;border:0;padding:0;text-align:left;color:var(--night);transform-origin:50% -26px;transform:rotate(var(--rot,0deg));transition:transform .3s cubic-bezier(.2,.7,.2,1)}
+.deal:nth-child(4n+1){--rot:-2deg}.deal:nth-child(4n+2){--rot:1.5deg}.deal:nth-child(4n+3){--rot:-1deg}.deal:nth-child(4n+4){--rot:2deg}
+.deal:hover,.deal:focus-visible{animation:swing 1s ease-in-out}
+@keyframes swing{0%{transform:rotate(var(--rot))}25%{transform:rotate(5deg)}50%{transform:rotate(-3.5deg)}75%{transform:rotate(1.5deg)}100%{transform:rotate(0)}}
+.deal .string{position:absolute;left:50%;top:-28px;width:40px;height:44px;margin-left:-20px;overflow:visible;pointer-events:none}
+.deal .tagb{position:relative;display:flex;flex-direction:column;min-height:250px;padding:34px 18px 18px;border:2px solid var(--night);border-radius:12px;background:var(--c,#fff);box-shadow:var(--hard);
+  clip-path:polygon(22% 0,78% 0,100% 12%,100% 100%,0 100%,0 12%)}
+.deal .hole{position:absolute;top:12px;left:50%;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:var(--floor);border:2px solid var(--night)}
+.deal .code{font-family:var(--f-display);font-weight:800;font-size:58px;letter-spacing:-.05em;line-height:.9;margin-top:10px}
+.deal .city{font-weight:700;font-size:18px;margin-top:6px}
+.deal .country{font-size:14px;opacity:.85}
+.deal .foot{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;gap:8px;border-top:2px dashed currentColor;padding-top:12px}
+.deal .foot small{display:block;font-size:12px;font-weight:600;opacity:.85}
+.deal .price{font-family:var(--f-mono);font-weight:700;font-size:26px;line-height:1}
+.deal .dt{font-family:var(--f-mono);font-size:12px;font-weight:700;text-align:right}
+.deal.t0 .tagb{--c:var(--sign)}
+.deal.t1 .tagb{--c:#fff}
+.deal.t2 .tagb{--c:var(--sky);color:#fff}
+.deal.t3 .tagb{--c:var(--night);color:#fff}
+.deal.t3 .hole,.deal.t2 .hole{border-color:#fff}
+
+/* Beneficios como letreros de puerta */
+.gates{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.gate{background:var(--card);border:2px solid var(--night);border-radius:var(--r-md);padding:20px;display:flex;flex-direction:column;gap:10px}
+.gate .sgn{display:flex;align-items:center;gap:10px}
+.gate .sgn b{display:grid;place-items:center;width:52px;height:52px;background:var(--sign);border:2px solid var(--night);border-radius:8px;font-family:var(--f-mono);font-size:20px;font-weight:700}
+.gate h3{font-size:20px;font-weight:700;letter-spacing:-.02em}
+.gate p{margin:0;color:var(--muted);font-size:16px}
+.band{margin-top:84px;background:var(--sign);border-top:2px solid var(--night);border-bottom:2px solid var(--night)}
+.band .wrap{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-top:36px;padding-bottom:36px;flex-wrap:wrap}
+.band h2{font-size:clamp(26px,3.2vw,40px);font-weight:800;letter-spacing:-.035em}
+.band p{margin:6px 0 0}
+
+footer{background:var(--night);color:var(--mute-dark);padding:52px 0 30px;font-size:15px}
 footer .cols{display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:24px}
-footer h4{color:var(--paper);font-size:14px;font-weight:600;margin-bottom:10px}
+footer h4{color:#fff;font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px}
 footer ul{list-style:none;margin:0;padding:0}
-footer li{margin:6px 0}
-footer .logo{color:var(--paper)}
-footer .logo-mark{background:var(--orange)}
-footer .legal{border-top:1px solid #2e2e2b;margin-top:32px;padding-top:18px;font-size:13px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+footer li{margin:7px 0}
+footer .logo{color:#fff}
+footer .legal{border-top:1px solid #222c45;margin-top:34px;padding-top:18px;font-family:var(--f-mono);font-size:12px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 
-/* ---------- Flujo de reserva ---------- */
-.flow{padding-top:28px;padding-bottom:90px}
-.stepper{display:flex;gap:0;list-style:none;margin:0 0 26px;padding:0;counter-reset:s;overflow-x:auto}
-.stepper li{flex:1;min-width:120px;font-family:var(--f-head);font-size:14px;font-weight:500;color:var(--muted);padding:10px 0;border-top:3px solid var(--line);counter-increment:s;white-space:nowrap}
-.stepper li::before{content:counter(s) " · "}
-.stepper li.done{color:var(--ink);border-top-color:var(--ink)}
-.stepper li.now{color:var(--ink);border-top-color:var(--orange)}
-.flow-grid{display:grid;grid-template-columns:1fr 340px;gap:28px;align-items:start}
+/* ---------- Flujo ---------- */
+.flow{padding-top:26px;padding-bottom:110px}
+.flightpath{position:relative;margin:0 0 30px;--p:0}
+.stepper{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);position:relative;z-index:1}
+.stepper li{text-align:center;font-weight:600;font-size:14px;color:var(--muted);padding-top:34px;position:relative}
+.stepper li::before{content:"";position:absolute;top:10px;left:50%;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--floor);border:2px solid #b9b4a6}
+.stepper li.done{color:var(--night)}
+.stepper li.done::before{background:var(--night);border-color:var(--night)}
+.stepper li.now{color:var(--night);font-weight:800}
+.stepper li.now::before{background:var(--sign);border-color:var(--night);transform:scale(1.25)}
+.fp-track{position:absolute;top:16px;left:12.5%;right:12.5%;height:2px;background:repeating-linear-gradient(90deg,#b9b4a6 0 6px,transparent 6px 12px)}
+.fp-fill{position:absolute;left:0;top:0;height:2px;width:calc(var(--p)*100%);background:var(--night);transition:width .6s cubic-bezier(.2,.7,.2,1)}
+.fp-plane{position:absolute;top:-15px;left:calc(var(--p)*100%);width:32px;height:32px;margin-left:-16px;display:grid;place-items:center;background:var(--night);color:var(--sign);border-radius:50%;z-index:2;transition:left .6s cubic-bezier(.2,.7,.2,1)}
+.fp-plane svg{width:18px;height:18px;transform:rotate(90deg)}
+.flow-grid{display:grid;grid-template-columns:1fr 350px;gap:28px;align-items:start}
 .flow-grid > *{min-width:0}
-.flow-main h2{font-size:clamp(24px,3vw,32px);font-weight:600}
-.flow-main .sub{color:var(--muted);margin:6px 0 20px}
-.back{background:none;border:0;padding:0;font-family:var(--f-head);font-size:14px;color:var(--muted);display:inline-flex;gap:6px;align-items:center;margin-bottom:14px}
-.back:hover{color:var(--ink)}
-.back svg{width:16px;height:16px}
+.flow-main h2{font-size:clamp(28px,3.4vw,40px);font-weight:800;letter-spacing:-.035em}
+.flow-main .sub{color:var(--muted);margin:8px 0 22px}
+.flow-main .eyebrow{color:var(--sky)}
+.back{display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:6px 0;font-weight:600;font-size:15px;color:var(--muted);margin-bottom:12px;min-height:40px}
+.back:hover{color:var(--night)}
+.back svg{width:17px;height:17px}
 
 .date-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:18px}
-.day{border:1px solid var(--line);background:var(--card);border-radius:var(--r-sm);padding:10px 4px;text-align:center;font-family:var(--f-head)}
-.day small{display:block;font-size:12px;color:var(--muted);text-transform:capitalize}
-.day b{display:block;font-size:15px;margin-top:2px}
-.day.low b{color:var(--green)}
-.day[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.day[aria-pressed="true"] small,.day[aria-pressed="true"].low b{color:var(--line)}
+.day{border:2px solid var(--line);background:var(--card);border-radius:var(--r-sm);padding:9px 4px;text-align:center;min-height:60px}
+.day small{display:block;font-size:12px;color:var(--muted);text-transform:capitalize;font-weight:600}
+.day b{display:block;font-family:var(--f-mono);font-size:15px;margin-top:2px}
+.day.low{border-color:var(--ok)}
+.day.low b{color:var(--ok)}
+.day:hover:not(:disabled){border-color:var(--night)}
+.day[aria-pressed="true"]{background:var(--night);border-color:var(--night);color:#fff}
+.day[aria-pressed="true"] small{color:var(--mute-dark)}
+.day[aria-pressed="true"] b{color:var(--sign)}
 .day:disabled{opacity:.35;cursor:not-allowed}
-.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;font-family:var(--f-head);font-size:14px}
-.toolbar .chips{display:flex;gap:6px;flex-wrap:wrap}
-.toolbar .count{color:var(--muted)}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.pill{font-weight:600;font-size:14px;border:2px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;min-height:40px}
+.pill:hover{border-color:var(--night)}
+.pill[aria-pressed="true"]{background:var(--night);color:#fff;border-color:var(--night)}
+.count{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
 
-/* Tarjeta de vuelo estilo pase de abordar */
-.flight{position:relative;display:grid;grid-template-columns:1fr auto;background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:12px;transition:border-color .15s,box-shadow .2s}
-.flight:hover{border-color:var(--mid)}
-.flight.open{border-color:var(--ink);box-shadow:var(--shadow)}
+/* Tarjeta de vuelo */
+.flight{position:relative;display:grid;grid-template-columns:1fr 210px;background:var(--card);border:2px solid var(--line);border-radius:var(--r-md);margin-bottom:14px;transition:border-color .15s,box-shadow .2s}
+.flight:hover{border-color:var(--night)}
+.flight.open{border-color:var(--night);box-shadow:var(--hard)}
 .flight .body{padding:18px 22px;display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center}
-.flight .t{font-family:var(--f-head)}
-.flight .t b{font-size:26px;font-weight:600;display:block;line-height:1}
-.flight .t span{font-size:13px;color:var(--muted)}
-.flight .t sup{font-size:12px;color:var(--orange-text);font-weight:600;margin-left:2px}
-.flight .path{text-align:center;font-family:var(--f-head);font-size:13px;color:var(--muted);min-width:0}
-.flight .line{position:relative;height:1px;background:var(--mid);margin:8px 0}
-.flight .line i{position:absolute;top:-4px;width:9px;height:9px;border-radius:50%;background:var(--card);border:2px solid var(--orange);left:50%;margin-left:-4.5px}
-.flight .line::before,.flight .line::after{content:"";position:absolute;top:-3px;width:7px;height:7px;border-radius:50%;background:var(--ink)}
-.flight .line::before{left:0}.flight .line::after{right:0}
-.flight .meta{grid-column:1/-1;display:flex;gap:10px;flex-wrap:wrap;font-family:var(--f-head);font-size:13px;color:var(--muted);border-top:1px dashed var(--line);padding-top:12px;margin-top:-4px}
-.flight .stub{position:relative;border-left:2px dashed var(--line);padding:18px 22px;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;gap:8px;min-width:190px}
-.flight .stub::before,.flight .stub::after{content:"";position:absolute;left:-10px;width:18px;height:18px;border-radius:50%;background:var(--paper);border:1px solid var(--line)}
-.flight .stub::before{top:-10px;clip-path:inset(50% 0 0 0)}
-.flight .stub::after{bottom:-10px;clip-path:inset(0 0 50% 0)}
-.flight .stub small{font-family:var(--f-head);font-size:12px;color:var(--muted)}
-.flight .stub .price{font-family:var(--f-head);font-size:26px;font-weight:700;line-height:1}
-.seats-left{color:var(--orange-text) !important;font-weight:600}
-.fares{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 22px 22px;animation:rise .35s ease forwards}
-.fare{border:1px solid var(--line);border-radius:var(--r-md);padding:16px;display:flex;flex-direction:column;background:var(--paper);position:relative}
-.fare.hl{border:2px solid var(--orange)}
-.fare .tag{position:absolute;top:-11px;left:14px;background:var(--orange);color:var(--ink);font-family:var(--f-head);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px}
-.fare h4{font-size:18px;font-weight:600}
-.fare .fp{font-family:var(--f-head);font-size:24px;font-weight:700;margin:6px 0 10px}
-.fare .fp small{font-size:12px;font-weight:500;color:var(--muted)}
-.fare ul{list-style:none;padding:0;margin:0 0 14px;font-size:15px;flex:1}
-.fare li{display:flex;gap:8px;align-items:flex-start;padding:3px 0}
-.fare li svg{flex:none;width:16px;height:16px;margin-top:4px}
-.fare li.no{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--mid)}
-.chosen{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--line);border-radius:var(--r-md);padding:12px 16px;margin-bottom:18px;font-family:var(--f-head);font-size:14px;flex-wrap:wrap}
+.flight .t b{display:block;font-family:var(--f-mono);font-size:27px;font-weight:700;line-height:1}
+.flight .t span{font-family:var(--f-mono);font-size:13px;color:var(--muted);font-weight:700}
+.flight .t sup{font-size:12px;color:var(--warn);margin-left:2px}
+.flight .path{text-align:center;font-size:13px;color:var(--muted);font-weight:600;min-width:0}
+.flight .line{position:relative;height:2px;background:repeating-linear-gradient(90deg,var(--night) 0 5px,transparent 5px 9px);margin:8px 0}
+.flight .line i{position:absolute;top:-5px;left:50%;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:var(--sign);border:2px solid var(--night)}
+.flight .line::after{content:"";position:absolute;right:-2px;top:-5px;border:6px solid transparent;border-left:8px solid var(--night);border-right:0}
+.flight .meta{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted);border-top:2px dashed var(--line);padding-top:12px;margin-top:-4px}
+.flight .stub{position:relative;background:var(--night);color:#fff;border-radius:0 10px 10px 0;padding:18px 20px;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;gap:8px}
+.flight.open .stub{border-bottom-right-radius:0}
+.flight .stub::before,.flight .stub::after{content:"";position:absolute;left:-11px;width:20px;height:20px;border-radius:50%;background:var(--floor)}
+.flight .stub::before{top:-11px}.flight .stub::after{bottom:-11px}
+.flight .stub small{font-size:12px;color:var(--mute-dark)}
+.flight .stub .price{font-family:var(--f-mono);font-size:28px;font-weight:700;color:var(--sign);line-height:1}
+.flight .stub .btn{box-shadow:none;border-color:var(--sign)}
+.flight .stub .btn.dark{background:transparent;color:#fff;border-color:#fff}
+.fares{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:22px;border-top:2px solid var(--night);background:var(--floor);border-radius:0 0 10px 10px;animation:rise .35s ease forwards}
+.fare{position:relative;display:flex;flex-direction:column;background:var(--card);border:2px solid var(--night);border-radius:var(--r-md);overflow:hidden}
+.fare .fh{padding:14px 16px 12px;border-bottom:2px solid var(--night);background:var(--fc)}
+.fare.basic{--fc:#E7E4DC}.fare.classic{--fc:var(--sign)}.fare.flex{--fc:var(--sky)}
+.fare.flex .fh{color:#fff}
+.fare .tag{position:absolute;top:12px;right:12px;font-family:var(--f-mono);font-size:10.5px;font-weight:700;background:var(--night);color:var(--sign);padding:4px 8px;border-radius:5px;letter-spacing:.06em;text-transform:uppercase}
+.fare h4{font-size:20px;font-weight:800}
+.fare .fp{font-family:var(--f-mono);font-size:22px;font-weight:700;margin-top:4px}
+.fare .fp small{font-family:var(--f-body);font-size:12px;font-weight:600;opacity:.8}
+.fare ul{list-style:none;padding:14px 16px 6px;margin:0;font-size:15px;flex:1}
+.fare li{display:flex;gap:9px;align-items:flex-start;padding:3px 0}
+.fare li svg{flex:none;width:17px;height:17px;margin-top:3px}
+.fare li.no{color:#8A8FA0}
+.fare .btn{margin:8px 16px 16px}
+.chosen{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--ok-soft);border:2px solid var(--ok);border-radius:var(--r-md);padding:10px 14px;margin-bottom:18px;font-size:15px;flex-wrap:wrap}
 
 /* Formularios */
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);padding:20px;margin-bottom:16px}
-.card h3{font-size:18px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:10px}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.form-grid .full{grid-column:1/-1}
-.in label{display:block;font-family:var(--f-head);font-size:13px;font-weight:500;margin-bottom:5px}
-.in input,.in select{width:100%;border:1px solid var(--line);border-radius:var(--r-sm);padding:11px 12px;background:var(--paper);font-family:var(--f-head);font-size:15px}
-.in input:focus,.in select:focus{outline:none;border-color:var(--ink)}
-.in input[aria-invalid="true"]{border-color:var(--danger)}
-.in .msg{display:block;color:var(--danger);font-family:var(--f-head);font-size:12px;margin-top:4px;min-height:0}
-.phone{display:grid;grid-template-columns:110px 1fr;gap:8px}
-.actions{display:flex;justify-content:flex-end;gap:10px;margin-top:8px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:var(--r-md);padding:20px;margin:0 0 16px}
+fieldset.card{min-width:0}
+.card h3{font-size:19px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:10px;letter-spacing:-.01em}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.phone{display:grid;grid-template-columns:104px 1fr;gap:8px}
+.actions{display:flex;justify-content:flex-end;gap:10px;margin-top:10px}
 
 /* Extras */
-.seat-wrap{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:start}
-.plane{background:var(--paper);border:1px solid var(--line);border-radius:120px 120px 24px 24px;padding:44px 18px 18px}
-.seat-row{display:grid;grid-template-columns:repeat(3,30px) 22px repeat(3,30px);gap:5px;margin-bottom:5px;align-items:center}
-.seat-row .rn{text-align:center;font-family:var(--f-head);font-size:11px;color:var(--muted)}
-.seat{width:30px;height:30px;border-radius:7px 7px 4px 4px;border:1px solid var(--mid);background:var(--card);font-family:var(--f-head);font-size:10px;padding:0}
-.seat.plus{border-color:var(--blue);background:#eef3f9}
-.seat:disabled{background:var(--line);border-color:var(--line);color:transparent;cursor:not-allowed}
-.seat.mine{background:var(--orange);border-color:var(--orange);color:var(--ink);font-weight:700}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--f-head);font-size:13px;color:var(--muted);margin-top:12px}
-.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;border:1px solid var(--mid);vertical-align:-2px;margin-right:6px}
+.seat-wrap{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:start}
+.plane{background:var(--floor);border:2px solid var(--night);border-radius:130px 130px 22px 22px;padding:52px 16px 16px;position:relative}
+.plane::before{content:"";position:absolute;top:18px;left:50%;width:44px;height:10px;margin-left:-22px;border-radius:10px;background:var(--night);opacity:.15}
+.seat-row{display:grid;grid-template-columns:repeat(3,32px) 22px repeat(3,32px);gap:5px;margin-bottom:5px;align-items:center}
+.seat-row .rn{text-align:center;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.seat{width:32px;height:32px;border-radius:8px 8px 4px 4px;border:2px solid #9BA1B2;background:var(--card);font-family:var(--f-mono);font-size:11px;font-weight:700;padding:0}
+.seat:hover:not(:disabled){border-color:var(--night)}
+.seat.plus{border-color:var(--sky);background:var(--sky-soft)}
+.seat:disabled{background:#E2DFD7;border-color:#E2DFD7;cursor:not-allowed;background-image:linear-gradient(45deg,transparent 45%,#c9c5ba 45% 55%,transparent 55%)}
+.seat.mine{background:var(--sign);border-color:var(--night);color:var(--night)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:14px}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;border:2px solid #9BA1B2;vertical-align:-2px;margin-right:6px}
 .pax-tabs{display:flex;flex-direction:column;gap:8px}
-.pax-tab{text-align:left;border:1px solid var(--line);background:var(--paper);border-radius:var(--r-sm);padding:10px 12px;font-family:var(--f-head);font-size:14px;display:flex;justify-content:space-between;gap:8px}
-.pax-tab[aria-pressed="true"]{border-color:var(--ink);background:var(--card)}
-.pax-tab b{color:var(--orange-text)}
+.pax-tab{display:flex;justify-content:space-between;gap:8px;text-align:left;border:2px solid var(--line);background:var(--floor);border-radius:var(--r-sm);padding:10px 12px;font-weight:600;font-size:15px;min-height:46px}
+.pax-tab[aria-pressed="true"]{border-color:var(--night);background:var(--card);box-shadow:3px 3px 0 var(--night)}
+.pax-tab b{font-family:var(--f-mono);color:var(--sky)}
 .opt{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-.opt .t{display:flex;gap:14px;align-items:center}
-.opt .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none}
-.opt .ic svg{width:22px;height:22px}
+.opt .t{display:flex;gap:14px;align-items:center;flex:1;min-width:240px}
+.opt .ic{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;flex:none;border:2px solid var(--night)}
+.opt .ic svg{width:24px;height:24px}
+.opt .h{font-weight:700}
 .opt p{margin:2px 0 0;color:var(--muted);font-size:15px}
-.switch{position:relative;width:48px;height:28px;border-radius:999px;background:var(--mid);border:0;transition:background .2s;flex:none}
-.switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--paper);transition:transform .2s}
-.switch[aria-checked="true"]{background:var(--green)}
-.switch[aria-checked="true"]::after{transform:translateX(20px)}
+.switch{position:relative;width:56px;height:32px;border-radius:999px;background:#C9C5BA;border:2px solid var(--night);transition:background .2s;flex:none}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;background:#fff;border:2px solid var(--night);transition:transform .2s;box-sizing:border-box}
+.switch[aria-checked="true"]{background:var(--sign)}
+.switch[aria-checked="true"]::after{transform:translateX(24px)}
 
 /* Pago */
-.pay-opt{display:flex;gap:14px;align-items:flex-start;border:1px solid var(--line);border-radius:var(--r-md);padding:16px;margin-bottom:10px;cursor:pointer;background:var(--paper)}
-.pay-opt:has(input:checked){border-color:var(--ink);background:var(--card);box-shadow:inset 3px 0 0 var(--orange)}
-.pay-opt input{margin-top:5px;accent-color:var(--ink)}
-.pay-opt .head{font-size:16px;font-weight:600}
+.pay-opt{display:flex;gap:14px;align-items:flex-start;border:2px solid var(--line);border-radius:var(--r-md);padding:16px;margin-bottom:10px;cursor:pointer;background:var(--card)}
+.pay-opt:hover{border-color:var(--night)}
+.pay-opt:has(input:checked){border-color:var(--night);box-shadow:var(--hard);background:var(--sign-soft)}
+.pay-opt input{margin-top:5px;width:20px;height:20px;accent-color:var(--night);flex:none}
+.pay-opt .h{font-weight:700}
 .pay-opt p{margin:3px 0 0;color:var(--muted);font-size:15px}
-.trust{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--f-head);font-size:13px;color:var(--muted);margin:14px 0}
+.trust{display:flex;gap:18px;flex-wrap:wrap;font-size:14px;font-weight:600;color:var(--muted);margin:16px 0}
 .trust span{display:flex;gap:6px;align-items:center}
-.trust svg{width:16px;height:16px}
+.trust svg{width:17px;height:17px;color:var(--ok)}
 .check{display:flex;gap:10px;align-items:flex-start;font-size:15px}
-.check input{margin-top:5px;accent-color:var(--ink)}
+.check input{margin-top:3px;width:20px;height:20px;accent-color:var(--night);flex:none}
 
 /* Resumen */
-.summary{position:sticky;top:84px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden}
-.summary .top{background:var(--ink);color:var(--paper);padding:16px 18px}
-.summary .top .head{font-size:13px;font-weight:500;color:var(--mid);letter-spacing:.08em;text-transform:uppercase}
-.summary .top .rt{font-family:var(--f-head);font-size:22px;font-weight:700;margin-top:4px;display:flex;gap:10px;align-items:center}
-.summary .top .rt svg{width:18px;height:18px;color:var(--orange)}
-.summary .sec{padding:14px 18px;border-bottom:1px dashed var(--line);font-size:15px}
-.summary .leg{font-family:var(--f-head);font-size:14px}
-.summary .leg small{display:block;color:var(--muted);font-size:12px}
-.summary .row{display:flex;justify-content:space-between;gap:10px;font-family:var(--f-head);font-size:14px;padding:3px 0}
-.summary .row span:first-child{color:var(--muted)}
-.summary .row.disc span{color:var(--green)}
-.summary .total{display:flex;justify-content:space-between;align-items:baseline;padding:16px 18px}
-.summary .total b{font-family:var(--f-head);font-size:28px}
-.timer{display:flex;gap:8px;align-items:center;font-family:var(--f-head);font-size:13px;padding:10px 18px;background:#f6ddd2;color:#8a3d22}
-.timer svg{width:16px;height:16px}
-.empty{color:var(--muted);font-style:italic}
+.summary{position:sticky;top:84px;background:var(--night);color:#fff;border-radius:var(--r-lg);overflow:hidden;border:2px solid var(--night);box-shadow:var(--hard)}
+.summary .top{padding:18px 20px 14px;border-bottom:2px dashed #2d3858}
+.summary .top .eyebrow{color:var(--sign)}
+.summary .rt{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:30px;font-weight:700;margin-top:6px}
+.summary .rt svg{width:20px;height:20px;color:var(--sign)}
+.summary .sec{padding:14px 20px;border-bottom:1px solid #222c45;font-size:15px}
+.summary .leg{font-weight:600;font-size:15px;margin-bottom:8px}
+.summary .leg:last-child{margin-bottom:0}
+.summary .leg small{display:block;color:var(--mute-dark);font-size:13px;font-weight:500}
+.summary .row{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:3px 0}
+.summary .row span:first-child{color:var(--mute-dark)}
+.summary .row span:last-child{font-family:var(--f-mono)}
+.summary .row.disc span{color:var(--ok-led)}
+.summary .total{display:flex;justify-content:space-between;align-items:baseline;padding:16px 20px;background:#0a0f1c}
+.summary .total b{font-family:var(--f-mono);font-size:28px;color:var(--sign)}
+.timer{display:flex;gap:8px;align-items:center;font-size:13px;font-weight:600;padding:10px 20px;background:var(--sign);color:var(--night)}
+.timer svg{width:16px;height:16px;flex:none}
+.timer button{background:none;border:0;padding:0;font:inherit;font-weight:800;text-decoration:underline;color:inherit}
+.empty{color:var(--mute-dark);font-style:italic}
+.card.empty{color:var(--muted)}
 .mobile-total{display:none}
 
-/* Confirmación */
-.done{padding-top:48px;padding-bottom:90px}
-.pass{display:grid;grid-template-columns:1fr 260px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);overflow:hidden;max-width:920px;margin:26px auto 0}
-.pass .main{padding:28px}
-.pass .stub{position:relative;background:var(--ink);color:var(--paper);padding:28px;display:flex;flex-direction:column;justify-content:space-between;border-left:2px dashed var(--mid)}
-.pnr{font-family:var(--f-head);font-weight:700;font-size:44px;letter-spacing:.12em;color:var(--orange)}
-.pass .legs{display:grid;gap:14px;margin:18px 0}
-.pass .lg{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;font-family:var(--f-head)}
-.pass .lg b{font-size:28px;font-weight:700}
-.pass .lg .mid{text-align:center;font-size:12px;color:var(--muted)}
-.pass .lg .mid .line{height:1px;background:var(--mid);margin:6px 0}
-.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;border-top:1px dashed var(--line);padding-top:14px}
-.kv small{display:block;font-family:var(--f-head);font-size:12px;color:var(--muted)}
-.kv span{font-family:var(--f-head);font-weight:600;font-size:15px}
-.barcode{height:56px;background:repeating-linear-gradient(90deg,var(--paper) 0 2px,transparent 2px 4px,var(--paper) 4px 5px,transparent 5px 9px,var(--paper) 9px 12px,transparent 12px 14px);opacity:.9;border-radius:4px}
-.done-actions{display:flex;justify-content:center;gap:10px;margin-top:22px;flex-wrap:wrap}
+/* Confirmación / pase de abordar */
+.done{padding-top:44px;padding-bottom:100px}
+.done-head{text-align:center}
+.done-head .eyebrow{color:var(--sky)}
+.done-head h2{font-size:clamp(30px,4.6vw,54px);font-weight:800;letter-spacing:-.04em;margin:10px 0 8px}
+.done-head p{color:var(--muted);margin:0}
+.pass{position:relative;display:grid;grid-template-columns:1fr 270px;background:var(--card);border:2px solid var(--night);border-radius:var(--r-lg);box-shadow:8px 8px 0 var(--night);max-width:940px;margin:30px auto 0}
+.pass .main{position:relative;padding:28px}
+.pass .brandline{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.pass .brandline .logo{color:var(--night)}
+.pass .brandline .logo b{font-size:21px}
+.pass .legs{display:grid;gap:16px}
+.pass .lg{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
+.pass .lg b{font-family:var(--f-mono);font-size:34px;font-weight:700;line-height:1}
+.pass .lg .hr{font-family:var(--f-mono);font-size:14px;color:var(--muted);font-weight:700}
+.pass .lg .mid{text-align:center;font-size:12px;color:var(--muted);font-weight:600}
+.pass .lg .mid .line{height:2px;background:repeating-linear-gradient(90deg,var(--night) 0 5px,transparent 5px 9px);margin:6px 0}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;border-top:2px dashed var(--line);padding-top:16px;margin-top:18px}
+.kv small{display:block;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.kv span{font-weight:700;font-size:15px}
+.pass .stub{position:relative;background:var(--night);color:#fff;border-radius:0 16px 16px 0;padding:26px;display:flex;flex-direction:column;justify-content:space-between;gap:18px}
+.pass .stub::before,.pass .stub::after{content:"";position:absolute;left:-13px;width:24px;height:24px;border-radius:50%;background:var(--floor);border:2px solid var(--night)}
+.pass .stub::before{top:-13px;clip-path:inset(50% 0 0 0)}
+.pass .stub::after{bottom:-13px;clip-path:inset(0 0 50% 0)}
+.pnr{font-family:var(--f-mono);font-weight:700;font-size:40px;letter-spacing:.14em;color:var(--sign);line-height:1.1}
+.qr{width:128px;height:128px;background:#fff;padding:8px;border-radius:8px}
+.stamp{position:absolute;top:22px;right:26px;font-family:var(--f-mono);font-weight:700;font-size:18px;letter-spacing:.12em;padding:6px 12px;border:3px double currentColor;border-radius:8px;transform:rotate(-12deg);opacity:0;animation:stamp .5s .35s cubic-bezier(.2,.9,.3,1.4) forwards}
+.stamp.ok{color:var(--ok)}.stamp.held{color:var(--warn)}
+@keyframes stamp{from{opacity:0;transform:rotate(-12deg) scale(1.8)}to{opacity:.9;transform:rotate(-12deg) scale(1)}}
+.done-actions{display:flex;justify-content:center;gap:12px;margin-top:28px;flex-wrap:wrap}
+.btn.wa{background:#25D366}
+.btn.wa:hover{background:#1fbd5a}
 
 /* Overlay y toast */
-.overlay{position:fixed;inset:0;z-index:80;background:rgba(20,20,19,.72);display:grid;place-items:center;color:var(--paper);font-family:var(--f-head)}
-.overlay .box{text-align:center}
-.spinner{width:46px;height:46px;border-radius:50%;border:3px solid rgba(250,249,245,.25);border-top-color:var(--orange);margin:0 auto 16px;animation:spin .8s linear infinite}
+.overlay{position:fixed;inset:0;z-index:var(--z-overlay);background:rgba(14,21,38,.6);display:grid;place-items:center;color:#fff}
+.overlay .box{text-align:center;background:var(--night);border:2px solid var(--sign);border-radius:var(--r-lg);padding:28px 32px;font-weight:700}
+.spinner{width:48px;height:48px;border-radius:50%;border:4px solid #2d3858;border-top-color:var(--sign);margin:0 auto 16px;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:var(--ink);color:var(--paper);font-family:var(--f-head);font-size:14px;padding:12px 18px;border-radius:var(--r-md);z-index:90;transition:transform .3s,opacity .3s;max-width:calc(100% - 32px);opacity:0;pointer-events:none}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:var(--night);color:#fff;font-weight:600;font-size:15px;padding:12px 18px;border-radius:var(--r-md);border:2px solid var(--sign);z-index:var(--z-toast);transition:transform .3s,opacity .3s;max-width:calc(100% - 32px);opacity:0;pointer-events:none}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 
 /* ---------- Responsive ---------- */
 @media (max-width:1040px){
-  .search-grid,.search-grid.oneway{grid-template-columns:1fr auto 1fr}
-  .search-grid .f-dep,.search-grid .f-ret{grid-column:span 1}
-  .search-grid .f-dep{grid-column:1}
-  .search-grid .f-ret{grid-column:3}
-  .search-grid.oneway .f-dep{grid-column:1/-1}
-  .search-grid .f-pax,.search-grid .f-cls{grid-column:span 1}
-  .search-grid .f-pax{grid-column:1}
-  .search-grid .f-cls{grid-column:3}
-  .search-grid .go{grid-column:1/-1}
+  .hero .wrap{grid-template-columns:1fr;gap:30px}
   .deals{grid-template-columns:repeat(2,1fr)}
-  .perks{grid-template-columns:repeat(2,1fr)}
-  .perk:nth-child(2){border-right:0;margin-right:0}
+  .gates{grid-template-columns:repeat(2,1fr)}
   .flow-grid{grid-template-columns:1fr}
-  .summary{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:50;border-radius:var(--r-lg) var(--r-lg) 0 0;max-height:80vh;overflow:auto;transform:translateY(100%);transition:transform .3s;box-shadow:0 -10px 40px rgba(20,20,19,.25)}
+  .summary{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:var(--z-sheet);border-radius:var(--r-lg) var(--r-lg) 0 0;max-height:80dvh;overflow:auto;transform:translateY(105%);transition:transform .3s;box-shadow:0 -12px 40px rgba(14,21,38,.35)}
   .summary.open{transform:none}
-  .mobile-total{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:45;background:var(--ink);color:var(--paper);padding:12px 20px;justify-content:space-between;align-items:center;font-family:var(--f-head)}
-  .mobile-total b{font-size:20px}
-  .mobile-total button{background:var(--orange);border:0;color:var(--ink);border-radius:var(--r-sm);padding:9px 14px;font-weight:600;font-size:14px}
+  .mobile-total{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:calc(var(--z-sheet) - 1);background:var(--night);color:#fff;padding:12px 20px;justify-content:space-between;align-items:center;border-top:2px solid var(--sign)}
+  .mobile-total small{display:block;font-size:12px;color:var(--mute-dark)}
+  .mobile-total b{font-family:var(--f-mono);font-size:21px;color:var(--sign)}
+  .mobile-total button{background:var(--sign);border:2px solid var(--sign);color:var(--night);border-radius:var(--r-sm);padding:10px 16px;font-weight:700;font-size:15px;min-height:44px}
 }
 @media (max-width:760px){
   body{font-size:16px}
   .nav{display:none}
   .locale{margin-left:auto}
-  .hero{padding:36px 0 130px}
-  .hero .wrap{grid-template-columns:1fr;gap:18px}
-  .route svg{height:80px}
-  .panel{padding:16px}
-  .search-grid,.search-grid.oneway{grid-template-columns:1fr}
-  .search-grid .swap{justify-self:end;margin:-28px 12px -28px 0;position:relative;z-index:2;transform:rotate(90deg)}
-  .search-grid > *{grid-column:1 !important}
+  .hero{padding:36px 0 110px}
+  .hero .lead{font-size:17px}
+  .b-head,.b-row{grid-template-columns:5fr 11fr 9fr}
+  .c-fl,.c-gt,.h-fl,.h-gt{display:none !important}
+  .ch{height:22px;font-size:12.5px}
+  .board{padding:12px 10px 10px}
+  .board-clock{font-size:17px}
+  .panel{padding:18px 16px 20px}
+  .sentence{line-height:2.05}
   .mini-grid{grid-template-columns:1fr}
-  .deals{grid-template-columns:1fr 1fr;gap:10px}
-  .deal{min-height:180px;padding:16px}
-  .deal .big{font-size:44px}
-  .perks{grid-template-columns:1fr}
-  .perk{border-right:0;margin-right:0;border-bottom:1px solid var(--line);padding-bottom:18px}
+  .search-actions .btn{width:100%}
+  .promo input{flex:1;min-width:0}
+  .deals{gap:34px 14px}
+  .deal .tagb{min-height:210px;padding:32px 14px 14px}
+  .deal .code{font-size:42px}
+  .deal .price{font-size:21px}
+  .gates{grid-template-columns:1fr}
   footer .cols{grid-template-columns:1fr 1fr}
-  .date-strip{grid-template-columns:repeat(7,minmax(64px,1fr));overflow-x:auto}
-  .stepper li{min-width:0;font-size:12px}
+  .stepper li{font-size:12px}
+  .date-strip{grid-template-columns:repeat(7,minmax(62px,1fr));overflow-x:auto;padding-bottom:4px}
   .flight{grid-template-columns:1fr}
   .flight .body{padding:16px;gap:10px}
-  .flight .t b{font-size:22px}
-  .flight .stub{border-left:0;border-top:2px dashed var(--line);flex-direction:row;justify-content:space-between;align-items:center;min-width:0;padding:14px 16px}
+  .flight .t b{font-size:23px}
+  .flight .stub{border-radius:0 0 10px 10px;flex-direction:row;flex-wrap:wrap;justify-content:space-between;align-items:center;padding:14px 16px}
+  .flight.open .stub{border-radius:0}
   .flight .stub::before,.flight .stub::after{display:none}
-  .fares{grid-template-columns:1fr;padding:0 16px 16px}
+  .fares{grid-template-columns:1fr;padding:16px}
   .form-grid{grid-template-columns:1fr}
   .seat-wrap{grid-template-columns:1fr}
   .plane{justify-self:center}
-  .pass{grid-template-columns:1fr}
-  .pass .stub{border-left:0;border-top:2px dashed var(--mid);gap:16px}
+  .pass{grid-template-columns:1fr;box-shadow:5px 5px 0 var(--night)}
+  .pass .main{padding:22px 18px}
+  .pass .stub{border-radius:0 0 16px 16px;flex-direction:row;align-items:center;flex-wrap:wrap}
+  .pass .stub::before,.pass .stub::after{display:none}
+  .pass .lg b{font-size:28px}
   .kv{grid-template-columns:1fr 1fr}
-  .pnr{font-size:34px}
+  .pnr{font-size:32px}
+  .qr{width:104px;height:104px}
+  .stamp{font-size:14px;top:14px;right:14px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
   .reveal{opacity:1;transform:none}
+  .stamp{opacity:.9}
 }
 @media print{
-  .demo-bar,.site-header,footer,.done-actions,.mobile-total,.toast{display:none !important}
+  .tape,.site-header,footer,.done-actions,.mobile-total,.toast{display:none !important}
   body{background:#fff}
 }
 </style>
 </head>
 <body>
 
-<div class="demo-bar" role="note">Prototipo de demostración · vuelos y precios simulados · no se realizan cobros</div>
+<div class="tape" role="note"><span>DEMO · VUELOS Y PRECIOS SIMULADOS · NO SE REALIZAN COBROS</span></div>
 
-<header class="site-header">
+<header class="site-header dark">
   <div class="wrap">
-    <button class="logo" data-go="home" aria-label="Reservas.web, ir al inicio">
-      <span class="logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#faf9f5" stroke-width="2" stroke-linecap="round"><path d="M3 17c4-8 14-8 18 0"/><circle cx="12" cy="9" r="2" fill="#d97757" stroke="none"/></svg></span>
-      <span>Reservas<b>.web</b></span>
+    <!-- LOGO: reemplazar este SVG por el logo final (también en footer y en ICON.logo del script) -->
+    <button class="logo" data-go="home" aria-label="Estela, ir al inicio">
+      <svg viewBox="0 0 44 22" fill="none" aria-hidden="true"><path d="M2 18C12 18 18 6 34 5" stroke="#FFC629" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 6"/><path d="M14 16C20 14 25 7 34 5" stroke="#FFC629" stroke-width="3" stroke-linecap="round"/><circle cx="37" cy="5" r="3.5" fill="#fff"/></svg>
+      <b>estela</b>
     </button>
     <nav class="nav" aria-label="Principal">
       <button data-go="home">Reservar</button>
@@ -440,24 +525,22 @@ footer .legal{border-top:1px solid #2e2e2b;margin-top:32px;padding-top:18px;font
 <main>
 <!-- =================== INICIO =================== -->
 <section id="view-home">
-  <div class="hero">
+  <div class="hero dark">
     <div class="wrap">
       <div>
-        <div class="eyebrow reveal d1">Vuelos · Centroamérica y el mundo</div>
-        <h1 class="reveal d2">Elige el destino. <em>Nosotros ordenamos el resto.</em></h1>
-        <p class="lead reveal d3">Tarifas claras desde el primer clic, sin cargos sorpresa, y la confirmación llega a tu WhatsApp.</p>
+        <div class="eyebrow reveal d1">Terminal Estela · Salidas internacionales</div>
+        <h1 class="reveal d2">¿A dónde te lleva el próximo <mark>semestre</mark>?</h1>
+        <p class="lead reveal d3">Arma tu viaje escribiendo una frase. Compara tarifas, elige asiento y recibe tu pase de abordar, sin pagar un centavo: todo es simulado.</p>
+        <div class="stats reveal d4"><span><b>23</b> aeropuertos</span><span><b>3</b> tarifas claras</span><span><b>$0</b> cobros reales</span></div>
       </div>
-      <div class="route reveal d4" aria-hidden="true">
-        <div class="route-codes">
-          <div class="route-code"><b id="hero-o">SAL</b><span id="hero-oc">San Salvador</span></div>
-          <div class="route-code dest"><b id="hero-d">BOG</b><span id="hero-dc">Bogotá</span></div>
+      <div class="board reveal d3" aria-label="Tablero de salidas">
+        <div class="board-top">
+          <div class="t"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.5 19h19v2h-19zM22 9.5c-.3-1.1-1.4-1.7-2.4-1.4L14.3 9.5 7.4 3l-1.9.5 4.1 7.2-5 1.3-2-1.5-1.5.4 1.8 3.2.8 1.3 1.6-.4 5.3-1.4 4.4-1.2 5.3-1.4c1.1-.3 1.7-1.4 1.4-2.5z"/></svg><h2>SALIDAS<small>DEPARTURES</small></h2></div>
+          <div class="board-clock" id="clock" aria-hidden="true">--:--</div>
         </div>
-        <svg viewBox="0 0 500 120" preserveAspectRatio="none">
-          <path id="arc" class="arc" d="M10 105 Q250 -30 490 105"/>
-          <circle r="7" fill="#faf9f5"><animateMotion dur="4s" repeatCount="indefinite" rotate="auto"><mpath href="#arc"/></animateMotion></circle>
-          <circle cx="10" cy="105" r="5" fill="#d97757"/><circle cx="490" cy="105" r="5" fill="#d97757"/>
-        </svg>
-        <div class="route-meta"><span id="hero-km">2 024 km</span><span>·</span><span id="hero-dur">≈ 3 h 10 min</span></div>
+        <div class="b-head" aria-hidden="true"><span>HORA</span><span>DESTINO</span><span class="h-fl">VUELO</span><span class="h-gt">PTA</span><span>ESTADO</span></div>
+        <div id="board-rows"></div>
+        <div class="board-foot"><span>SAN SALVADOR · SAL</span><span>Toca un vuelo para buscarlo</span></div>
       </div>
     </div>
   </div>
@@ -465,74 +548,56 @@ footer .legal{border-top:1px solid #2e2e2b;margin-top:32px;padding-top:18px;font
   <div class="wrap widget-wrap">
     <div class="widget">
       <div class="tabs" role="tablist" aria-label="Opciones">
-        <button class="tab" role="tab" id="tab-book" aria-controls="panel-book" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 16l20-6-3-3-7 2-6-5-2 1 4 6-4 1-2-2-1 1z"/></svg>Reservar vuelo</button>
-        <button class="tab" role="tab" id="tab-checkin" aria-controls="panel-checkin" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Check-in</button>
-        <button class="tab" role="tab" id="tab-trips" aria-controls="panel-trips" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Mis viajes</button>
-        <button class="tab" role="tab" id="tab-status" aria-controls="panel-status" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Estado de vuelo</button>
+        <button class="tab" role="tab" id="tab-book" aria-controls="panel-book" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 16l20-6-3-3-7 2-6-5-2 1 4 6-4 1-2-2-1 1z"/></svg>Reservar vuelo</button>
+        <button class="tab" role="tab" id="tab-checkin" aria-controls="panel-checkin" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Check-in</button>
+        <button class="tab" role="tab" id="tab-trips" aria-controls="panel-trips" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Mis viajes</button>
+        <button class="tab" role="tab" id="tab-status" aria-controls="panel-status" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Estado de vuelo</button>
       </div>
 
-      <!-- Reservar -->
+      <!-- Reservar: buscador en forma de frase -->
       <form class="panel" id="panel-book" role="tabpanel" aria-labelledby="tab-book" novalidate>
-        <div class="trip-type" role="group" aria-label="Tipo de viaje">
-          <button type="button" class="pill" data-trip="rt" aria-pressed="true">Ida y vuelta</button>
-          <button type="button" class="pill" data-trip="ow" aria-pressed="false">Solo ida</button>
+        <div class="sentence" id="sentence">
+          <span class="w">Quiero volar de</span>
+          <span class="bw" id="f-from"><input id="in-from" class="blank" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ac-from" aria-label="Ciudad de origen" spellcheck="false"></span>
+          <button type="button" class="swap" id="swap" aria-label="Intercambiar origen y destino"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg></button>
+          <span class="w">a</span>
+          <span class="bw" id="f-to"><input id="in-to" class="blank" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ac-to" aria-label="Ciudad de destino" spellcheck="false"></span><span class="w">,</span>
+          <span class="bw"><select id="in-trip" class="blank" aria-label="Tipo de viaje"><option value="rt">ida y vuelta</option><option value="ow">solo ida</option></select></span><span class="w">,</span>
+          <span class="w">saliendo el</span>
+          <span class="bw"><button type="button" class="blank" id="dep-btn"></button><input type="date" id="in-dep" class="date-native" tabindex="-1" aria-hidden="true"></span>
+          <span id="ret-part"><span class="w">y volviendo el</span>
+          <span class="bw"><button type="button" class="blank" id="ret-btn"></button><input type="date" id="in-ret" class="date-native" tabindex="-1" aria-hidden="true"></span></span><span class="w">,</span>
+          <span class="w">para</span>
+          <span class="bw" id="f-pax"><button type="button" class="blank" id="pax-btn" aria-haspopup="dialog" aria-expanded="false">1 adulto</button></span>
+          <span class="w">en</span>
+          <span class="bw"><select id="in-cls" class="blank" aria-label="Cabina"><option value="eco">Económica</option><option value="bus">Business</option></select></span><span class="w">.</span>
         </div>
-        <div class="search-grid" id="search-grid">
-          <div class="field f-from" id="f-from">
-            <label for="in-from">Desde</label>
-            <input id="in-from" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ac-from" placeholder="Ciudad o aeropuerto">
-            <span class="sub" id="sub-from"></span>
-            <ul class="ac-list" id="ac-from" role="listbox" hidden></ul>
-          </div>
-          <button type="button" class="swap" id="swap" aria-label="Intercambiar origen y destino"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg></button>
-          <div class="field f-to" id="f-to">
-            <label for="in-to">Hacia</label>
-            <input id="in-to" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ac-to" placeholder="Ciudad o aeropuerto">
-            <span class="sub" id="sub-to"></span>
-            <ul class="ac-list" id="ac-to" role="listbox" hidden></ul>
-          </div>
-          <div class="field f-dep">
-            <label for="in-dep">Ida</label>
-            <input type="date" id="in-dep">
-          </div>
-          <div class="field f-ret">
-            <label for="in-ret">Regreso</label>
-            <input type="date" id="in-ret">
-          </div>
-          <div class="field f-pax" id="f-pax">
-            <span class="lbl" id="lbl-pax">Pasajeros</span>
-            <button type="button" class="val" id="pax-btn" aria-haspopup="dialog" aria-expanded="false" aria-labelledby="lbl-pax pax-btn" style="text-align:left;border:0;background:none;padding:2px 0 0">1 adulto</button>
-            <div class="pax-pop" id="pax-pop" role="dialog" aria-label="Seleccionar pasajeros" hidden>
-              <div class="pax-row"><div><div class="head">Adultos</div><small>12 años o más</small></div><div class="counter" data-k="a"><button type="button" aria-label="Quitar adulto">−</button><output>1</output><button type="button" aria-label="Agregar adulto">+</button></div></div>
-              <div class="pax-row"><div><div class="head">Niños</div><small>2 a 11 años</small></div><div class="counter" data-k="c"><button type="button" aria-label="Quitar niño">−</button><output>0</output><button type="button" aria-label="Agregar niño">+</button></div></div>
-              <div class="pax-row"><div><div class="head">Infantes</div><small>Menores de 2 años, en brazos</small></div><div class="counter" data-k="i"><button type="button" aria-label="Quitar infante">−</button><output>0</output><button type="button" aria-label="Agregar infante">+</button></div></div>
-              <p class="pax-note">Máximo 9 pasajeros por reserva. Un infante por cada adulto.</p>
-              <button type="button" class="btn dark sm" id="pax-ok" style="width:100%">Listo</button>
-            </div>
-          </div>
-          <div class="field f-cls">
-            <label for="in-cls">Cabina</label>
-            <select id="in-cls"><option value="eco">Económica</option><option value="bus">Business</option></select>
-          </div>
-          <button type="submit" class="btn go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>Buscar vuelos</button>
+        <ul class="pop ac-list" id="ac-from" role="listbox" aria-label="Aeropuertos de origen" hidden></ul>
+        <ul class="pop ac-list" id="ac-to" role="listbox" aria-label="Aeropuertos de destino" hidden></ul>
+        <div class="pop pax-pop" id="pax-pop" role="dialog" aria-label="Seleccionar pasajeros" hidden>
+          <div class="pax-row"><div><div class="h">Adultos</div><small>12 años o más</small></div><div class="counter" data-k="a"><button type="button" aria-label="Quitar adulto">−</button><output>1</output><button type="button" aria-label="Agregar adulto">+</button></div></div>
+          <div class="pax-row"><div><div class="h">Niños</div><small>2 a 11 años</small></div><div class="counter" data-k="c"><button type="button" aria-label="Quitar niño">−</button><output>0</output><button type="button" aria-label="Agregar niño">+</button></div></div>
+          <div class="pax-row"><div><div class="h">Infantes</div><small>Menores de 2 años, en brazos</small></div><div class="counter" data-k="i"><button type="button" aria-label="Quitar infante">−</button><output>0</output><button type="button" aria-label="Agregar infante">+</button></div></div>
+          <p class="pax-note">Máximo 9 pasajeros. Un infante por cada adulto.</p>
+          <button type="button" class="btn dark sm" id="pax-ok" style="width:100%">Listo</button>
         </div>
         <p class="form-error" id="search-err" role="alert" hidden></p>
-        <div class="search-foot">
+        <div class="search-actions">
           <div class="promo">
-            <label for="in-promo">Código promocional</label>
-            <input id="in-promo" placeholder="Ej. BIENVENIDO10" maxlength="16">
+            <label for="in-promo">¿Código promocional?</label>
+            <input id="in-promo" placeholder="BIENVENIDO10" maxlength="16" autocomplete="off">
             <span class="promo-msg" id="promo-msg" aria-live="polite"></span>
           </div>
-          <span class="promo-msg">Precios por persona en USD, con impuestos estimados.</span>
+          <button type="submit" class="btn big">Buscar vuelos <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
         </div>
       </form>
 
       <!-- Check-in -->
       <form class="panel" id="panel-checkin" role="tabpanel" aria-labelledby="tab-checkin" hidden novalidate>
-        <p style="margin:0 0 14px;color:var(--muted)">El check-in en línea abre 48 horas y cierra 1 hora antes de la salida.</p>
+        <p class="panel-intro">El check-in en línea abre 48 horas y cierra 1 hora antes de la salida.</p>
         <div class="mini-grid">
-          <div class="field"><label for="ci-code">Código de reserva</label><input id="ci-code" maxlength="6" placeholder="Ej. K7Q2MX" style="text-transform:uppercase"></div>
-          <div class="field"><label for="ci-last">Apellido</label><input id="ci-last" placeholder="Como aparece en la reserva"></div>
+          <div class="in"><label for="ci-code">Código de reserva</label><input id="ci-code" class="code-in" maxlength="6" placeholder="K7Q2MX"></div>
+          <div class="in"><label for="ci-last">Apellido</label><input id="ci-last" autocomplete="family-name"></div>
           <button class="btn dark" type="submit">Hacer check-in</button>
         </div>
         <div id="ci-out" aria-live="polite"></div>
@@ -540,10 +605,10 @@ footer .legal{border-top:1px solid #2e2e2b;margin-top:32px;padding-top:18px;font
 
       <!-- Mis viajes -->
       <form class="panel" id="panel-trips" role="tabpanel" aria-labelledby="tab-trips" hidden novalidate>
-        <p style="margin:0 0 14px;color:var(--muted)">Consulta, cambia o completa el pago de una reserva.</p>
+        <p class="panel-intro">Consulta tu itinerario o completa el pago de una reserva apartada.</p>
         <div class="mini-grid">
-          <div class="field"><label for="tr-code">Código de reserva</label><input id="tr-code" maxlength="6" placeholder="Ej. K7Q2MX" style="text-transform:uppercase"></div>
-          <div class="field"><label for="tr-last">Apellido</label><input id="tr-last" placeholder="Como aparece en la reserva"></div>
+          <div class="in"><label for="tr-code">Código de reserva</label><input id="tr-code" class="code-in" maxlength="6" placeholder="K7Q2MX"></div>
+          <div class="in"><label for="tr-last">Apellido</label><input id="tr-last" autocomplete="family-name"></div>
           <button class="btn dark" type="submit">Buscar reserva</button>
         </div>
         <div id="tr-out" aria-live="polite"></div>
@@ -551,9 +616,10 @@ footer .legal{border-top:1px solid #2e2e2b;margin-top:32px;padding-top:18px;font
 
       <!-- Estado de vuelo -->
       <form class="panel" id="panel-status" role="tabpanel" aria-labelledby="tab-status" hidden novalidate>
+        <p class="panel-intro">Consulta si un vuelo sale a tiempo. Prueba con cualquiera del tablero de salidas.</p>
         <div class="mini-grid">
-          <div class="field"><label for="st-num">Número de vuelo</label><input id="st-num" placeholder="Ej. RSV 482"></div>
-          <div class="field"><label for="st-date">Fecha</label><input type="date" id="st-date"></div>
+          <div class="in"><label for="st-num">Número de vuelo</label><input id="st-num" class="code-in" placeholder="EST 482"></div>
+          <div class="in"><label for="st-date">Fecha</label><input type="date" id="st-date"></div>
           <button class="btn dark" type="submit">Consultar</button>
         </div>
         <div id="st-out" aria-live="polite"></div>
@@ -564,8 +630,8 @@ footer .legal{border-top:1px solid #2e2e2b;margin-top:32px;padding-top:18px;font
   <section class="block" id="ofertas">
     <div class="wrap">
       <div class="sec-head">
-        <div><div class="eyebrow" style="color:var(--orange-text)">Ofertas de la semana</div><h2>Desde <span id="deals-origin">San Salvador</span>, precio más bajo de los próximos 30 días</h2></div>
-        <p>Toca un destino y te mostramos las fechas más baratas.</p>
+        <div><div class="eyebrow">Ofertas de la semana · desde San Salvador</div><h2>Etiquetas listas para tu maleta</h2></div>
+        <p>El precio más bajo de los próximos 30 días. Toca una etiqueta y te llevamos directo a esa fecha.</p>
       </div>
       <div class="deals" id="deals"></div>
     </div>
@@ -573,18 +639,21 @@ footer .legal{border-top:1px solid #2e2e2b;margin-top:32px;padding-top:18px;font
 
   <section class="block">
     <div class="wrap">
-      <div class="perks">
-        <div class="perk"><div class="n">01</div><h3>Precio final desde el inicio</h3><p>Ves impuestos y cargos antes de elegir. Sin sorpresas en el último paso.</p></div>
-        <div class="perk"><div class="n">02</div><h3>Aparta 24 horas</h3><p>Congela la tarifa con un pequeño depósito y termina de pagar mañana.</p></div>
-        <div class="perk"><div class="n">03</div><h3>Paga en cuotas</h3><p>Hasta 12 cuotas con tarjetas de bancos participantes.</p></div>
-        <div class="perk"><div class="n">04</div><h3>Todo en tu WhatsApp</h3><p>Confirmación, recordatorio de check-in y cambios de itinerario al instante.</p></div>
+      <div class="sec-head">
+        <div><div class="eyebrow">Por qué Estela</div><h2>Cuatro puertas, cero sorpresas</h2></div>
+      </div>
+      <div class="gates">
+        <div class="gate"><div class="sgn"><b>A1</b></div><h3>Precio final desde el inicio</h3><p>Impuestos y cargos visibles antes de elegir. Lo que ves es lo que pagas.</p></div>
+        <div class="gate"><div class="sgn"><b>A2</b></div><h3>Aparta 24 horas</h3><p>Congela la tarifa con un depósito pequeño y termina de pagar mañana.</p></div>
+        <div class="gate"><div class="sgn"><b>B1</b></div><h3>Paga en cuotas</h3><p>Hasta 12 cuotas con tarjetas de bancos participantes.</p></div>
+        <div class="gate"><div class="sgn"><b>B2</b></div><h3>Todo en tu WhatsApp</h3><p>Confirmación, recordatorio de check-in y cambios al instante.</p></div>
       </div>
     </div>
   </section>
 
   <section class="band">
     <div class="wrap">
-      <div><h2>¿Ya tienes una reserva?</h2><p>Consulta tu itinerario, agrega maletas o haz check-in con tu código.</p></div>
+      <div><h2>¿Ya tienes una reserva?</h2><p>Consulta tu itinerario o haz check-in con tu código de 6 caracteres.</p></div>
       <button class="btn dark" data-go="trips">Ir a Mis viajes</button>
     </div>
   </section>
@@ -593,15 +662,18 @@ footer .legal{border-top:1px solid #2e2e2b;margin-top:32px;padding-top:18px;font
 <!-- =================== FLUJO =================== -->
 <section id="view-flow" hidden>
   <div class="wrap flow">
-    <ol class="stepper" id="stepper" aria-label="Pasos de la reserva">
-      <li data-s="flights">Vuelos</li><li data-s="pax">Pasajeros</li><li data-s="extras">Extras</li><li data-s="pay">Pago</li>
-    </ol>
+    <div class="flightpath" id="flightpath">
+      <div class="fp-track" aria-hidden="true"><div class="fp-fill"></div><span class="fp-plane"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 00-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg></span></div>
+      <ol class="stepper" id="stepper" aria-label="Pasos de la reserva">
+        <li data-s="flights">Vuelos</li><li data-s="pax">Pasajeros</li><li data-s="extras">Extras</li><li data-s="pay">Pago</li>
+      </ol>
+    </div>
     <div class="flow-grid">
       <div class="flow-main" id="flow-main"></div>
-      <aside class="summary" id="summary" aria-label="Resumen de la compra"></aside>
+      <aside class="summary dark" id="summary" aria-label="Resumen de la compra"></aside>
     </div>
   </div>
-  <div class="mobile-total" id="mobile-total"><div><small style="color:var(--mid);font-size:12px;display:block">Total</small><b id="mt-amount">$0.00</b></div><button type="button" id="mt-btn" aria-controls="summary" aria-expanded="false">Ver detalle</button></div>
+  <div class="mobile-total" id="mobile-total"><div><small>Total</small><b id="mt-amount">$0.00</b></div><button type="button" id="mt-btn" aria-controls="summary" aria-expanded="false">Ver detalle</button></div>
 </section>
 
 <!-- =================== CONFIRMACIÓN =================== -->
@@ -612,14 +684,14 @@ footer .legal{border-top:1px solid #2e2e2b;margin-top:32px;padding-top:18px;font
 <!-- =================== MIS VIAJES =================== -->
 <section id="view-trips" hidden>
   <div class="wrap done">
-    <div class="eyebrow" style="color:var(--orange-text)">Mis viajes</div>
-    <h2 style="font-size:clamp(28px,4vw,44px);font-weight:600;margin:10px 0 6px">Encuentra tu reserva</h2>
-    <p style="color:var(--muted);margin:0 0 20px">Ingresa el código de 6 caracteres de tu confirmación y el apellido del pasajero.</p>
-    <form id="trips-form" class="card" novalidate style="max-width:720px">
+    <div class="eyebrow" style="color:var(--sky)">Mis viajes</div>
+    <h2 style="font-size:clamp(30px,4.4vw,50px);font-weight:800;letter-spacing:-.04em;margin:10px 0 8px">Encuentra tu reserva</h2>
+    <p style="color:var(--muted);margin:0 0 22px">Ingresa el código de 6 caracteres de tu confirmación y el apellido del pasajero.</p>
+    <form id="trips-form" class="card" novalidate style="max-width:760px;border-color:var(--night)">
       <div class="mini-grid">
-        <div class="in"><label for="tv-code">Código de reserva</label><input id="tv-code" maxlength="6" style="text-transform:uppercase"></div>
-        <div class="in"><label for="tv-last">Apellido</label><input id="tv-last"></div>
-        <button class="btn dark" type="submit" style="align-self:end">Buscar</button>
+        <div class="in"><label for="tv-code">Código de reserva</label><input id="tv-code" class="code-in" maxlength="6"></div>
+        <div class="in"><label for="tv-last">Apellido</label><input id="tv-last" autocomplete="family-name"></div>
+        <button class="btn dark" type="submit">Buscar</button>
       </div>
     </form>
     <div id="trips-out" aria-live="polite"></div>
@@ -628,18 +700,18 @@ footer .legal{border-top:1px solid #2e2e2b;margin-top:32px;padding-top:18px;font
 </section>
 </main>
 
-<footer>
+<footer class="dark">
   <div class="wrap">
     <div class="cols">
       <div>
-        <div class="logo"><span class="logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#141413" stroke-width="2" stroke-linecap="round"><path d="M3 17c4-8 14-8 18 0"/><circle cx="12" cy="9" r="2" fill="#faf9f5" stroke="none"/></svg></span><span>Reservas.web</span></div>
-        <p style="max-width:32ch">Prototipo de plataforma de reservas. Datos simulados con fines de demostración.</p>
+        <div class="logo"><svg viewBox="0 0 44 22" fill="none" aria-hidden="true"><path d="M2 18C12 18 18 6 34 5" stroke="#FFC629" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 6"/><path d="M14 16C20 14 25 7 34 5" stroke="#FFC629" stroke-width="3" stroke-linecap="round"/><circle cx="37" cy="5" r="3.5" fill="#fff"/></svg><b>estela</b></div>
+        <p style="max-width:32ch">Demo de plataforma de reservas de vuelos. Datos simulados con fines educativos.</p>
       </div>
       <div><h4>Reserva</h4><ul><li>Vuelos</li><li>Ofertas</li><li>Destinos</li></ul></div>
       <div><h4>Tu viaje</h4><ul><li>Check-in</li><li>Equipaje</li><li>Cambios y reembolsos</li></ul></div>
       <div><h4>Ayuda</h4><ul><li>Centro de ayuda</li><li>Términos y condiciones</li><li>Privacidad de datos</li></ul></div>
     </div>
-    <div class="legal"><span>© <span id="year"></span> Reservas.web · Prototipo</span><span>Precios en USD · Horarios en hora local</span></div>
+    <div class="legal"><span>© <span id="year"></span> ESTELA · DEMO</span><span>PRECIOS EN USD · HORA LOCAL</span></div>
   </div>
 </footer>
 
@@ -678,6 +750,7 @@ const AIRPORTS = [
 const AP = Object.fromEntries(AIRPORTS.map(a => [a.code,a]));
 const HUBS = ["SAL","BOG","PTY"];
 const DEALS = ["BOG","MIA","CUN","MAD","JFK","SJO","LIM","MEX"];
+const BOARD_NAMES = {BOG:"BOGOTA",MIA:"MIAMI",CUN:"CANCUN",MAD:"MADRID",JFK:"NUEVA YORK",SJO:"SAN JOSE",LIM:"LIMA",MEX:"CD MEXICO",GUA:"GUATEMALA",PTY:"PANAMA",MDE:"MEDELLIN",LAX:"LOS ANGELES",SCL:"SANTIAGO",GRU:"SAO PAULO",CTG:"CARTAGENA",BCN:"BARCELONA",IAH:"HOUSTON",UIO:"QUITO"};
 
 const FARES = [
   {id:"basic",name:"Básica",mult:1,
@@ -709,6 +782,7 @@ const fmtTime = m => `${pad(Math.floor(m/60)%24)}:${pad(m%60)}`;
 const fmtDur = m => `${Math.floor(m/60)} h ${pad(m%60)} min`;
 const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
 const esc = s => String(s).replace(/[&<>"']/g,c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 function hash(str){ let h = 2166136261; for (const c of str){ h ^= c.charCodeAt(0); h = Math.imul(h,16777619); } return h >>> 0; }
 function rng(seed){ let a = seed; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 function km(a,b){ const R=6371, r=Math.PI/180, dLat=(b.lat-a.lat)*r, dLon=(b.lon-a.lon)*r;
@@ -720,16 +794,17 @@ const store = {
 let toastT;
 function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"),3200); }
 const ICON = {
-  check:'<svg viewBox="0 0 24 24" fill="none" stroke="#788c5d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>',
-  x:'<svg viewBox="0 0 24 24" fill="none" stroke="#b0aea5" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
-  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
-  arrow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
-  plane:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 00-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>',
-  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
-  lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>',
-  bag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="7" width="14" height="13" rx="2"/><path d="M9 7V4h6v3M9 20v1M15 20v1"/></svg>',
-  shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>',
-  wa:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1112 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 01-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 00-.7.3 3 3 0 00-.9 2.2 5.2 5.2 0 001.1 2.7 11.8 11.8 0 004.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2s.2-1.1.2-1.2-.2-.2-.4-.3z"/></svg>'
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="#1B7F55" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>',
+  x:'<svg viewBox="0 0 24 24" fill="none" stroke="#9BA1B2" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+  arrow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  swap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>',
+  bag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="7" width="14" height="13" rx="2"/><path d="M9 7V4h6v3M9 20v1M15 20v1"/></svg>',
+  shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>',
+  wa:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1112 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 01-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 00-.7.3 3 3 0 00-.9 2.2 5.2 5.2 0 001.1 2.7 11.8 11.8 0 004.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2s.2-1.1.2-1.2-.2-.2-.4-.3z"/></svg>',
+  logo:'<svg viewBox="0 0 44 22" fill="none" aria-hidden="true"><path d="M2 18C12 18 18 6 34 5" stroke="#F2B300" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 6"/><path d="M14 16C20 14 25 7 34 5" stroke="#F2B300" stroke-width="3" stroke-linecap="round"/><circle cx="37" cy="5" r="3.5" fill="#0E1526"/></svg>'
 };
 
 /* =================== Motor de vuelos simulado =================== */
@@ -754,7 +829,7 @@ function flightsFor(o,d,date){
     const flyKm = via ? km(A,AP[via]) + km(AP[via],B) : dist;
     const dur = Math.round((flyKm/790*60 + 38 + (via ? 65 + Math.floor(r()*110) : 0))/5)*5;
     const base = (48 + dist*.06) * (.82 + r()*.5) * dayF * leadF * (via ? .88 : 1);
-    out.push({id:`${o}${d}${date}-${i}`, no:`RSV ${100+Math.floor(r()*880)}`, o, d, date, dep, arr:dep+dur, dur, via, stops,
+    out.push({id:`${o}${d}${date}-${i}`, no:`EST ${100+Math.floor(r()*880)}`, o, d, date, dep, arr:dep+dur, dur, via, stops,
       price:Math.round(base), seatsLeft: r() < .3 ? 1+Math.floor(r()*5) : null, aircraft: flyKm > 4500 ? "Boeing 787" : "Airbus A320neo"});
   }
   out.sort((x,y) => x.dep-y.dep);
@@ -776,7 +851,8 @@ const clsF = () => S.cls === "bus" ? 2.6 : 1;
 /* =================== Vistas =================== */
 function show(view){
   ["home","flow","done","trips"].forEach(v => $("#view-"+v).hidden = v!==view);
-  window.scrollTo({top:0,behavior:"instant" in window ? "instant" : "auto"});
+  closePops();
+  window.scrollTo(0,0);
 }
 $$("[data-go]").forEach(b => b.addEventListener("click",() => { if (b.dataset.go==="trips"){ renderTripsView(); show("trips"); } else show("home"); }));
 $$("[data-scroll]").forEach(b => b.addEventListener("click",() => { show("home"); setTimeout(() => $("#"+b.dataset.scroll).scrollIntoView({behavior:"smooth"}),30); }));
@@ -786,6 +862,7 @@ $$("[data-tab]").forEach(b => b.addEventListener("click",() => { show("home"); s
 const tabs = $$(".tab");
 function selectTab(id){
   tabs.forEach(t => { const on = t.id===id; t.setAttribute("aria-selected",on); t.tabIndex = on ? 0 : -1; $("#"+t.getAttribute("aria-controls")).hidden = !on; });
+  closePops();
 }
 tabs.forEach((t,i) => {
   t.addEventListener("click",() => selectTab(t.id));
@@ -795,45 +872,58 @@ tabs.forEach((t,i) => {
   });
 });
 
-/* =================== Buscador =================== */
-const grid = $("#search-grid");
-$$("[data-trip]").forEach(b => b.addEventListener("click",() => {
-  S.trip = b.dataset.trip;
-  $$("[data-trip]").forEach(x => x.setAttribute("aria-pressed",x===b));
-  grid.classList.toggle("oneway",S.trip==="ow");
-}));
+/* =================== Frase de búsqueda =================== */
+const measureCtx = document.createElement("canvas").getContext("2d");
+function fit(el){
+  const cs = getComputedStyle(el);
+  measureCtx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  const txt = el.tagName==="SELECT" ? el.options[el.selectedIndex].text : (el.value || el.placeholder || "");
+  const extra = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + 4;
+  el.style.width = Math.ceil(measureCtx.measureText(txt).width + extra) + "px";
+}
+const fitAll = () => $$("#sentence input.blank, #sentence select.blank").forEach(fit);
+
+// Popovers con posición fija (no se salen de la pantalla en celular)
+let openPop = null;
+function placePop(pop,anchor,width){
+  const r = anchor.getBoundingClientRect(), vw = document.documentElement.clientWidth;
+  const w = Math.min(width, vw - 24);
+  pop.style.width = w + "px";
+  pop.style.left = Math.max(12, Math.min(r.left, vw - w - 12)) + "px";
+  const below = r.bottom + 8, h = pop.offsetHeight || 300;
+  pop.style.top = (below + h > innerHeight && r.top - h - 8 > 0 ? r.top - h - 8 : below) + "px";
+}
+function closePops(){ if (openPop){ openPop.close(); openPop = null; } }
+addEventListener("scroll",() => openPop?.place(),{passive:true});
+addEventListener("resize",() => { openPop?.place(); fitAll(); });
 
 function setAirport(which,code){
   S[which] = code;
-  const a = AP[code];
-  $("#in-"+which).value = `${a.city} (${a.code})`;
-  $("#sub-"+which).textContent = a.name;
-  updateHero();
-}
-function updateHero(){
-  const A = AP[S.from], B = AP[S.to];
-  $("#hero-o").textContent = A.code; $("#hero-oc").textContent = A.city;
-  $("#hero-d").textContent = B.code; $("#hero-dc").textContent = B.city;
-  const d = km(A,B);
-  $("#hero-km").textContent = `${Math.round(d).toLocaleString("es-SV")} km`;
-  $("#hero-dur").textContent = `≈ ${fmtDur(Math.round((d/790*60+38)/5)*5)} directo`;
+  const el = $("#in-"+which);
+  el.value = AP[code].city;
+  el.title = `${AP[code].city} (${code}) · ${AP[code].name}`;
+  fit(el);
 }
 
 function autocomplete(which){
-  const input = $("#in-"+which), list = $("#ac-"+which), field = $("#f-"+which);
+  const input = $("#in-"+which), list = $("#ac-"+which);
   let items = [], active = -1;
+  const api = {
+    place(){ placePop(list,input,360); },
+    close(){ list.hidden = true; input.setAttribute("aria-expanded","false"); }
+  };
   function open(q){
-    const nq = norm(q.replace(/\(.*\)/,"").trim());
+    const nq = norm(q.trim());
     items = AIRPORTS.filter(a => !nq || norm(a.code).startsWith(nq) || norm(a.city).includes(nq) || norm(a.country).includes(nq) || norm(a.name).includes(nq)).slice(0,8);
     active = items.length ? 0 : -1;
     list.innerHTML = items.length ? items.map((a,i) =>
       `<li role="option" id="${which}-o${i}" data-code="${a.code}" aria-selected="${i===active}"><span class="code">${a.code}</span><span><span class="city">${a.city}, ${a.country}</span><span class="ap">${a.name}</span></span></li>`).join("")
-      : `<div class="ac-empty">No encontramos ese destino. Prueba con la ciudad o el código (ej. BOG).</div>`;
-    list.hidden = false; input.setAttribute("aria-expanded","true");
+      : `<li class="ac-empty" aria-disabled="true">No encontramos ese destino. Prueba con la ciudad o el código (ej. BOG).</li>`;
+    if (openPop && openPop!==api) closePops();
+    list.hidden = false; input.setAttribute("aria-expanded","true"); openPop = api; api.place();
     input.setAttribute("aria-activedescendant", active>=0 ? `${which}-o${active}` : "");
   }
-  function close(){ list.hidden = true; input.setAttribute("aria-expanded","false"); }
-  function pick(code){ setAirport(which,code); close(); field.classList.remove("err"); }
+  function pick(code){ setAirport(which,code); api.close(); openPop = null; input.classList.remove("err"); }
   function move(dx){
     if (!items.length) return; active = (active + dx + items.length) % items.length;
     $$("li",list).forEach((li,i) => li.setAttribute("aria-selected",i===active));
@@ -841,27 +931,42 @@ function autocomplete(which){
     $$("li",list)[active].scrollIntoView({block:"nearest"});
   }
   input.addEventListener("focus",() => { input.select(); open(""); });
-  input.addEventListener("input",() => open(input.value));
+  input.addEventListener("input",() => { fit(input); open(input.value); });
   input.addEventListener("keydown",e => {
     if (e.key==="ArrowDown"){ e.preventDefault(); list.hidden ? open(input.value) : move(1); }
     else if (e.key==="ArrowUp"){ e.preventDefault(); move(-1); }
     else if (e.key==="Enter" && !list.hidden){ e.preventDefault(); if (active>=0) pick(items[active].code); }
-    else if (e.key==="Escape"){ close(); setAirport(which,S[which]); }
+    else if (e.key==="Escape"){ api.close(); openPop = null; setAirport(which,S[which]); }
   });
-  input.addEventListener("blur",() => setTimeout(() => { if (!list.hidden){ close(); setAirport(which,S[which]); } },150));
-  list.addEventListener("mousedown",e => { const li = e.target.closest("li"); if (li){ e.preventDefault(); pick(li.dataset.code); } });
+  input.addEventListener("blur",() => setTimeout(() => { if (!list.hidden){ api.close(); if (openPop===api) openPop = null; } setAirport(which,S[which]); },150));
+  list.addEventListener("mousedown",e => { const li = e.target.closest("li[data-code]"); if (li){ e.preventDefault(); pick(li.dataset.code); } });
 }
 autocomplete("from"); autocomplete("to");
 $("#swap").addEventListener("click",() => { const f = S.from; setAirport("from",S.to); setAirport("to",f); });
 
-const inDep = $("#in-dep"), inRet = $("#in-ret");
-inDep.min = today; inRet.min = today;
-inDep.value = S.dep; inRet.value = S.ret;
-inDep.addEventListener("change",() => { S.dep = inDep.value; inRet.min = S.dep; if (S.ret < S.dep){ S.ret = addDays(S.dep,7); inRet.value = S.ret; } });
-inRet.addEventListener("change",() => { S.ret = inRet.value; });
-$("#in-cls").addEventListener("change",e => S.cls = e.target.value);
+// Tipo de viaje
+const inTrip = $("#in-trip");
+function setTrip(t){ S.trip = t; inTrip.value = t; $("#ret-part").hidden = t==="ow"; fit(inTrip); }
+inTrip.addEventListener("change",() => setTrip(inTrip.value));
 
-/* Pasajeros */
+// Fechas: botón legible + input nativo para el calendario
+const inDep = $("#in-dep"), inRet = $("#in-ret"), depBtn = $("#dep-btn"), retBtn = $("#ret-btn");
+inDep.min = today; inRet.min = today;
+function syncDates(){
+  inDep.value = S.dep; inRet.value = S.ret; inRet.min = S.dep;
+  depBtn.textContent = fmtDate(S.dep); retBtn.textContent = fmtDate(S.ret);
+  depBtn.setAttribute("aria-label",`Fecha de ida: ${fmtDate(S.dep,{weekday:"long",day:"numeric",month:"long"})}. Cambiar`);
+  retBtn.setAttribute("aria-label",`Fecha de regreso: ${fmtDate(S.ret,{weekday:"long",day:"numeric",month:"long"})}. Cambiar`);
+}
+function openPicker(input){ try { input.showPicker(); } catch { input.style.cssText = "position:static;opacity:1;width:auto;height:auto;pointer-events:auto"; input.focus(); } }
+depBtn.addEventListener("click",() => openPicker(inDep));
+retBtn.addEventListener("click",() => openPicker(inRet));
+inDep.addEventListener("change",() => { if (!inDep.value) return; S.dep = inDep.value < today ? today : inDep.value; if (S.ret < S.dep) S.ret = addDays(S.dep,7); syncDates(); });
+inRet.addEventListener("change",() => { if (!inRet.value) return; S.ret = inRet.value < S.dep ? S.dep : inRet.value; syncDates(); });
+const inCls = $("#in-cls");
+inCls.addEventListener("change",() => { S.cls = inCls.value; fit(inCls); });
+
+// Pasajeros
 const paxBtn = $("#pax-btn"), paxPop = $("#pax-pop");
 function paxLabel(p=S.pax){
   const parts = [`${p.a} ${p.a===1?"adulto":"adultos"}`];
@@ -878,19 +983,27 @@ function syncPax(){
     plus.disabled = tot>=9 || (k==="i" && p.i>=p.a);
   });
   paxBtn.textContent = paxLabel();
+  paxBtn.setAttribute("aria-label",`Pasajeros: ${paxLabel()}. Cambiar`);
 }
 $$(".counter",paxPop).forEach(c => {
   const [minus,plus] = $$("button",c);
   minus.addEventListener("click",() => { S.pax[c.dataset.k]--; syncPax(); });
   plus.addEventListener("click",() => { S.pax[c.dataset.k]++; syncPax(); });
 });
-function togglePax(open){ paxPop.hidden = !open; paxBtn.setAttribute("aria-expanded",open); if (open) $("button:not(:disabled)",paxPop)?.focus(); }
+const paxApi = {
+  place(){ placePop(paxPop,paxBtn,310); },
+  close(){ paxPop.hidden = true; paxBtn.setAttribute("aria-expanded","false"); }
+};
+function togglePax(open){
+  if (open){ closePops(); paxPop.hidden = false; paxBtn.setAttribute("aria-expanded","true"); openPop = paxApi; paxApi.place(); $("button:not(:disabled)",paxPop)?.focus(); }
+  else if (openPop===paxApi) closePops();
+}
 paxBtn.addEventListener("click",() => togglePax(paxPop.hidden));
 $("#pax-ok").addEventListener("click",() => { togglePax(false); paxBtn.focus(); });
-document.addEventListener("click",e => { if (!paxPop.hidden && !$("#f-pax").contains(e.target)) togglePax(false); });
+document.addEventListener("click",e => { if (!paxPop.hidden && !paxPop.contains(e.target) && e.target!==paxBtn) togglePax(false); });
 paxPop.addEventListener("keydown",e => { if (e.key==="Escape"){ togglePax(false); paxBtn.focus(); } });
 
-/* Código promocional */
+// Código promocional
 $("#in-promo").addEventListener("input",e => {
   const v = e.target.value.trim().toUpperCase(), m = $("#promo-msg");
   if (!v){ S.promo = null; m.textContent = ""; m.className = "promo-msg"; return; }
@@ -901,17 +1014,81 @@ $("#in-promo").addEventListener("input",e => {
 $("#panel-book").addEventListener("submit",e => {
   e.preventDefault();
   const err = $("#search-err"); let msg = "";
-  $$(".field.err").forEach(f => f.classList.remove("err"));
-  if (S.from===S.to){ msg = "El origen y el destino deben ser distintos."; $("#f-to").classList.add("err"); }
-  else if (!S.dep || S.dep < today){ msg = "Elige una fecha de ida válida."; }
-  else if (S.trip==="rt" && (!S.ret || S.ret < S.dep)){ msg = "La fecha de regreso debe ser igual o posterior a la de ida."; }
+  $$(".blank.err").forEach(f => f.classList.remove("err"));
+  if (S.from===S.to){ msg = "El origen y el destino deben ser distintos."; $("#in-to").classList.add("err"); }
+  else if (!S.dep || S.dep < today){ msg = "Elige una fecha de ida válida."; depBtn.classList.add("err"); }
+  else if (S.trip==="rt" && (!S.ret || S.ret < S.dep)){ msg = "La fecha de regreso debe ser igual o posterior a la de ida."; retBtn.classList.add("err"); }
   err.hidden = !msg; err.textContent = msg;
   if (msg) return;
   startFlow();
 });
 
+/* =================== Tablero de salidas =================== */
+const FLAP = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+const COLS = [["c-tm",5],["c-ds",11],["c-fl",6],["c-gt",3],["c-st",9]];
+function flap(el,text,len){
+  text = text.toUpperCase().padEnd(len).slice(0,len);
+  if (el.children.length!==len) el.innerHTML = Array.from({length:len},() => '<span class="ch"> </span>').join("");
+  [...el.children].forEach((sp,i) => {
+    const target = text[i]===" " ? " " : text[i];
+    if (reduceMotion || sp.textContent===target){ sp.textContent = target; return; }
+    let n = 3 + Math.floor(Math.random()*4);
+    const tick = () => {
+      sp.classList.remove("f"); void sp.offsetWidth; sp.classList.add("f");
+      if (n-- > 0){ sp.textContent = FLAP[Math.floor(Math.random()*FLAP.length)]; setTimeout(tick,60); }
+      else sp.textContent = target;
+    };
+    setTimeout(tick,i*28);
+  });
+}
+const STATUSES = [["ok","A TIEMPO"],["ok","A TIEMPO"],["board","ABORDANDO"],["ok","A TIEMPO"],["late","DEMORADO"]];
+let boardRows = [];
+function boardEntry(code,idx){
+  const now = new Date(), base = now.getHours()*60 + now.getMinutes();
+  const r = rng(hash(code + today + idx));
+  const t = base + 20 + idx*25 + Math.floor(r()*3)*5;
+  const [st,label] = STATUSES[Math.floor(r()*STATUSES.length)];
+  return {code, time:fmtTime(t % 1440), name:BOARD_NAMES[code] || norm(AP[code].city).toUpperCase(),
+    fl:`EST${100+Math.floor(r()*880)}`, gate:`${"ABCD"[Math.floor(r()*4)]}${1+Math.floor(r()*18)}`, st, label};
+}
+function renderBoard(){
+  const host = $("#board-rows");
+  host.innerHTML = boardRows.map((e,i) => `<button type="button" class="b-row" data-row="${i}">${COLS.map(([c]) => `<span class="cells ${c}"></span>`).join("")}</button>`).join("");
+  boardRows.forEach((e,i) => paintRow(i));
+  $$(".b-row",host).forEach(b => b.onclick = () => {
+    const e = boardRows[+b.dataset.row];
+    setAirport("from","SAL"); setAirport("to",e.code);
+    selectTab("tab-book");
+    $(".widget").scrollIntoView({behavior:"smooth",block:"center"});
+    toast(`Destino: ${AP[e.code].city}. Ajusta las fechas y busca.`);
+  });
+}
+function paintRow(i){
+  const e = boardRows[i], row = $(`.b-row[data-row="${i}"]`);
+  row.dataset.st = e.st;
+  row.setAttribute("aria-label",`Vuelo ${e.fl} a ${AP[e.code].city}, ${e.time}, ${e.label.toLowerCase()}. Buscar vuelos a ${AP[e.code].city}`);
+  const vals = [e.time,e.name,e.fl,e.gate,e.label];
+  COLS.forEach(([c,len],k) => flap($("."+c,row),vals[k],len));
+}
+function initBoard(){
+  const pool = Object.keys(BOARD_NAMES);
+  boardRows = pool.slice(0,6).map((c,i) => boardEntry(c,i));
+  renderBoard();
+  if (reduceMotion) return;
+  setInterval(() => {
+    if (document.hidden || $("#view-home").hidden) return;
+    const shown = boardRows.map(e => e.code), free = pool.filter(c => !shown.includes(c));
+    const i = Math.floor(Math.random()*boardRows.length);
+    const code = free[Math.floor(Math.random()*free.length)];
+    const e = boardEntry(code,i); e.time = boardRows[i].time;
+    boardRows[i] = e; paintRow(i);
+  },4200);
+}
+function tickClock(){ const d = new Date(); $("#clock").textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+
 /* =================== Flujo =================== */
 function startFlow(){
+  closePops();
   Object.assign(S,{step:"flights",leg:0,open:null,sel:[],extras:{bags:0,insurance:false,seats:{}},seatFor:0,holdEnd:null});
   const types = [...Array(S.pax.a).fill("a"),...Array(S.pax.c).fill("c"),...Array(S.pax.i).fill("i")];
   S.people = types.map((t,i) => S.people[i]?.type===t ? S.people[i] : {type:t,first:"",last:"",doc:"",docType:"Pasaporte",dob:""});
@@ -922,11 +1099,12 @@ const legs = () => S.trip==="rt" ? 2 : 1;
 
 function renderFlow(){
   const order = ["flights","pax","extras","pay"], idx = order.indexOf(S.step);
+  $("#flightpath").style.setProperty("--p", idx/3);
   $$("#stepper li").forEach((li,i) => { li.className = i<idx ? "done" : i===idx ? "now" : ""; if (i===idx) li.setAttribute("aria-current","step"); else li.removeAttribute("aria-current"); });
   ({flights:renderFlights,pax:renderPax,extras:renderExtras,pay:renderPay})[S.step]();
   renderSummary();
 }
-function goStep(s){ S.step = s; renderFlow(); window.scrollTo({top:0}); }
+function goStep(s){ S.step = s; renderFlow(); window.scrollTo(0,0); }
 
 /* ---- Paso 1: vuelos ---- */
 function renderFlights(){
@@ -935,23 +1113,24 @@ function renderFlights(){
   if (S.directOnly) list = list.filter(f => !f.stops);
   if (S.sort==="price") list.sort((x,y) => x.price-y.price);
   else if (S.sort==="dur") list.sort((x,y) => x.dur-y.dur);
-  else if (S.sort==="rec") list.sort((x,y) => (x.price*(1+x.dur/1200)) - (y.price*(1+y.dur/1200)));
+  else list.sort((x,y) => (x.price*(1+x.dur/1200)) - (y.price*(1+y.dur/1200)));
   const days = [-3,-2,-1,0,1,2,3].map(k => addDays(date,k));
   const prices = days.map(dd => dd < today || (S.leg===1 && dd < S.dep) ? null : minPrice(o,d,dd)*clsF());
   const low = Math.min(...prices.filter(p => p!=null));
-  const chosen = S.leg===1 && S.sel[0] ? `<div class="chosen"><span>✓ Ida: <b>${S.sel[0].f.o} → ${S.sel[0].f.d}</b> · ${fmtDate(S.sel[0].f.date)} · ${fmtTime(S.sel[0].f.dep)} · ${FARE[S.sel[0].fare].name}</span><button class="btn ghost sm" id="change-out">Cambiar</button></div>` : "";
+  const s0 = S.sel[0];
+  const chosen = S.leg===1 && s0 ? `<div class="chosen"><span><b>✓ Ida lista:</b> ${s0.f.o} → ${s0.f.d} · ${fmtDate(s0.f.date)} · ${fmtTime(s0.f.dep)} · ${FARE[s0.fare].name}</span><button class="btn ghost sm" id="change-out">Cambiar</button></div>` : "";
   $("#flow-main").innerHTML = `
     <button class="back" id="back-home">${ICON.back} Modificar búsqueda</button>
     ${chosen}
-    <div class="eyebrow" style="color:var(--orange-text)">${S.leg===0 ? "Vuelo de ida" : "Vuelo de regreso"}</div>
-    <h2>${A.city} <span style="color:var(--orange-text)">→</span> ${B.city}</h2>
+    <div class="eyebrow">${S.leg===0 ? "Vuelo de ida" : "Vuelo de regreso"}</div>
+    <h2 style="margin-top:6px">${A.city} <span style="color:var(--sky)">→</span> ${B.city}</h2>
     <p class="sub">${fmtDate(date,{weekday:"long",day:"numeric",month:"long"})} · ${paxLabel()} · ${S.cls==="bus"?"Business":"Económica"}</p>
     <div class="date-strip" role="group" aria-label="Precio más bajo por día">
-      ${days.map((dd,i) => `<button class="day ${prices[i]!=null && prices[i]===low ? "low" : ""}" data-date="${dd}" aria-pressed="${dd===date}" ${prices[i]==null?"disabled":""}>
+      ${days.map((dd,i) => `<button class="day ${prices[i]!=null && prices[i]===low ? "low" : ""}" data-date="${dd}" aria-pressed="${dd===date}" ${prices[i]==null?"disabled":""} aria-label="${fmtDate(dd,{weekday:"long",day:"numeric",month:"long"})}${prices[i]!=null?`, desde ${money0(prices[i])}${prices[i]===low?", precio más bajo":""}`:", no disponible"}">
         <small>${fmtDate(dd,{weekday:"short",day:"numeric"})}</small><b>${prices[i]==null ? "—" : money0(prices[i])}</b></button>`).join("")}
     </div>
     <div class="toolbar">
-      <div class="chips" role="group" aria-label="Ordenar">
+      <div class="chips" role="group" aria-label="Ordenar y filtrar">
         ${[["rec","Recomendados"],["price","Más baratos"],["dur","Más rápidos"]].map(([k,l]) => `<button class="pill" data-sort="${k}" aria-pressed="${S.sort===k}">${l}</button>`).join("")}
         <button class="pill" id="direct" aria-pressed="${S.directOnly}">Solo directos</button>
       </div>
@@ -961,9 +1140,9 @@ function renderFlights(){
   $("#back-home").onclick = () => show("home");
   $("#change-out")?.addEventListener("click",() => { S.leg = 0; S.open = null; renderFlow(); });
   $$(".day").forEach(b => b.onclick = () => {
-    if (S.leg===0){ S.dep = b.dataset.date; inDep.value = S.dep; if (S.trip==="rt" && S.ret < S.dep){ S.ret = S.dep; inRet.value = S.ret; } }
-    else { S.ret = b.dataset.date; inRet.value = S.ret; }
-    S.open = null; renderFlow();
+    if (S.leg===0){ S.dep = b.dataset.date; if (S.trip==="rt" && S.ret < S.dep) S.ret = S.dep; }
+    else S.ret = b.dataset.date;
+    syncDates(); S.open = null; renderFlow();
   });
   $$("[data-sort]").forEach(b => b.onclick = () => { S.sort = b.dataset.sort; renderFlow(); });
   $("#direct").onclick = () => { S.directOnly = !S.directOnly; renderFlow(); };
@@ -971,26 +1150,22 @@ function renderFlights(){
   $$("[data-fare]").forEach(b => b.onclick = () => chooseFare(b.dataset.flight,b.dataset.fare));
 }
 function flightCard(f){
-  const open = S.open===f.id, nextDay = Math.floor(f.arr/1440);
-  const p = f.price*clsF();
+  const open = S.open===f.id, nextDay = Math.floor(f.arr/1440), p = f.price*clsF();
   return `<article class="flight ${open?"open":""}" data-fid="${f.id}">
     <div class="body">
       <div class="t"><b>${fmtTime(f.dep)}</b><span>${f.o}</span></div>
       <div class="path">${fmtDur(f.dur)}<div class="line">${f.via?"<i></i>":""}</div>${f.via ? `1 escala · ${f.via}` : "Directo"}</div>
       <div class="t" style="text-align:right"><b>${fmtTime(f.arr)}${nextDay?`<sup>+${nextDay}</sup>`:""}</b><span>${f.d}</span></div>
-      <div class="meta"><span>${f.no}</span><span>·</span><span>${f.aircraft}</span>${f.seatsLeft ? `<span>·</span><span class="seats-left">${f.seatsLeft===1 ? "Queda 1 asiento" : `Quedan ${f.seatsLeft} asientos`} a este precio</span>` : ""}</div>
+      <div class="meta"><span class="badge">${f.no}</span><span>${f.aircraft}</span>${f.seatsLeft ? `<span class="badge warn">${f.seatsLeft===1 ? "Queda 1 asiento" : `Quedan ${f.seatsLeft} asientos`}</span>` : ""}</div>
     </div>
     <div class="stub">
-      <small>Desde, por adulto</small>
-      <span class="price">${money0(p)}</span>
+      <div style="text-align:right"><small>Desde, por adulto</small><div class="price">${money0(p)}</div></div>
       <button class="btn ${open?"dark":""} sm" data-open="${f.id}" aria-expanded="${open}">${open ? "Ocultar tarifas" : "Ver tarifas"}</button>
     </div>
     ${open ? `<div class="fares">${FARES.map(fa => `
-      <div class="fare ${fa.tag?"hl":""}">
-        ${fa.tag ? `<span class="tag">${fa.tag}</span>` : ""}
-        <h4>${fa.name}</h4>
-        <div class="fp">${money(p*fa.mult)} <small>/ adulto</small></div>
-        <ul>${fa.inc.map(x => `<li>${ICON.check}${x}</li>`).join("")}${fa.exc.map(x => `<li class="no">${ICON.x}${x}</li>`).join("")}</ul>
+      <div class="fare ${fa.id}">
+        <div class="fh">${fa.tag ? `<span class="tag">${fa.tag}</span>` : ""}<h4>${fa.name}</h4><div class="fp">${money(p*fa.mult)} <small>/ adulto</small></div></div>
+        <ul>${fa.inc.map(x => `<li>${ICON.check}${x}</li>`).join("")}${fa.exc.map(x => `<li class="no">${ICON.x}<span><span class="sr-only">No incluye: </span>${x}</span></li>`).join("")}</ul>
         <button class="btn ${fa.tag?"":"dark"} sm" data-flight="${f.id}" data-fare="${fa.id}">Elegir ${fa.name}</button>
       </div>`).join("")}</div>` : ""}
   </article>`;
@@ -1000,23 +1175,23 @@ function chooseFare(fid,fare){
   const f = flightsFor(o,d,date).find(x => x.id===fid);
   S.sel[S.leg] = {f,fare}; S.sel.length = S.leg+1; S.open = null;
   if (!S.holdEnd) S.holdEnd = Date.now() + HOLD_MIN*60e3;
-  if (S.leg+1 < legs()){ S.leg++; toast("Ida seleccionada. Ahora elige tu regreso."); renderFlow(); window.scrollTo({top:0}); }
+  if (S.leg+1 < legs()){ S.leg++; toast("Ida seleccionada. Ahora elige tu regreso."); renderFlow(); window.scrollTo(0,0); }
   else goStep("pax");
 }
 
 /* ---- Paso 2: pasajeros ---- */
 const TYPE = {a:"Adulto",c:"Niño",i:"Infante"};
 function renderPax(){
-  let n = {a:0,c:0,i:0};
+  const n = {a:0,c:0,i:0};
   $("#flow-main").innerHTML = `
     <button class="back" id="bk">${ICON.back} Volver a vuelos</button>
     <h2>¿Quiénes viajan?</h2>
     <p class="sub">Escribe los nombres tal como aparecen en el pasaporte o documento de viaje.</p>
     <form id="pax-form" novalidate>
       ${S.people.map((p,i) => { n[p.type]++; return `
-      <fieldset class="card" style="border:1px solid var(--line)">
+      <fieldset class="card">
         <legend class="sr-only">${TYPE[p.type]} ${n[p.type]}</legend>
-        <h3><span class="badge ${p.type==="a"?"orange":p.type==="c"?"blue":"green"}">${TYPE[p.type]} ${n[p.type]}</span></h3>
+        <h3><span class="badge ${p.type==="a"?"sign":p.type==="c"?"sky":"ok"}">${TYPE[p.type]} ${n[p.type]}</span></h3>
         <div class="form-grid">
           ${inp(`first-${i}`,"Nombre(s)",p.first,"given-name")}
           ${inp(`last-${i}`,"Apellido(s)",p.last,"family-name")}
@@ -1025,14 +1200,14 @@ function renderPax(){
           ${p.type!=="a" ? inp(`dob-${i}`,"Fecha de nacimiento",p.dob,"bday","date") : ""}
         </div>
       </fieldset>`; }).join("")}
-      <fieldset class="card" style="border:1px solid var(--line)">
+      <fieldset class="card">
         <legend class="sr-only">Contacto</legend>
         <h3>Contacto para la reserva</h3>
         <div class="form-grid">
           ${inp("email","Correo electrónico",S.contact.email,"email","email")}
           <div class="in"><label for="phone">WhatsApp</label><div class="phone">
             <select id="cc" aria-label="Código de país">${["+503","+502","+504","+505","+506","+507","+57","+52","+1","+34"].map(c => `<option ${S.contact.cc===c?"selected":""}>${c}</option>`).join("")}</select>
-            <input id="phone" inputmode="tel" autocomplete="tel-national" value="${esc(S.contact.phone)}" aria-describedby="phone-msg"></div><span class="msg" id="phone-msg"></span></div>
+            <input id="phone" type="tel" inputmode="tel" autocomplete="tel-national" value="${esc(S.contact.phone)}" aria-describedby="phone-msg"></div><span class="msg" id="phone-msg"></span></div>
         </div>
         <p style="color:var(--muted);font-size:14px;margin:12px 0 0">Te enviaremos la confirmación y los avisos del vuelo a este correo y WhatsApp.</p>
       </fieldset>
@@ -1087,13 +1262,13 @@ function renderExtras(){
   if (!seated[S.seatFor]) S.seatFor = 0;
   const mine = Object.fromEntries(Object.entries(S.extras.seats).map(([k,v]) => [v,+k]));
   const flex = S.sel.every(s => s.fare==="flex");
-  let html = `<div class="plane" role="grid" aria-label="Mapa de asientos">`;
+  let html = `<div class="plane" role="group" aria-label="Mapa de asientos">`;
   for (let row=1; row<=rows; row++){
-    html += `<div class="seat-row" role="row">`;
+    html += `<div class="seat-row">`;
     [..."ABC"," ",..."DEF"].forEach(c => {
-      if (c===" "){ html += `<span class="rn">${row}</span>`; return; }
+      if (c===" "){ html += `<span class="rn" aria-hidden="true">${row}</span>`; return; }
       const id = row+c, owner = mine[id];
-      html += `<button type="button" class="seat ${row<=3?"plus":""} ${owner!=null?"mine":""}" data-seat="${id}" ${taken.has(id)?"disabled":""} aria-label="Asiento ${id}${row<=3?", más espacio":""}${taken.has(id)?", ocupado":""}">${owner!=null ? (seated.findIndex(x => x.i===owner)+1) : ""}</button>`;
+      html += `<button type="button" class="seat ${row<=3?"plus":""} ${owner!=null?"mine":""}" data-seat="${id}" ${taken.has(id)?"disabled":""} aria-pressed="${owner!=null}" aria-label="Asiento ${id}${row<=3?", más espacio":""}${taken.has(id)?", ocupado":""}">${owner!=null ? (seated.findIndex(x => x.i===owner)+1) : ""}</button>`;
     });
     html += `</div>`;
   }
@@ -1108,20 +1283,20 @@ function renderExtras(){
         ${html}
         <div>
           <div class="pax-tabs" role="group" aria-label="Pasajero al que asignas asiento">
-            ${seated.map((x,k) => { const s = Object.entries(S.extras.seats).find(([pi]) => +pi===x.i)?.[1];
+            ${seated.map((x,k) => { const s = S.extras.seats[x.i];
               return `<button type="button" class="pax-tab" data-for="${k}" aria-pressed="${k===S.seatFor}"><span>${k+1}. ${esc(x.p.first||TYPE[x.p.type])} ${esc(x.p.last)}</span><b>${s||"—"}</b></button>`; }).join("")}
           </div>
-          <div class="legend"><span><i></i>Estándar ${fare0==="basic" ? money(SEAT_PRICE) : "incluido"}</span><span><i style="background:#eef3f9;border-color:var(--blue)"></i>Más espacio ${money(SEAT_PLUS)}</span><span><i style="background:var(--line);border-color:var(--line)"></i>Ocupado</span><span><i style="background:var(--orange);border-color:var(--orange)"></i>Tu selección</span></div>
+          <div class="legend"><span><i></i>Estándar ${fare0==="basic" ? money(SEAT_PRICE) : "incluido"}</span><span><i style="background:var(--sky-soft);border-color:var(--sky)"></i>Más espacio ${money(SEAT_PLUS)}</span><span><i style="background:#E2DFD7;border-color:#E2DFD7"></i>Ocupado</span><span><i style="background:var(--sign);border-color:var(--night)"></i>Tu selección</span></div>
           <p style="color:var(--muted);font-size:14px">${S.sel.length>1 ? "El asiento del regreso se elige en el check-in." : "Los infantes viajan en brazos de un adulto."}</p>
         </div>
       </div>
     </div>
     <div class="card opt">
-      <div class="t"><span class="ic" style="background:#dde8f3;color:#2c4d70">${ICON.bag}</span><div><div class="head" style="font-weight:600">Maleta de bodega 23 kg</div><p>${flex ? "Tu tarifa Flex ya incluye una por pasajero. Agrega adicionales:" : "Por trayecto."} ${money(BAG_PRICE)} c/u, más barato que en el aeropuerto.</p></div></div>
-      <div class="counter" id="bags"><button type="button" aria-label="Quitar maleta" ${S.extras.bags<=0?"disabled":""}>−</button><output>${S.extras.bags}</output><button type="button" aria-label="Agregar maleta" ${S.extras.bags>=seated.length*2?"disabled":""}>+</button></div>
+      <div class="t"><span class="ic" style="background:var(--sky-soft);color:var(--sky)">${ICON.bag}</span><div><div class="h">Maleta de bodega 23 kg</div><p>${flex ? "Tu tarifa Flex ya incluye una por pasajero. Agrega adicionales:" : "Por trayecto."} ${money(BAG_PRICE)} c/u, más barato que en el aeropuerto.</p></div></div>
+      <div class="counter" id="bags"><button type="button" aria-label="Quitar maleta" ${S.extras.bags<=0?"disabled":""}>−</button><output aria-live="polite">${S.extras.bags}</output><button type="button" aria-label="Agregar maleta" ${S.extras.bags>=seated.length*2?"disabled":""}>+</button></div>
     </div>
     <div class="card opt">
-      <div class="t"><span class="ic" style="background:#e3e8da;color:#3f4f2c">${ICON.shield}</span><div><div class="head" style="font-weight:600">Seguro de viaje</div><p>Asistencia médica, retraso y pérdida de equipaje. ${money(INS_PRICE)} por pasajero.</p></div></div>
+      <div class="t"><span class="ic" style="background:var(--ok-soft);color:var(--ok)">${ICON.shield}</span><div><div class="h">Seguro de viaje</div><p>Asistencia médica, retraso y pérdida de equipaje. ${money(INS_PRICE)} por pasajero.</p></div></div>
       <button type="button" class="switch" role="switch" id="ins" aria-checked="${S.extras.insurance}" aria-label="Agregar seguro de viaje"></button>
     </div>
     <div class="actions"><button class="btn" id="next">Continuar al pago ${ICON.arrow}</button></div>`;
@@ -1131,15 +1306,16 @@ function renderExtras(){
   $$("[data-seat]").forEach(b => b.onclick = () => {
     const pi = seated[S.seatFor].i, id = b.dataset.seat;
     const owner = Object.entries(S.extras.seats).find(([,v]) => v===id);
-    if (owner && +owner[0]===pi){ delete S.extras.seats[pi]; }
+    if (owner && +owner[0]===pi) delete S.extras.seats[pi];
     else if (owner){ toast("Ese asiento ya lo elegiste para otro pasajero."); return; }
     else { S.extras.seats[pi] = id; if (S.seatFor < seated.length-1) S.seatFor++; }
     renderExtras(); renderSummary();
+    $(`[data-seat="${id}"]`)?.focus();
   });
   const [bm,bp] = $$("#bags button");
   bm.onclick = () => { S.extras.bags--; renderExtras(); renderSummary(); };
   bp.onclick = () => { S.extras.bags++; renderExtras(); renderSummary(); };
-  $("#ins").onclick = () => { S.extras.insurance = !S.extras.insurance; renderExtras(); renderSummary(); };
+  $("#ins").onclick = () => { S.extras.insurance = !S.extras.insurance; renderExtras(); renderSummary(); $("#ins").focus(); };
 }
 
 /* ---- Paso 4: pago ---- */
@@ -1153,19 +1329,20 @@ function renderPay(){
       ${[["card","Tarjeta de crédito o débito","Visa, Mastercard y American Express. Serás redirigido a la pasarela segura."],
          ["installments","Pago en cuotas",`Hasta 12 cuotas de ≈ ${money(t.total/12)} con bancos participantes. Sujeto a aprobación.`],
          ["hold",`Aparta 24 horas por ${money(HOLD_FEE)}`,"Congelamos la tarifa. Completa el pago antes de 24 h o la reserva se libera. El depósito se descuenta del total."]]
-        .map(([k,h,p]) => `<label class="pay-opt"><input type="radio" name="pay" value="${k}" ${S.pay===k?"checked":""}><span><span class="head">${h}</span><p>${p}</p></span></label>`).join("")}
+        .map(([k,h,p]) => `<label class="pay-opt"><input type="radio" name="pay" value="${k}" ${S.pay===k?"checked":""}><span><span class="h">${h}</span><p>${p}</p></span></label>`).join("")}
     </div>
     <div class="trust"><span>${ICON.lock} Conexión cifrada</span><span>${ICON.shield} Pasarela certificada PCI-DSS</span><span>${ICON.check} Precio final, sin cargos ocultos</span></div>
     <label class="check"><input type="checkbox" id="terms"><span>Acepto los términos y condiciones de la tarifa, la política de equipaje y el aviso de privacidad de datos personales.</span></label>
     <p class="form-error" id="pay-err" role="alert" hidden>Debes aceptar los términos para continuar.</p>
-    <div class="actions"><button class="btn" id="pay-btn">${S.pay==="hold" ? `Apartar por ${money(HOLD_FEE)}` : `Pagar ${money(t.total)}`} ${ICON.lock}</button></div>`;
+    <div class="actions"><button class="btn big" id="pay-btn">${S.pay==="hold" ? `Apartar por ${money(HOLD_FEE)}` : `Pagar ${money(t.total)}`} ${ICON.lock}</button></div>`;
   $("#bk").onclick = () => goStep("extras");
-  $$("[name=pay]").forEach(r => r.onchange = () => { S.pay = r.value; renderPay(); });
+  $$("[name=pay]").forEach(r => r.onchange = () => { S.pay = r.value; renderPay(); $(`[name=pay][value="${S.pay}"]`).focus(); });
   $("#pay-btn").onclick = () => {
     if (!$("#terms").checked){ $("#pay-err").hidden = false; $("#terms").focus(); return; }
+    $("#pay-btn").disabled = true;
     const ov = document.createElement("div");
     ov.className = "overlay"; ov.setAttribute("role","alert");
-    ov.innerHTML = `<div class="box"><div class="spinner"></div>${S.pay==="hold" ? "Apartando tu tarifa…" : "Conectando con la pasarela segura…"}<br><small style="color:var(--mid)">Simulación: no se realiza ningún cobro</small></div>`;
+    ov.innerHTML = `<div class="box"><div class="spinner"></div>${S.pay==="hold" ? "Apartando tu tarifa…" : "Conectando con la pasarela segura…"}<br><small style="color:var(--mute-dark);font-weight:500">Simulación: no se realiza ningún cobro</small></div>`;
     document.body.appendChild(ov);
     setTimeout(() => { ov.remove(); confirmBooking(); },1500);
   };
@@ -1188,21 +1365,24 @@ function totals(){
 }
 let timerI;
 function renderSummary(){
-  const t = totals(), A = AP[S.from], B = AP[S.to];
+  const t = totals();
   const legsHtml = [0,1].slice(0,legs()).map(l => {
     const s = S.sel[l], r = legRoute(l);
-    return `<div class="leg" style="margin-bottom:8px">${l===0?"Ida":"Regreso"} · ${r.o} → ${r.d}
+    return `<div class="leg">${l===0?"Ida":"Regreso"} · <span class="mono">${r.o} → ${r.d}</span>
       <small>${s ? `${fmtDate(s.f.date)} · ${fmtTime(s.f.dep)}–${fmtTime(s.f.arr)} · ${FARE[s.fare].name}` : `${fmtDate(r.date)} · por elegir`}</small></div>`;
   }).join("");
   const row = (k,v,cls="") => v ? `<div class="row ${cls}"><span>${k}</span><span>${cls?"−":""}${money(v)}</span></div>` : "";
+  const wasOpen = $("#summary").classList.contains("open");
   $("#summary").innerHTML = `
-    <div class="top"><div class="head">Tu viaje</div><div class="rt">${A.code} ${S.trip==="rt" ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg>' : ICON.arrow} ${B.code}</div></div>
+    ${wasOpen ? `<button type="button" id="sheet-close" class="btn sm" style="position:absolute;right:14px;top:14px;box-shadow:none">Cerrar</button>` : ""}
+    <div class="top"><div class="eyebrow">Tu itinerario</div><div class="rt">${S.from} ${S.trip==="rt" ? ICON.swap : ICON.arrow} ${S.to}</div></div>
     ${S.holdEnd ? `<div class="timer" id="timer">${ICON.clock}<span></span></div>` : ""}
-    <div class="sec">${legsHtml}<div class="leg"><small>${paxLabel()}</small></div></div>
+    <div class="sec">${legsHtml}<div class="leg" style="margin-top:8px"><small>${paxLabel()}</small></div></div>
     <div class="sec">${S.sel.length ? `
       ${row("Tarifa",t.fare)}${row("Impuestos y cargos",t.taxes)}${row("Asientos",t.seats)}${row("Maletas",t.bags)}${row("Seguro",t.ins)}${row(`Código ${S.promo||""}`,t.disc,"disc")}`
       : `<span class="empty">Elige un vuelo para ver el precio total.</span>`}</div>
-    <div class="total"><span class="head" style="font-weight:600">Total</span><b>${money(t.total)}</b></div>`;
+    <div class="total"><span style="font-weight:700">Total</span><b>${money(t.total)}</b></div>`;
+  $("#sheet-close")?.addEventListener("click",() => toggleSheet(false));
   $("#mt-amount").textContent = money(t.total);
   clearInterval(timerI);
   if (S.holdEnd){
@@ -1210,142 +1390,162 @@ function renderSummary(){
       const ms = S.holdEnd - Date.now();
       if (ms > 0){ el.textContent = `Mantenemos este precio por ${pad(Math.floor(ms/60000))}:${pad(Math.floor(ms/1000)%60)}`; return; }
       clearInterval(timerI);
-      el.innerHTML = `El tiempo terminó. <button type="button" id="extend" style="background:none;border:0;padding:0;font:inherit;font-weight:600;text-decoration:underline;color:inherit">Mantener ${HOLD_MIN} min más</button>`;
+      el.innerHTML = `El tiempo terminó. <button type="button" id="extend">Mantener ${HOLD_MIN} min más</button>`;
       $("#extend").onclick = () => { S.holdEnd = Date.now() + HOLD_MIN*60e3; renderSummary(); toast("Listo, mantenemos tu precio y tus datos."); }; };
     tick(); timerI = setInterval(tick,1000);
   }
 }
-$("#mt-btn").onclick = () => { const s = $("#summary"), open = !s.classList.contains("open"); s.classList.toggle("open",open); $("#mt-btn").setAttribute("aria-expanded",open); $("#mt-btn").textContent = open ? "Cerrar" : "Ver detalle"; };
+function toggleSheet(force){
+  const s = $("#summary"), open = force ?? !s.classList.contains("open");
+  s.classList.toggle("open",open);
+  $("#mt-btn").setAttribute("aria-expanded",open);
+  $("#mobile-total").hidden = open;
+  renderSummary();
+}
+$("#mt-btn").onclick = () => toggleSheet(true);
 
 /* ---- Confirmación ---- */
 function pnr(){ const ch = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let s = ""; for (let i=0;i<6;i++) s += ch[Math.floor(Math.random()*ch.length)]; return s; }
+function qr(code){
+  const N = 21, r = rng(hash(code)), cells = [];
+  const finder = (x,y) => { for (const [dx,dy,s] of [[0,0,7],[1,1,5],[2,2,3]]) cells.push(`<rect x="${x+dx}" y="${y+dy}" width="${s}" height="${s}" fill="${s===5?"#fff":"#0E1526"}"/>`); };
+  const inF = (x,y) => (x<8&&y<8)||(x>12&&y<8)||(x<8&&y>12);
+  for (let y=0;y<N;y++) for (let x=0;x<N;x++) if (!inF(x,y) && r()<.5) cells.push(`<rect x="${x}" y="${y}" width="1" height="1" fill="#0E1526"/>`);
+  finder(0,0); finder(14,0); finder(0,14);
+  return `<svg class="qr" viewBox="0 0 ${N} ${N}" shape-rendering="crispEdges" role="img" aria-label="Código QR de la reserva ${code} (simulado)">${cells.join("")}</svg>`;
+}
 function confirmBooking(){
   clearInterval(timerI);
   const t = totals();
   const b = {code:pnr(), created:Date.now(), status:S.pay==="hold" ? "held" : "paid", pay:S.pay,
     holdUntil:S.pay==="hold" ? Date.now()+864e5 : null, total:t.total, cls:S.cls,
     legs:S.sel.map(s => ({...s.f, fare:s.fare})), people:S.people.map(p => ({type:p.type,first:p.first,last:p.last})),
-    seats:Object.fromEntries(Object.entries(S.extras.seats).map(([k,v]) => [k,v])), bags:S.extras.bags, insurance:S.extras.insurance, contact:{...S.contact}};
-  const all = store.get("rw-bookings",[]); all.unshift(b); store.set("rw-bookings",all.slice(0,20));
-  $("#summary").classList.remove("open");
+    seats:{...S.extras.seats}, bags:S.extras.bags, insurance:S.extras.insurance, contact:{...S.contact}};
+  const all = store.get("estela-bookings",[]); all.unshift(b); store.set("estela-bookings",all.slice(0,20));
+  $("#summary").classList.remove("open"); $("#mobile-total").hidden = false;
   $("#done-main").innerHTML = `
-    <div style="text-align:center">
-      <div class="eyebrow" style="color:var(--orange-text)">${b.status==="paid" ? "Reserva confirmada" : "Tarifa apartada"}</div>
-      <h2 style="font-size:clamp(30px,4.4vw,50px);font-weight:600;margin:10px 0 6px">${b.status==="paid" ? `¡Listo, ${esc(b.people[0].first)}! Tu viaje está confirmado.` : `Tu tarifa está apartada, ${esc(b.people[0].first)}.`}</h2>
-      <p style="color:var(--muted);margin:0">${b.status==="paid" ? `Enviamos la confirmación a ${esc(b.contact.email)}.` : `Completa el pago antes del ${new Date(b.holdUntil).toLocaleString("es-SV",{weekday:"long",day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"})}.`}</p>
+    <div class="done-head">
+      <div class="eyebrow">${b.status==="paid" ? "Reserva confirmada" : "Tarifa apartada"}</div>
+      <h2>${b.status==="paid" ? `¡Buen viaje, ${esc(b.people[0].first)}!` : `Tu tarifa está apartada, ${esc(b.people[0].first)}.`}</h2>
+      <p>${b.status==="paid" ? `Enviamos tu pase y la confirmación a ${esc(b.contact.email)}.` : `Completa el pago antes del ${new Date(b.holdUntil).toLocaleString("es-SV",{weekday:"long",day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"})}.`}</p>
     </div>
-    ${passCard(b)}
+    ${passCard(b,true)}
     <div class="done-actions">
-      <a class="btn" style="background:#25d366" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(shareText(b))}">${ICON.wa} Enviar por WhatsApp</a>
-      <button class="btn ghost" onclick="window.print()">Imprimir</button>
+      <a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(shareText(b))}">${ICON.wa} Enviar por WhatsApp</a>
+      <button class="btn ghost" id="print">Imprimir</button>
       <button class="btn dark" id="again">Nueva búsqueda</button>
     </div>`;
   $("#again").onclick = () => show("home");
+  $("#print").onclick = () => window.print();
   show("done");
 }
-function passCard(b){
+function passCard(b,animate){
   const paxN = b.people.length;
   return `<div class="pass">
     <div class="main">
+      <span class="stamp ${b.status==="paid"?"ok":"held"}" ${animate?"":'style="animation:none;opacity:.9"'}>${b.status==="paid"?"CONFIRMADO":"APARTADO 24 H"}</span>
+      <div class="brandline"><span class="logo">${ICON.logo}<b>estela</b></span></div>
       <div class="legs">${b.legs.map((f,i) => `
         <div>
-          <div class="eyebrow" style="color:var(--orange-text);font-size:11px">${i===0?"Ida":"Regreso"} · ${fmtDate(f.date,{weekday:"long",day:"numeric",month:"long"})}</div>
-          <div class="lg" style="margin-top:6px"><div><b>${f.o}</b><div style="font-size:14px">${fmtTime(f.dep)}</div></div>
+          <div class="eyebrow" style="color:var(--sky)">${i===0?"Ida":"Regreso"} · ${fmtDate(f.date,{weekday:"long",day:"numeric",month:"long"})}</div>
+          <div class="lg" style="margin-top:8px"><div><b>${f.o}</b><div class="hr">${fmtTime(f.dep)}</div></div>
             <div class="mid">${fmtDur(f.dur)}<div class="line"></div>${f.via?`Escala en ${f.via}`:"Directo"} · ${f.no}</div>
-            <div style="text-align:right"><b>${f.d}</b><div style="font-size:14px">${fmtTime(f.arr)}</div></div></div>
+            <div style="text-align:right"><b>${f.d}</b><div class="hr">${fmtTime(f.arr)}</div></div></div>
         </div>`).join("")}</div>
       <div class="kv">
         <div><small>Pasajeros</small><span>${b.people.map(p => esc(`${p.first} ${p.last}`)).join("<br>")}</span></div>
         <div><small>Tarifa</small><span>${b.legs.map(f => FARE[f.fare].name).join(" / ")}${b.cls==="bus"?" · Business":""}</span></div>
-        <div><small>${b.status==="paid"?"Total pagado":"Total a pagar"}</small><span>${money(b.total)}</span></div>
-        <div><small>Asientos (ida)</small><span>${Object.values(b.seats).join(", ") || "Por asignar"}</span></div>
+        <div><small>${b.status==="paid"?"Total pagado":"Total a pagar"}</small><span class="mono">${money(b.total)}</span></div>
+        <div><small>Asientos (ida)</small><span class="mono">${Object.values(b.seats).join(", ") || "Por asignar"}</span></div>
         <div><small>Maletas</small><span>${b.bags || "—"}</span></div>
-        <div><small>Estado</small><span><span class="badge ${b.status==="paid"?"green":"orange"}">${b.status==="paid"?"Confirmada":"Apartada 24 h"}</span></span></div>
+        <div><small>Estado</small><span><span class="badge ${b.status==="paid"?"ok":"warn"}">${b.status==="paid"?"Confirmada":"Apartada"}</span></span></div>
       </div>
     </div>
     <div class="stub">
-      <div><div class="head" style="font-size:12px;color:var(--mid);letter-spacing:.1em;text-transform:uppercase">Código de reserva</div><div class="pnr">${b.code}</div>
-      <div style="font-family:var(--f-head);font-size:13px;color:var(--mid)">${paxN} ${paxN===1?"pasajero":"pasajeros"} · Guarda este código para Mis viajes y check-in</div></div>
-      <div class="barcode" aria-hidden="true"></div>
+      <div><div class="eyebrow" style="color:var(--mute-dark)">Código de reserva</div><div class="pnr">${b.code}</div>
+      <div style="font-size:13px;color:var(--mute-dark);margin-top:6px">${paxN} ${paxN===1?"pasajero":"pasajeros"} · úsalo en Mis viajes y check-in</div></div>
+      ${qr(b.code)}
     </div>
   </div>`;
 }
 function shareText(b){
-  return `✈️ Reserva ${b.code} (${b.status==="paid"?"confirmada":"apartada"})\n` +
-    b.legs.map((f,i) => `${i===0?"Ida":"Regreso"}: ${f.o} → ${f.d}, ${fmtDate(f.date,{weekday:"short",day:"numeric",month:"short"})} ${fmtTime(f.dep)} (${f.no})`).join("\n") +
+  return `✈️ Estela · Reserva ${b.code} (${b.status==="paid"?"confirmada":"apartada"})\n` +
+    b.legs.map((f,i) => `${i===0?"Ida":"Regreso"}: ${f.o} → ${f.d}, ${fmtDate(f.date)} ${fmtTime(f.dep)} (${f.no})`).join("\n") +
     `\nPasajeros: ${b.people.map(p => `${p.first} ${p.last}`).join(", ")}\nTotal: ${money(b.total)}`;
 }
 
 /* ---- Mis viajes / check-in / estado ---- */
 function findBooking(code,last){
   code = code.trim().toUpperCase(); last = norm(last.trim());
-  return store.get("rw-bookings",[]).find(b => b.code===code && b.people.some(p => norm(p.last)===last));
+  return store.get("estela-bookings",[]).find(b => b.code===code && b.people.some(p => norm(p.last)===last));
 }
 function renderTripsView(){
-  const recent = store.get("rw-bookings",[]);
+  const recent = store.get("estela-bookings",[]);
   $("#trips-out").innerHTML = "";
-  $("#trips-recent").innerHTML = recent.length ? `<h3 style="font-size:18px;font-weight:600;margin:28px 0 12px">Reservas hechas en este navegador</h3>
-    ${recent.slice(0,5).map(b => `<button class="card" data-code="${b.code}" style="display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;cursor:pointer;gap:12px;flex-wrap:wrap">
-      <span class="head" style="font-weight:600">${b.code} · ${b.legs[0].o} → ${b.legs[0].d}</span>
+  $("#trips-recent").innerHTML = recent.length ? `<h3 style="font-size:20px;font-weight:800;margin:30px 0 12px">Reservas hechas en este navegador</h3>
+    ${recent.slice(0,5).map(b => `<button class="card" data-code="${b.code}" style="display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;gap:12px;flex-wrap:wrap">
+      <span style="font-weight:700"><span class="mono">${b.code}</span> · ${b.legs[0].o} → ${b.legs[0].d}</span>
       <span style="color:var(--muted);font-size:15px">${fmtDate(b.legs[0].date)} · ${esc(b.people[0].first)} ${esc(b.people[0].last)}</span>
-      <span class="badge ${b.status==="paid"?"green":"orange"}">${b.status==="paid"?"Confirmada":"Apartada"}</span></button>`).join("")}` : "";
+      <span class="badge ${b.status==="paid"?"ok":"warn"}">${b.status==="paid"?"Confirmada":"Apartada"}</span></button>`).join("")}` : "";
   $$("#trips-recent [data-code]").forEach(el => el.onclick = () => {
-    const b = recent.find(x => x.code===el.dataset.code); $("#trips-out").innerHTML = passCard(b); $("#trips-out").scrollIntoView({behavior:"smooth"});
+    const b = recent.find(x => x.code===el.dataset.code); $("#trips-out").innerHTML = passCard(b,false); $("#trips-out").scrollIntoView({behavior:"smooth"});
   });
 }
+const notFound = `<div class="status-card"><span class="badge warn">Sin resultados</span><span>No encontramos esa reserva. Revisa el código de 6 caracteres y el apellido.</span></div>`;
 $("#trips-form").addEventListener("submit",e => {
   e.preventDefault();
   const b = findBooking($("#tv-code").value,$("#tv-last").value);
-  $("#trips-out").innerHTML = b ? passCard(b) : `<div class="card empty">No encontramos una reserva con ese código y apellido. Revisa los datos de tu confirmación.</div>`;
+  $("#trips-out").innerHTML = b ? passCard(b,false) : notFound;
 });
 $("#panel-trips").addEventListener("submit",e => {
   e.preventDefault();
   const b = findBooking($("#tr-code").value,$("#tr-last").value);
-  if (b){ renderTripsView(); show("trips"); $("#trips-out").innerHTML = passCard(b); }
-  else $("#tr-out").innerHTML = `<div class="status-card"><span class="badge orange">Sin resultados</span><span>No encontramos esa reserva. Revisa el código de 6 caracteres y el apellido.</span></div>`;
+  if (b){ renderTripsView(); show("trips"); $("#trips-out").innerHTML = passCard(b,false); }
+  else $("#tr-out").innerHTML = notFound;
 });
 $("#panel-checkin").addEventListener("submit",e => {
   e.preventDefault();
   const b = findBooking($("#ci-code").value,$("#ci-last").value), out = $("#ci-out");
-  if (!b){ out.innerHTML = `<div class="status-card"><span class="badge orange">Sin resultados</span><span>No encontramos esa reserva.</span></div>`; return; }
+  if (!b){ out.innerHTML = notFound; return; }
   const f = b.legs[0], depMs = fromISO(f.date).getTime() + f.dep*60e3, h = (depMs - Date.now())/36e5;
-  out.innerHTML = `<div class="status-card"><span class="badge ${h<=48&&h>1?"green":"blue"}">${h<=48&&h>1?"Check-in abierto":"Aún no disponible"}</span>
+  out.innerHTML = `<div class="status-card"><span class="badge ${h<=48&&h>1?"ok":"sky"}">${h<=48&&h>1?"Check-in abierto":"Aún no disponible"}</span>
     <span>${f.o} → ${f.d} · ${fmtDate(f.date)} ${fmtTime(f.dep)} · ${f.no}. ${h>48 ? `Se habilita el ${new Date(depMs-48*36e5).toLocaleString("es-SV",{weekday:"long",day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"})} (48 h antes de la salida).` : h>1 ? "Ya puedes obtener tu pase de abordar (simulado)." : "El check-in en línea está cerrado."}</span></div>`;
 });
 const stDate = $("#st-date"); stDate.value = today;
 $("#panel-status").addEventListener("submit",e => {
   e.preventDefault();
-  const num = $("#st-num").value.trim().toUpperCase().replace(/\s+/g," "), out = $("#st-out");
-  if (!/^[A-Z]{2,3} ?\d{2,4}$/.test(num)){ out.innerHTML = `<div class="status-card"><span class="badge orange">Revisa el dato</span><span>Escribe un número de vuelo como RSV 482.</span></div>`; return; }
+  const num = $("#st-num").value.trim().toUpperCase().replace(/\s+/g," ").replace(/^([A-Z]{2,3})(\d)/,"$1 $2"), out = $("#st-out");
+  if (!/^[A-Z]{2,3} ?\d{2,4}$/.test(num)){ out.innerHTML = `<div class="status-card"><span class="badge warn">Revisa el dato</span><span>Escribe un número de vuelo como EST 482.</span></div>`; return; }
   const r = rng(hash(num+stDate.value)), x = r();
-  const [cls,label,txt] = x < .62 ? ["green","A tiempo","Sale a la hora programada."] : x < .85 ? ["orange",`Demorado ${15+Math.floor(r()*6)*10} min`,"Nueva hora estimada informada por la tripulación."] : ["blue","Abordando","Dirígete a la puerta de embarque."];
-  out.innerHTML = `<div class="status-card"><span class="badge ${cls}">${label}</span><span><b class="head">${esc(num)}</b> · ${fmtDate(stDate.value)} · Puerta ${String.fromCharCode(65+Math.floor(r()*4))}${1+Math.floor(r()*18)}. ${txt} <em style="color:var(--muted)">(simulado)</em></span></div>`;
+  const [cls,label,txt] = x < .62 ? ["ok","A tiempo","Sale a la hora programada."] : x < .85 ? ["warn",`Demorado ${15+Math.floor(r()*6)*10} min`,"Nueva hora estimada informada por la tripulación."] : ["sign","Abordando","Dirígete a la puerta de embarque."];
+  out.innerHTML = `<div class="status-card"><span class="badge ${cls}">${label}</span><span><b class="mono">${esc(num)}</b> · ${fmtDate(stDate.value)} · Puerta ${"ABCD"[Math.floor(r()*4)]}${1+Math.floor(r()*18)}. ${txt} <em style="color:var(--muted)">(simulado)</em></span></div>`;
 });
 
-/* =================== Ofertas =================== */
+/* =================== Ofertas (etiquetas de equipaje) =================== */
 function renderDeals(){
-  $("#deals-origin").textContent = AP.SAL.city;
   const dates = Array.from({length:30},(_,k) => addDays(today,7+k));
   $("#deals").innerHTML = DEALS.map((code,i) => {
     let best = Infinity, bestDate = dates[0];
     dates.forEach(dd => { const p = minPrice("SAL",code,dd); if (p < best){ best = p; bestDate = dd; } });
     const a = AP[code];
-    return `<button class="deal c${i%4}" data-deal="${code}" data-date="${bestDate}" aria-label="${a.city}, desde ${money0(best)}, ${fmtDate(bestDate)}">
-      <span class="big">${code}</span>
-      <span><span class="city">${a.city}</span><br><span class="country">${a.country}</span>
-      <span class="from">Solo ida desde<b>${money0(best)}</b>${fmtDate(bestDate)}</span></span>
-      <span class="arrow">${ICON.arrow}</span></button>`;
+    return `<button class="deal t${i%4}" data-deal="${code}" data-date="${bestDate}" aria-label="${a.city}, ${a.country}. Solo ida desde ${money0(best)} el ${fmtDate(bestDate,{weekday:"long",day:"numeric",month:"long"})}">
+      <svg class="string" viewBox="0 0 40 44" aria-hidden="true"><path d="M20 44C20 30 8 22 14 8S30 4 26 0" fill="none" stroke="#0E1526" stroke-width="2" stroke-linecap="round"/></svg>
+      <span class="tagb"><span class="hole"></span>
+        <span class="code">${code}</span><span class="city">${a.city}</span><span class="country">${a.country}</span>
+        <span class="foot"><span><small>Solo ida desde</small><span class="price">${money0(best)}</span></span><span class="dt">${fmtDate(bestDate,{day:"numeric",month:"short"}).toUpperCase()}</span></span>
+      </span></button>`;
   }).join("");
   $$("[data-deal]").forEach(b => b.onclick = () => {
     setAirport("from","SAL"); setAirport("to",b.dataset.deal);
-    S.trip = "ow"; $$("[data-trip]").forEach(x => x.setAttribute("aria-pressed",x.dataset.trip==="ow")); grid.classList.add("oneway");
-    S.dep = b.dataset.date; inDep.value = S.dep;
+    setTrip("ow"); S.dep = b.dataset.date; syncDates();
     startFlow();
   });
 }
 
 /* =================== Inicio =================== */
-setAirport("from",S.from); setAirport("to",S.to); syncPax(); renderDeals();
+setAirport("from",S.from); setAirport("to",S.to); setTrip(S.trip); syncDates(); syncPax(); fit(inCls);
+renderDeals(); initBoard(); tickClock(); setInterval(tickClock,15000);
+document.fonts?.ready.then(fitAll);
 $("#year").textContent = new Date().getFullYear();
 })();
 </script>
