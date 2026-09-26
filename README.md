@@ -19,19 +19,21 @@ Es un solo archivo: abre `index.html` en cualquier navegador (doble clic). No re
 7. **Confirmación**: código de reserva tipo aerolínea, compartir por WhatsApp e imprimir.
 8. **Mis viajes / Check-in**: buscar la reserva con el código y el apellido.
 
-## Diseño: "señalética de aeropuerto"
+## Diseño: "serenidad editorial" (base Stitch + piezas propias)
 
 | Token | Color | Uso |
 |---|---|---|
-| `--sign` | `#FFC629` | Amarillo señalética: botones y acentos |
-| `--night` | `#0E1526` | Azul noche: texto y fondos oscuros |
-| `--sky` | `#2B54D6` | Azul cielo: enlaces y tarifa Flex |
-| `--floor` | `#F3F1EC` | Piso de terminal: fondo general |
+| `--primary` | `#06080a` | Negro: títulos, botones oscuros, pase de abordar |
+| `--gold` | `#775a19` | Dorado: botones principales y acentos |
+| `--gold-soft` | `#fed488` | Fondos dorados suaves |
+| `--sage` | `#0e241b` | Verde salvia: confirmaciones y fila de emergencia |
+| `--surface` | `#faf9f6` | Fondo general |
 
-- Tipografías: Bricolage Grotesque (títulos), Hanken Grotesk (texto), JetBrains Mono (códigos, horas y precios).
-- Elementos propios: tablero de salidas *split-flap*, buscador en forma de frase, ofertas como etiquetas de equipaje, progreso como ruta de vuelo y pase de abordar con sello y QR.
-- Todos los colores están como variables CSS al inicio de `index.html` (`:root`), para cambiar de marca en un solo lugar.
-- **Logo provisional**: SVG de una estela. Para reemplazarlo, buscar el comentario `LOGO` en `index.html` (header, footer y `ICON.logo` en el script).
+- Tipografías: Newsreader (títulos y cifras), Plus Jakarta Sans (texto), JetBrains Mono (tablero de salidas).
+- Base visual generada con Stitch; se conservan el tablero de salidas *split-flap* y el buscador en forma de frase.
+- **Fotos**: se buscan primero en `assets/` (`bogota.jpg`, `cancun.jpg`, `miami.jpg`, `madrid.jpg`, `cabina.jpg`) y, si no existen, se cargan desde los enlaces de Stitch. Para que no dependan de Stitch, descárgalas y súbelas a `assets/` con esos nombres. Si una foto falla, se muestra un fondo de color.
+- **Logo provisional**: SVG circular con una estela. Para reemplazarlo, buscar el comentario `LOGO` en `index.html` (header, footer).
+- Todos los colores están como variables CSS al inicio de `index.html` (`:root`).
 - Adaptada a celular (probada a 375 px), navegación por teclado y contraste AA.
 
 ## Investigación de respaldo
