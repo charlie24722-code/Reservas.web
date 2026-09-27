@@ -32,7 +32,7 @@ Es un solo archivo: abre `index.html` en cualquier navegador (doble clic). No re
 - Tipografías: Newsreader (títulos y cifras), Plus Jakarta Sans (texto), JetBrains Mono (tablero de salidas).
 - Base visual generada con Stitch; se conservan el tablero de salidas *split-flap* y el buscador en forma de frase.
 - **Fotos**: se buscan primero en `assets/` (`bogota.jpg`, `cancun.jpg`, `miami.jpg`, `madrid.jpg`, `cabina.jpg`) y, si no existen, se cargan desde los enlaces de Stitch. Para que no dependan de Stitch, descárgalas y súbelas a `assets/` con esos nombres. Si una foto falla, se muestra un fondo de color.
-- **Logo provisional**: SVG circular con una estela. Para reemplazarlo, buscar el comentario `LOGO` en `index.html` (header, footer).
+- **Logo**: los archivos maestros están en `assets/` (`estela-logo.png` para fondos claros, `estela-dark.png` para fondos oscuros, `estela-favicon.png`, `estela-symbol.png`, `estela-horizontal*.png`). La página usa copias ligeras: `web-logo.png` (header y footer), `web-logo-dark.png` (pase de abordar) y `web-favicon.png`.
 - Todos los colores están como variables CSS al inicio de `index.html` (`:root`).
 - Adaptada a celular (probada a 375 px), navegación por teclado y contraste AA.
 
