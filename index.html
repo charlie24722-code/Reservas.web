@@ -281,6 +281,8 @@ footer .cols{display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:28px}
 footer h4{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text);margin-bottom:12px;font-family:var(--f-sans)}
 footer ul{list-style:none;margin:0;padding:0}
 footer li{margin:7px 0}
+footer a{color:inherit;text-decoration:none}
+footer a:hover{color:var(--gold);text-decoration:underline}
 footer .legal{border-top:1px solid var(--s-high);margin-top:36px;padding-top:18px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 
 /* ---------- Flujo ---------- */
@@ -844,8 +846,8 @@ fieldset.card{min-width:0}
         <p style="max-width:32ch">Aerolínea ficticia creada para un demo educativo de reservas. Datos simulados.</p>
       </div>
       <div><h4>Viajar</h4><ul><li>Explorar vuelos</li><li>Check-in digital</li><li>Cabinas y confort</li></ul></div>
-      <div><h4>Gestión</h4><ul><li>Estado del vuelo</li><li>Equipaje y asientos</li><li>Cambios y reembolsos</li></ul></div>
-      <div><h4>Atención</h4><ul><li>Centro de ayuda</li><li>Términos de viaje</li><li>Privacidad de datos</li></ul></div>
+      <div><h4>Gestión</h4><ul><li>Estado del vuelo</li><li><a href="https://github.com/charlie24722-code/Reservas.web/blob/main/docs/politica-de-equipaje.md" target="_blank" rel="noopener">Política de equipaje</a></li><li><a href="https://github.com/charlie24722-code/Reservas.web/blob/main/docs/cambios-y-reembolsos.md" target="_blank" rel="noopener">Cambios y reembolsos</a></li></ul></div>
+      <div><h4>Atención</h4><ul><li>Centro de ayuda</li><li><a href="https://github.com/charlie24722-code/Reservas.web/blob/main/docs/terminos-de-compra-en-linea.md" target="_blank" rel="noopener">Términos de compra</a></li><li><a href="https://github.com/charlie24722-code/Reservas.web/blob/main/docs/aviso-de-privacidad.md" target="_blank" rel="noopener">Aviso de privacidad</a></li></ul></div>
     </div>
     <div class="legal"><span>© <span id="year"></span> Estela · Demo educativo</span><span>Precios en USD · Horarios en hora local</span></div>
   </div>
@@ -918,6 +920,8 @@ const BAGGAGE = {basic:"Solo artículo personal. Puedes agregar maletas desde Mi
 const PROMOS = {BIENVENIDO10:0.10};
 const BAG_PRICE = 35, SEAT_PRICE = 12, SEAT_PLUS = 25, SEAT_EXIT = 18, INS_PRICE = 9.9, HOLD_FEE = 10, HOLD_MIN = 15;
 const EXIT_ROWS = [12,13];
+const DOCS = "https://github.com/charlie24722-code/Reservas.web/blob/main/docs/";
+const docLink = (f,t) => `<a href="${DOCS}${f}.md" target="_blank" rel="noopener" style="color:var(--gold);font-weight:600">${t}</a>`;
 
 /* =================== Utilidades =================== */
 const $ = (s,el=document) => el.querySelector(s);
@@ -1377,7 +1381,7 @@ function renderPax(){
             <select id="cc" aria-label="Código de país">${["+503","+502","+504","+505","+506","+507","+57","+52","+1","+34"].map(c => `<option ${S.contact.cc===c?"selected":""}>${c}</option>`).join("")}</select>
             <input id="phone" type="tel" inputmode="tel" autocomplete="tel-national" value="${esc(S.contact.phone)}" aria-describedby="phone-msg"></div><span class="msg" id="phone-msg"></span></div>
         </div>
-        <p style="color:var(--muted);font-size:13px;margin:12px 0 0">Te enviaremos la confirmación y los avisos del vuelo a este correo y WhatsApp.</p>
+        <p style="color:var(--muted);font-size:13px;margin:12px 0 0">Te enviaremos la confirmación y los avisos del vuelo a este correo y WhatsApp. Lee cómo usamos tus datos en el ${docLink("aviso-de-privacidad","aviso de privacidad")}.</p>
       </fieldset>
       <div class="actions"><button class="btn" type="submit">Continuar a asientos ${ICON.arrow}</button></div>
     </form>`;
@@ -1509,7 +1513,7 @@ function renderPay(){
         .map(([k,h,p]) => `<label class="pay-opt"><input type="radio" name="pay" value="${k}" ${S.pay===k?"checked":""}><span><span class="h">${h}</span><p>${p}</p></span></label>`).join("")}
     </div>
     <div class="trust"><span>${ICON.lock} Conexión cifrada</span><span>${ICON.shield} Pasarela certificada PCI-DSS</span><span>${ICON.check} Precio final, sin cargos ocultos</span></div>
-    <label class="check"><input type="checkbox" id="terms"><span>Acepto los términos y condiciones de la tarifa, la política de equipaje y el aviso de privacidad de datos personales.</span></label>
+    <label class="check"><input type="checkbox" id="terms"><span>Acepto los ${docLink("terminos-de-compra-en-linea","términos de compra")}, las ${docLink("cambios-y-reembolsos","condiciones de cambios")}, la ${docLink("politica-de-equipaje","política de equipaje")} y el ${docLink("aviso-de-privacidad","aviso de privacidad")}.</span></label>
     <p class="form-error" id="pay-err" role="alert" hidden>Debes aceptar los términos para continuar.</p>
     <div class="actions"><button class="btn big" id="pay-btn">${S.pay==="hold" ? `Apartar por ${money(HOLD_FEE)}` : `Pagar ${money(t.total)}`} ${ICON.lock}</button></div>`;
   $("#bk").onclick = () => goStep("extras");

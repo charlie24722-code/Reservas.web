@@ -36,6 +36,11 @@ Es un solo archivo: abre `index.html` en cualquier navegador (doble clic). No re
 - Todos los colores están como variables CSS al inicio de `index.html` (`:root`).
 - Adaptada a celular (probada a 375 px), navegación por teclado y contraste AA.
 
+## Documentos de la aerolínea (demo)
+
+Enlazados desde el pie de página y desde el paso de pago:
+[Política de equipaje](docs/politica-de-equipaje.md) · [Cambios y reembolsos](docs/cambios-y-reembolsos.md) · [Términos de compra en línea](docs/terminos-de-compra-en-linea.md) · [Aviso de privacidad](docs/aviso-de-privacidad.md)
+
 ## Investigación de respaldo
 
 Ver [`docs/investigacion.md`](docs/investigacion.md): cómo lo hacen las aerolíneas de la región y qué haría falta para llevarlo a producción.
