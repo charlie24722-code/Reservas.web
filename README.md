@@ -31,7 +31,7 @@ Es un solo archivo: abre `index.html` en cualquier navegador (doble clic). No re
 - Tipografías: Bricolage Grotesque (títulos), Hanken Grotesk (texto), JetBrains Mono (códigos, horas y precios).
 - Elementos propios: tablero de salidas *split-flap*, buscador en forma de frase, ofertas como etiquetas de equipaje, progreso como ruta de vuelo y pase de abordar con sello y QR.
 - Todos los colores están como variables CSS al inicio de `index.html` (`:root`), para cambiar de marca en un solo lugar.
-- **Logo provisional**: SVG de una estela. Para reemplazarlo, buscar el comentario `LOGO` en `index.html` (header, footer y `ICON.logo` en el script).
+- **Assets de marca**: `assets/estela-logo.png` es el master oscuro para fondos claros; `estela-dark.png` se usa en header y footer; `estela-favicon.png`, `estela-symbol.png`, `estela-horizontal.png` y `estela-horizontal-vector-style.png` quedan disponibles para usos de producto.
 - Adaptada a celular (probada a 375 px), navegación por teclado y contraste AA.
 
 ## Investigación de respaldo
