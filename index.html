@@ -543,6 +543,104 @@ fieldset.card{min-width:0}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:var(--primary);color:#fff;font-weight:500;font-size:14px;padding:12px 18px;border-radius:var(--r-md);box-shadow:var(--sh-xl);z-index:var(--z-toast);transition:transform .3s,opacity .3s;max-width:calc(100% - 32px);opacity:0;pointer-events:none}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 
+
+/* ---------- Explorar: mapa + presupuesto ---------- */
+.xhero{position:relative;height:720px;overflow:hidden;color:#fff;background-color:#06080a;background-image:radial-gradient(rgba(233,193,118,.10) 1px,transparent 1.4px);background-size:16px 16px}
+.xmap{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:pan-y;user-select:none}
+.xmap.drag{cursor:grabbing}
+.xmap .city{cursor:pointer;outline:none}
+.xmap .city:focus-visible .lbl,.xmap .city:hover .lbl{stroke:#ffdea5;stroke-width:2}
+.xpanel{position:absolute;z-index:2;top:40px;left:max(24px,calc((100% - var(--wrap))/2 + 24px));width:460px;box-sizing:border-box;padding:26px 26px 22px;background:rgba(12,14,17,.8);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.12);border-radius:18px;display:flex;flex-direction:column;gap:16px}
+.xpanel .eyebrow{color:var(--gold-fixed)}
+.xq{font-family:var(--f-serif);font-weight:400;font-size:38px;line-height:1.3;margin:0;color:#fff}
+.xq em{color:var(--led-gold)}
+.xblank{field-sizing:content;font:inherit;color:#fff;background:rgba(255,255,255,.08);border:0;border-bottom:2px solid var(--led-gold);border-radius:6px 6px 0 0;padding:0 .2em;appearance:none;-webkit-appearance:none}
+select.xblank{padding-right:.9em;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23e9c176' stroke-width='1.6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .2em center;background-size:.35em}
+select.xblank option{color:#06080a}
+.xblank:focus-visible{outline:2px solid var(--led-gold);outline-offset:2px}
+.xrange label{display:flex;justify-content:space-between;font-size:12px;color:#a3a5a8;margin-bottom:6px}
+.xrange input{width:100%;accent-color:var(--led-gold);height:28px}
+.xchips{display:flex;gap:8px;flex-wrap:wrap}
+.xchip{border:1px solid rgba(255,255,255,.22);background:transparent;color:#d5d6d8;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600;min-height:36px}
+.xchip:hover{border-color:var(--led-gold)}
+.xchip[aria-pressed="true"]{background:var(--led-gold);border-color:var(--led-gold);color:#06080a}
+.xcount{margin:0;font-size:13px;color:var(--led-gold)}
+.xpick{background:#fff;color:var(--text);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.xpick .r1{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.xpick small{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.xpick .c{font-family:var(--f-serif);font-size:28px;color:var(--primary);line-height:1.1}
+.xpick .p{font-family:var(--f-serif);font-size:28px;color:var(--primary);text-align:right;line-height:1.1}
+.xpick .p span{display:block;font-family:var(--f-sans);font-size:11px;color:var(--muted)}
+.xpick .r2{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+.xpick .empty{color:var(--muted);font-style:normal;font-size:14px}
+.pill-ok,.pill-no{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill-ok{background:var(--sage-soft);color:var(--on-sage)}.pill-no{background:var(--error-soft);color:#93000a}
+.xlinks{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.xlinks button{background:none;border:0;padding:4px 0;font-size:13px;color:#d5d6d8}
+.xlinks button:first-child{color:var(--led-gold);font-weight:700}
+.xlinks button:hover{text-decoration:underline}
+.xctrl{position:absolute;right:24px;bottom:24px;z-index:2;display:flex;flex-direction:column;gap:8px}
+.xctrl button{width:44px;height:44px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(12,14,17,.85);color:#fff;font-size:20px;line-height:1}
+.xctrl button:hover{border-color:var(--led-gold);color:var(--led-gold)}
+.xlegend{position:absolute;right:84px;bottom:32px;z-index:2;display:flex;gap:16px;font-size:12px;color:#a3a5a8;pointer-events:none}
+.xlegend i{display:inline-block;width:10px;height:10px;border-radius:50%;background:#4a4d52;margin-right:6px;vertical-align:-1px}
+.xlegend i.on{background:var(--led-gold)}
+.feed{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.tile{display:flex;flex-direction:column;text-align:left;border:0;padding:0;background:var(--card);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-sm);transition:box-shadow .25s,transform .25s;color:inherit}
+.tile:hover{box-shadow:var(--sh-xl);transform:translateY(-3px)}
+.tile .tp{position:relative;height:160px;background:linear-gradient(135deg,#1e2022,#775a19);overflow:hidden}
+.tile .tp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tile .iata{position:absolute;right:12px;bottom:0;font-family:var(--f-serif);font-size:68px;line-height:1;color:rgba(255,255,255,.22)}
+.tile .vb{position:absolute;left:12px;top:12px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.92);color:var(--primary);padding:3px 8px;border-radius:4px}
+.tile .tb{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;padding:14px 16px 16px}
+.tile .tb b{display:block;color:var(--primary)}
+.tile .tb small{font-size:12px;color:var(--muted)}
+.tile .pr{text-align:right}
+.tile .pr b{font-family:var(--f-serif);font-weight:500;font-size:24px}
+.feed-empty{grid-column:1/-1;text-align:center;padding:40px;background:var(--card);border-radius:var(--r-lg);color:var(--muted)}
+#buscar .console{margin-top:0}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px}
+.qa{display:flex;align-items:center;gap:12px;background:var(--card);border:0;border-radius:var(--r-lg);padding:16px 18px;box-shadow:var(--sh-sm);text-align:left;color:inherit}
+.qa:hover{box-shadow:var(--sh-md)}
+.qa .qi{width:40px;height:40px;border-radius:50%;background:var(--gold-fixed);display:grid;place-items:center;color:var(--gold);flex:none}
+.qa .qi svg{width:18px;height:18px}
+.qa b{display:block;color:var(--primary);font-size:15px}
+.qa small{color:var(--muted);font-size:12.5px}
+.qa .qarr{margin-left:auto;color:var(--gold)}.qa .qarr svg{width:16px;height:16px}
+.band-dark{background:var(--primary);padding:44px 0}
+.bd-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.6fr);gap:48px;align-items:center;color:#fff}
+.bd-grid>*{min-width:0}
+.bd-title{font-family:var(--f-serif);font-size:36px;margin:8px 0 10px}
+.bd-sub{color:#a3a5a8;margin:0}
+.band-dark .board{box-shadow:none}
+.perks4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.perks4>div{display:flex;flex-direction:column;gap:4px;padding:6px 18px 6px 0;border-right:1px solid var(--s-high)}
+.perks4>div:last-child{border-right:0}
+.perks4 .pi{font-family:var(--f-serif);font-size:26px;color:var(--gold)}
+.perks4 b{color:var(--primary);font-size:16px}
+.perks4 span:last-child{font-size:13.5px;color:var(--muted)}
+@media (max-width:1040px){
+  .feed{grid-template-columns:repeat(2,1fr)}
+  .quick,.perks4{grid-template-columns:repeat(2,1fr)}
+  .perks4>div{border-right:0}
+  .bd-grid{grid-template-columns:minmax(0,1fr);gap:20px}
+}
+@media (max-width:760px){
+  .xhero{height:auto;display:flex;flex-direction:column}
+  .xpanel{position:relative;top:auto;left:auto;width:auto;margin:16px 16px 0;padding:20px 18px;order:-1}
+  .xq{font-size:30px}
+  .xmap{position:relative;inset:auto;height:380px}
+  .xctrl{flex-direction:row;right:16px;bottom:16px}
+  .xlegend{left:16px;right:auto;bottom:24px;flex-direction:column;gap:4px}
+  .xlegend .hint{display:none}
+  .quick{grid-template-columns:1fr}
+  .feed{grid-template-columns:1fr 1fr;gap:12px}
+  .tile .tp{height:110px}
+  .tile .iata{font-size:46px}
+  .tile .tb{flex-direction:column;align-items:flex-start;padding:12px}
+  .tile .pr{text-align:left}
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width:1040px){
   .hero-grid{grid-template-columns:1fr;gap:30px}
@@ -641,26 +739,34 @@ fieldset.card{min-width:0}
 <main>
 <!-- =================== INICIO =================== -->
 <section id="view-home">
-  <div class="hero">
-    <div class="wrap">
-      <div class="hero-grid">
-        <div>
-          <span class="eyebrow reveal d1">Vuelos internacionales · desde San Salvador</span>
-          <h1 class="reveal d2">¿A dónde te lleva el próximo <em>semestre</em>?</h1>
-          <p class="lead reveal d3">Arma tu viaje escribiendo una frase. Compara tarifas claras, elige tu asiento y recibe tu pase de abordar. Todo es simulado: aquí no se cobra un centavo.</p>
-        </div>
-        <div class="board dark reveal d3" aria-label="Tablero de salidas">
-          <div class="board-top">
-            <div class="t"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.5 19h19v2h-19zM22 9.5c-.3-1.1-1.4-1.7-2.4-1.4L14.3 9.5 7.4 3l-1.9.5 4.1 7.2-5 1.3-2-1.5-1.5.4 1.8 3.2.8 1.3 1.6-.4 5.3-1.4 4.4-1.2 5.3-1.4c1.1-.3 1.7-1.4 1.4-2.5z"/></svg><h2>SALIDAS<small>DEPARTURES</small></h2></div>
-            <div class="board-clock" id="clock" aria-hidden="true">--:--</div>
-          </div>
-          <div class="b-head" aria-hidden="true"><span>HORA</span><span>DESTINO</span><span class="h-fl">VUELO</span><span class="h-gt">PTA</span><span>ESTADO</span></div>
-          <div id="board-rows"></div>
-          <div class="board-foot"><span>SAN SALVADOR · SAL</span><span>Toca un vuelo para buscarlo</span></div>
-        </div>
+  <div class="xhero dark" id="xhero">
+    <svg class="xmap" id="xmap" aria-label="Mapa interactivo de destinos desde San Salvador. Arrastra para moverlo y usa los botones para acercar o alejar."></svg>
+    <div class="xpanel">
+      <span class="eyebrow">Explora desde San Salvador</span>
+      <h1 class="xq">Tengo <button type="button" class="xblank" id="x-bud-out" aria-label="Presupuesto: ajusta con el control de abajo">$400</button> y <select class="xblank" id="x-days" aria-label="Duración del viaje"><option value="3">3 días</option><option value="4" selected>4 días</option><option value="7">1 semana</option><option value="14">2 semanas</option></select> en <select class="xblank" id="x-month" aria-label="Mes del viaje"></select>. <em>¿A dónde voy?</em></h1>
+      <div class="xrange"><label for="x-budget"><span>Presupuesto por persona</span><span>$150 — $1,500</span></label><input id="x-budget" type="range" min="150" max="1500" step="10" value="400"></div>
+      <div class="xchips" role="group" aria-label="Tipo de viaje">
+        <button type="button" class="xchip" data-vibe="Todo" aria-pressed="true">Todo</button><button type="button" class="xchip" data-vibe="Playa" aria-pressed="false">Playa</button><button type="button" class="xchip" data-vibe="Ciudad" aria-pressed="false">Ciudad</button><button type="button" class="xchip" data-vibe="Montaña" aria-pressed="false">Montaña</button><button type="button" class="xchip" data-vibe="Cultura" aria-pressed="false">Cultura</button>
       </div>
+      <p class="xcount" id="x-count" aria-live="polite"></p>
+      <div class="xpick" id="x-pick" aria-live="polite"></div>
+      <div class="xlinks"><button type="button" id="x-surprise">Sorpréndeme</button><button type="button" data-scroll="buscar">¿Ya sabes a dónde? Buscar por destino ↓</button></div>
+    </div>
+    <div class="xctrl"><button type="button" id="x-zin" aria-label="Acercar mapa">+</button><button type="button" id="x-zout" aria-label="Alejar mapa">−</button><button type="button" id="x-reset" aria-label="Centrar mapa">⟲</button></div>
+    <div class="xlegend" aria-hidden="true"><span><i class="on"></i>Te alcanza</span><span><i></i>Fuera de presupuesto</span><span class="hint">Arrastra para mover el mapa</span></div>
+  </div>
 
-      <div class="console reveal d4">
+  <section class="block" id="ofertas">
+    <div class="wrap">
+      <div class="sec-head"><div><span class="eyebrow">Caben en tu presupuesto</span><h2 id="feed-title">Destinos para ti</h2></div><p id="feed-sub">Ida y vuelta por persona, impuestos incluidos.</p></div>
+      <div class="feed" id="feed"></div>
+    </div>
+  </section>
+
+  <section class="block" id="buscar">
+    <div class="wrap">
+      <div class="sec-head"><div><span class="eyebrow">Búsqueda clásica</span><h2>¿Ya sabes a dónde vas?</h2></div><p>Escribe tu viaje en una frase o gestiona una reserva.</p></div>
+      <div class="console">
         <div class="tabs" role="tablist" aria-label="Opciones">
           <button class="tab" role="tab" id="tab-book" aria-controls="panel-book" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 16l20-6-3-3-7 2-6-5-2 1 4 6-4 1-2-2-1 1z"/></svg>Reservar vuelo</button>
           <button class="tab" role="tab" id="tab-checkin" aria-controls="panel-checkin" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M16 11l2 2 4-4"/></svg>Check-in</button>
@@ -738,49 +844,39 @@ fieldset.card{min-width:0}
           <div id="st-out" aria-live="polite"></div>
         </form>
       </div>
-
-      <div class="pillars">
-        <div><span class="eyebrow">Base central</span><b>San Salvador (SAL)</b><span>Conexiones a 22 destinos</span></div>
-        <div><span class="eyebrow">Puntualidad</span><b>94.8 %</b><span>Promedio simulado del demo</span></div>
-        <div><span class="eyebrow">Flexibilidad 24 h</span><b>Tarifa apartada</b><span>Congela el precio sin pagar todo</span></div>
-        <div><span class="eyebrow">Flota</span><b>A320neo y 787</b><span>Cabinas silenciosas</span></div>
+      <div class="quick">
+        <button class="qa" data-tab="checkin"><span class="qi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M16 11l2 2 4-4"/></svg></span><span><b>Check-in</b><small>Desde 48 h antes</small></span><span class="qarr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+        <button class="qa" data-tab="status"><span class="qi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span><b>Estado de vuelo</b><small>Puerta y horario</small></span><span class="qarr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+        <button class="qa" data-doc="politica-de-equipaje"><span class="qi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="7" width="14" height="13" rx="2"/><path d="M9 7V4h6v3"/></svg></span><span><b>Equipaje</b><small>Qué incluye tu tarifa</small></span><span class="qarr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+        <button class="qa" data-go="trips"><span class="qi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><span><b>Mis viajes</b><small>Consulta tu reserva</small></span><span class="qarr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
       </div>
-    </div>
-  </div>
-
-  <section class="block" id="ofertas">
-    <div class="wrap">
-      <div class="sec-head">
-        <div><span class="eyebrow">Tarifas transparentes de temporada</span><h2>Destinos populares desde San Salvador</h2></div>
-        <p>El precio más bajo de los próximos 30 días. Toca un destino y te llevamos directo a esa fecha.</p>
-      </div>
-      <div class="dests" id="deals"></div>
     </div>
   </section>
 
-  <section class="benefits-sec">
-    <div class="wrap">
-      <div class="sec-head center"><span class="eyebrow">El compromiso Estela</span><h2>Volar sin complicaciones</h2><p>Cada paso está pensado para que sepas qué pagas y qué incluye.</p></div>
-      <div class="benefits">
-        <div class="benefit"><div class="ic" style="background:var(--s-mid);color:var(--gold)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg></div><span class="eyebrow">01 · Claridad total</span><h3>Precio transparente desde el inicio</h3><p>Sin cargos sorpresa en el último paso: impuestos y cargos visibles antes de elegir.</p></div>
-        <div class="benefit"><div class="ic" style="background:rgba(255,222,165,.5);color:var(--gold)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12M6 22h12M7 2c0 6 10 6 10 10S7 16 7 22M17 2c0 6-10 6-10 10s10 4 10 10"/></svg></div><span class="eyebrow">02 · Decide con calma</span><h3>Aparta tu tarifa 24 horas</h3><p>Congela el precio con un depósito pequeño y termina de pagar cuando estés listo.</p></div>
-        <div class="benefit"><div class="ic" style="background:var(--sage-soft);color:var(--sage)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 01-12 7l-5 1 1-4.5A8 8 0 1121 12z"/></svg></div><span class="eyebrow">03 · En tu teléfono</span><h3>Confirmación por WhatsApp</h3><p>Recibe tu reserva, el aviso de check-in y los cambios de puerta al instante.</p></div>
+  <section class="block">
+    <div class="band-dark dark">
+      <div class="wrap bd-grid">
+        <div><span class="eyebrow" style="color:var(--gold-fixed)">En vivo · Terminal SAL</span><h2 class="bd-title">Salidas de hoy</h2><p class="bd-sub">Toca un vuelo y lo marcamos en el mapa.</p></div>
+        <div class="board dark" aria-label="Tablero de salidas">
+          <div class="board-top">
+            <div class="t"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.5 19h19v2h-19zM22 9.5c-.3-1.1-1.4-1.7-2.4-1.4L14.3 9.5 7.4 3l-1.9.5 4.1 7.2-5 1.3-2-1.5-1.5.4 1.8 3.2.8 1.3 1.6-.4 5.3-1.4 4.4-1.2 5.3-1.4c1.1-.3 1.7-1.4 1.4-2.5z"/></svg><h2>SALIDAS<small>DEPARTURES</small></h2></div>
+            <div class="board-clock" id="clock" aria-hidden="true">--:--</div>
+          </div>
+          <div class="b-head" aria-hidden="true"><span>HORA</span><span>DESTINO</span><span class="h-fl">VUELO</span><span class="h-gt">PTA</span><span>ESTADO</span></div>
+          <div id="board-rows"></div>
+          <div class="board-foot"><span>SAN SALVADOR · SAL</span><span>Toca un vuelo para buscarlo</span></div>
+        </div>
       </div>
     </div>
   </section>
 
   <section class="block">
     <div class="wrap">
-      <div class="manage dark">
-        <div><span class="eyebrow">Centro de pasajeros</span><h2>¿Ya tienes una reserva con Estela?</h2><p>Consulta tu itinerario, revisa tu asiento o haz check-in con tu código de 6 caracteres.</p></div>
-        <div>
-          <form id="manage-form" novalidate>
-            <div class="f"><label for="mg-code">Código reserva</label><input id="mg-code" maxlength="6" placeholder="K7Q2MX" style="text-transform:uppercase"></div>
-            <div class="f"><label for="mg-last">Apellido</label><input id="mg-last" autocomplete="family-name" placeholder="Apellido"></div>
-            <button class="btn upper" type="submit">Gestionar</button>
-          </form>
-          <div id="mg-out" class="manage-out" aria-live="polite"></div>
-        </div>
+      <div class="perks4">
+        <div><span class="pi">01</span><b>Precio final desde el inicio</b><span>Impuestos visibles antes de elegir.</span></div>
+        <div><span class="pi">02</span><b>Aparta tu tarifa 24 h</b><span>Congela el precio con un depósito de $10.</span></div>
+        <div><span class="pi">03</span><b>Paga en cuotas</b><span>Hasta 12 cuotas con bancos participantes.</span></div>
+        <div><span class="pi">04</span><b>Todo en tu WhatsApp</b><span>Confirmación y avisos del vuelo al instante.</span></div>
       </div>
     </div>
   </section>
@@ -892,14 +988,27 @@ const IMG = {
   BOG:["bogota.jpg","https://lh3.googleusercontent.com/aida-public/AB6AXuCg_MyKUJYK23b-cMfXaKrYJjdojV9KN8_ZK4q3K-Suw2XRzrxPrJoWVk8tBkkPN3WYe-ewTcxuFGL1P8SbiTcCMNSgQzL1YGtpc7uXMnWS0-lZdymYVIEzWjyw9eWxkN2D1y3Np5nbavQdtOdX9IIoJtOoqGkjjfVigdczjz_FWX0Kh32EWfWKv39AGZve0y9IXWi4c_HOpTQe_jXuKyv6rR5fwZJGyCummTgCfeW_RbHApf8CW7TRvQ"],
   CUN:["cancun.jpg","https://lh3.googleusercontent.com/aida-public/AB6AXuC0d88JQT_E8LGBgDkI2xyGttgavCYfq31tfGs4Kq8DNi3065IJ0iTtKmnqLfGkTYOBjl0mm8_Sba4v0znMwX4aaYQw6VskBp3uBpWnWMdwHRplNVbSvufuMFR0Lt_acEo7hggVYQ6b0Adt_rHI9B3fk96zqlHyhIGDijl2pyy5VktmFCBkmIVppURYa0YGmnH-JzSj96Wte7zFrjmMxkquW5WMgCZFWgxOllBm5JtttFfn0hbDYuPI8A"],
   MIA:["miami.jpg","https://lh3.googleusercontent.com/aida-public/AB6AXuAI91bJbMQWADwpCtkuK1mM2kTy99PAnGhLHD7t9iFgZZPLwsxRTFLuX65bb7rormlwjhOwpNRLxP38QRuENc7VSoTm-5fqFy7jEfmgqwb-DUEWQOZY4NlArcX-rnOzBFwKLwCEGCOoK5kToLyr4DiI78KFKJZcMw9yJyNM_ZqklYV0r9oVlxW4L7SKLmocFDasipoX6Nx40vGZHPhErfE8pJj8fpcYlgrH9VjzlzoCsxSs8aT9YVajeg"],
-  MAD:["madrid.jpg","https://lh3.googleusercontent.com/aida-public/AB6AXuChv2-EOWWKUkLSYLS5aS1wr6a6G5VSZePpBVzNPalxUy8Cq4KEVPQS86SovEe341RGZv_PbA16OZ9vPqHxlXSc2d9UlD1_ujK29M4QN_zb7jgHoFu7-Nealug2yA2gWmDzHuUZZp-_EVUhs83LTi6dIIA-WXLychoKiOLhapo1u4_Lg-zGrDwcsx3skp8b6BRnUOfbvol1oHuMH5KcGAKJIQdEzFweaZpMGGHRZhUtERbvrct69kJQyA"],
+  MAD:["madrid.jpg",""],
+  SJO:["sanjose.jpg",""], PTY:["panama.jpg",""], LIM:["lima.jpg",""], MEX:["mexico.jpg",""], JFK:["nuevayork.jpg",""],
+  CTG:["cartagena.jpg",""], GUA:["guatemala.jpg",""], LAX:["losangeles.jpg",""], SCL:["santiago.jpg",""], BCN:["barcelona.jpg",""],
+  UIO:["quito.jpg",""], GRU:["saopaulo.jpg",""],
   cabina:["cabina.jpg","https://lh3.googleusercontent.com/aida-public/AB6AXuDyFE4qydUUa1_mMNWhtKANba53Js5TMSjLnH-Eh4Y-8cI-7qEJ0mjJCryUZB5ZlObuo5sKdL71RbfbwgNRSNLsXb5fWpqUs4lrFf9wSUij7lU0b6xzZOiB_VV1COVRD4NIgjJuTkzfiWR1fv6fHq4_2EQj0mkHRe0X8Ho8f0yq3HMuODxNvaYSSoFdjtw-EICkgKMFWS33MeuMHsmLW7h9R9xctC7mUI1PvzazkmejhnhMRZ1ALdGNWA"]
 };
-const DEALS = [
-  {code:"BOG",tag:"Vuelo directo",cls:""},
-  {code:"CUN",tag:"Más popular",cls:"gold"},
-  {code:"MIA",tag:"Vuelo directo",cls:""},
-  {code:"MAD",tag:"Ruta transatlántica",cls:"sage"}
+const EXPLORE = [
+  ["BOG","Ciudad"],["CUN","Playa"],["MIA","Ciudad"],["MAD","Cultura"],["SJO","Montaña"],["PTY","Ciudad"],["LIM","Cultura"],["MEX","Cultura"],
+  ["JFK","Ciudad"],["CTG","Playa"],["GUA","Montaña"],["LAX","Playa"],["SCL","Montaña"],["BCN","Playa"],["UIO","Montaña"],["GRU","Ciudad"]
+];
+const VIBE = Object.fromEntries(EXPLORE);
+const LBL_OFF = {GUA:[-84,-32],SJO:[-88,4],PTY:[2,12],CUN:[-88,-30],MEX:[-90,-12],BOG:[16,-8],CTG:[14,-32],UIO:[-90,-6],MIA:[14,-16],JFK:[14,-14],LIM:[14,-12],LAX:[14,-14],SCL:[14,-12],GRU:[14,-12],MAD:[-90,-28],BCN:[-90,6]};
+/* Continentes simplificados (lon, lat), dibujados a mano para el estilo de puntos */
+const LAND = [
+  [[-135,60],[-130,55],[-124,48],[-124,42],[-120,34],[-117,32.5],[-114,30],[-112,29],[-110,23],[-106,23],[-105,20],[-102,18],[-97,16],[-94,16],[-92,14.5],[-89,13.3],[-87.5,13],[-86,11.5],[-85.7,10],[-83.5,8.5],[-82,8.3],[-79.5,9],[-77.5,8],[-77,9],[-79,9.5],[-81.5,9],[-83,10.8],[-83.5,12.5],[-83.2,15],[-85,16],[-88,16],[-88.3,18.5],[-87.5,21.5],[-90.4,21],[-90.5,19.5],[-92,18.6],[-94.5,18],[-96,19.5],[-97.5,21.5],[-97.5,25],[-97,27.8],[-94,29.5],[-90,29.2],[-89,30.2],[-85,29.7],[-83,29],[-82.6,27],[-81,25.2],[-80,26],[-81,30.5],[-79,33.5],[-76,35],[-76,37],[-74,40.5],[-70,41.5],[-70,43.5],[-67,44.5],[-64,45.5],[-60,46],[-61,50],[-65,55],[-80,55],[-95,60]],
+  [[-85,21.8],[-82,23.2],[-78,22.5],[-74.2,20.2],[-77.5,19.9],[-80,21.5],[-84,21.5]],
+  [[-74.4,19.8],[-72,19.9],[-68.4,18.6],[-68.7,18.2],[-71.5,17.6],[-74.4,18.4]],
+  [[-77.2,8.5],[-75,11],[-71.5,12.4],[-68,10.6],[-64,10.6],[-61,10.5],[-58,7],[-52,5],[-50,1],[-48,-1],[-44,-2.5],[-38,-4],[-35,-6],[-35,-9],[-38.5,-13],[-39,-17.5],[-40.5,-20.5],[-42,-23],[-45,-23.8],[-48.5,-26],[-49,-28.5],[-51,-31],[-53.5,-34],[-57,-35],[-57.5,-38],[-62,-39],[-65,-41],[-65,-45],[-67.5,-46.5],[-66,-48.5],[-69,-51.5],[-68.5,-55],[-72,-54],[-75,-50],[-74,-44],[-73.5,-37],[-71.6,-33],[-71.4,-28],[-70.5,-23],[-70.2,-18.3],[-75,-15.5],[-76.3,-13],[-79.5,-7.5],[-81.2,-5],[-80,-2],[-80.5,0],[-78.8,1.5],[-77.5,4],[-77.4,7]],
+  [[-9.5,43],[-1.8,43.4],[-1.2,46],[-4.7,48.5],[-1.6,48.7],[1.5,50.5],[8,54],[20,54],[20,40],[7.5,43.8],[3.2,43.1],[3.2,41.9],[0.5,40.5],[-0.3,39],[-2,36.7],[-5.5,36],[-7.5,37.1],[-8.9,37],[-9.5,38.7],[-8.8,40.8]],
+  [[-5.7,50],[1.5,51.2],[1.7,52.8],[-0.2,54],[-3,55.9],[-5,55],[-3,53.4],[-5.2,51.7]],
+  [[-5.9,35.8],[-2,35.1],[3,36.9],[10,37.3],[20,32],[20,5],[-8,4.4],[-13,8],[-17.2,14.7],[-16.5,19.5],[-17,21],[-13,27.7],[-9.8,30],[-9.5,32.5],[-6.8,34]]
 ];
 
 const FARES = [
@@ -1025,6 +1134,7 @@ function show(view){
   closePops();
   window.scrollTo(0,0);
 }
+$$("[data-doc]").forEach(b => b.addEventListener("click",() => window.open(`${DOCS}${b.dataset.doc}.md`,"_blank","noopener")));
 $$("[data-go]").forEach(b => b.addEventListener("click",() => { if (b.dataset.go==="trips"){ renderTripsView(); show("trips"); } else show("home"); }));
 $$("[data-scroll]").forEach(b => b.addEventListener("click",() => { show("home"); setTimeout(() => $("#"+b.dataset.scroll).scrollIntoView({behavior:"smooth"}),30); }));
 $$("[data-tab]").forEach(b => b.addEventListener("click",() => { show("home"); selectTab("tab-"+b.dataset.tab); $(".console").scrollIntoView({behavior:"smooth",block:"center"}); }));
@@ -1220,9 +1330,9 @@ function renderBoard(){
   $$(".b-row",host).forEach(b => b.onclick = () => {
     const e = boardRows[+b.dataset.row];
     setAirport("from","SAL"); setAirport("to",e.code);
-    selectTab("tab-book");
-    $(".console").scrollIntoView({behavior:"smooth",block:"center"});
-    toast(`Destino: ${AP[e.code].city}. Ajusta las fechas y busca.`);
+    if (VIBE[e.code]){ X.sel = e.code; renderExplore(); $("#xhero").scrollIntoView({behavior:"smooth"}); }
+    else { selectTab("tab-book"); $("#buscar").scrollIntoView({behavior:"smooth"}); }
+    toast(`${AP[e.code].city} marcado. Revisa el precio en el mapa.`);
   });
 }
 function paintRow(i){
@@ -1721,11 +1831,7 @@ $("#panel-trips").addEventListener("submit",e => {
   const b = findBooking($("#tr-code").value,$("#tr-last").value);
   if (b) showTrip(b); else $("#tr-out").innerHTML = notFound;
 });
-$("#manage-form").addEventListener("submit",e => {
-  e.preventDefault();
-  const b = findBooking($("#mg-code").value,$("#mg-last").value);
-  if (b) showTrip(b); else $("#mg-out").innerHTML = `<p style="margin:0;color:var(--gold-fixed);font-size:14px">No encontramos esa reserva. Revisa el código y el apellido.</p>`;
-});
+
 $("#panel-checkin").addEventListener("submit",e => {
   e.preventDefault();
   const b = findBooking($("#ci-code").value,$("#ci-last").value), out = $("#ci-out");
@@ -1744,31 +1850,138 @@ $("#panel-status").addEventListener("submit",e => {
   out.innerHTML = `<div class="status-card"><span class="badge ${cls}">${label}</span><span><b>${esc(num)}</b> · ${fmtDate(stDate.value)} · Puerta ${"ABCD"[Math.floor(r()*4)]}${1+Math.floor(r()*18)}. ${txt} <em style="color:var(--muted)">(simulado)</em></span></div>`;
 });
 
-/* =================== Destinos =================== */
-function renderDeals(){
-  const dates = Array.from({length:30},(_,k) => addDays(today,7+k));
-  $("#deals").innerHTML = DEALS.map(({code,tag,cls}) => {
-    let best = Infinity, bestDate = dates[0];
-    dates.forEach(dd => { const p = minPrice("SAL",code,dd); if (p < best){ best = p; bestDate = dd; } });
-    const a = AP[code], dur = Math.round((km(AP.SAL,a)/790*60+38)/5)*5;
-    return `<button class="dest" data-deal="${code}" data-date="${bestDate}" aria-label="${a.city}, ${a.country}. Solo ida desde ${money0(best)} el ${fmtLong(bestDate)}">
-      <span class="ph">${photo(code,`Vista de ${a.city}`)}<span class="tag ${cls}">${tag}</span>
-        <span class="cap"><span><small>${a.country}</small><b>${a.city}</b></span><i>${code}</i></span></span>
-      <span class="body"><span class="row"><span>Solo ida desde</span><span><span class="price">${money0(best)}</span> USD</span></span>
-        <span class="row"><span>≈ ${fmtDur(dur)} · ${fmtDate(bestDate,{day:"numeric",month:"short"})}</span><span class="go">Ver vuelos ${ICON.arrow}</span></span></span></button>`;
-  }).join("");
-  $$("[data-deal]").forEach(b => b.onclick = () => {
-    setAirport("from","SAL"); setAirport("to",b.dataset.deal);
-    setTrip("ow"); S.dep = b.dataset.date; syncDates();
-    startFlow();
+/* =================== Explorar: mapa + presupuesto =================== */
+const X = {budget:400, days:4, month:null, vibe:"Todo", sel:null, view:null, scale:1, drag:null};
+const MONTHS = (() => { const d = new Date(), out = []; let y = d.getFullYear(), m = d.getMonth() + (d.getDate() > 20 ? 1 : 0);
+  for (let k=0;k<4;k++){ const dt = new Date(y, m+k, 1); out.push({v:`${dt.getFullYear()}-${pad(dt.getMonth()+1)}`, l:dt.toLocaleDateString("es-SV",{month:"long"})}); } return out; })();
+X.month = MONTHS[Math.min(1,MONTHS.length-1)].v;
+const qcache = new Map();
+function quote(code){
+  const key = code+X.month+X.days;
+  if (qcache.has(key)) return qcache.get(key);
+  const [y,m] = X.month.split("-").map(Number), last = new Date(y,m,0).getDate(), minDep = addDays(today,2);
+  let best = null;
+  for (let d=1; d<=last; d++){
+    const dep = `${y}-${pad(m)}-${pad(d)}`; if (dep < minDep) continue;
+    const ret = addDays(dep,X.days);
+    const total = Math.round((minPrice("SAL",code,dep) + minPrice(code,"SAL",ret))*1.12 + 36);
+    if (!best || total < best.total) best = {total,dep,ret};
+  }
+  qcache.set(key,best); return best;
+}
+const fits = code => { const q = quote(code); return q && q.total <= X.budget && (X.vibe==="Todo" || VIBE[code]===X.vibe); };
+const dateRange = q => `${fmtDate(q.dep,{day:"numeric",month:"short"})} → ${fmtDate(q.ret,{day:"numeric",month:"short"})}`;
+const W0 = -135, N0 = 60, KW = 10;
+const wx = lon => (lon - W0)*KW, wy = lat => (N0 - lat)*KW;
+const svgEl = () => $("#xmap");
+function fitView(){
+  const svg = svgEl(), r = svg.getBoundingClientRect(), mobile = innerWidth <= 760;
+  if (!r.width) return;
+  const b = mobile ? [-112,32,-40,-36] : [-118,44,-36,-38];
+  const bx0 = wx(b[0]), by0 = wy(b[1]), bw = wx(b[2])-bx0, bh = wy(b[3])-by0;
+  const panel = mobile ? 0 : Math.min(r.width*.42, $(".xpanel").getBoundingClientRect().right + 20);
+  const aw = r.width - panel - 30, ah = r.height - 60;
+  const sc = Math.min(aw/bw, ah/bh);
+  X.scale = sc;
+  X.view = {w:r.width/sc, h:r.height/sc, x:bx0 - (panel+10)/sc - (aw/sc - bw)/2, y:by0 - 30/sc - (ah/sc - bh)/2};
+}
+function renderMap(){
+  const svg = svgEl(); if (!X.view) fitView(); if (!X.view) return;
+  const v = X.view, sc = X.scale, inv = 1/sc, sx = wx(-89.06), sy = wy(13.44);
+  svg.setAttribute("viewBox",`${v.x} ${v.y} ${v.w} ${v.h}`);
+  const land = LAND.map(poly => `<polygon points="${poly.map(([lo,la]) => `${wx(lo).toFixed(1)},${wy(la).toFixed(1)}`).join(" ")}" fill="url(#xdots)" stroke="rgba(233,193,118,.2)" stroke-width="${inv}"/>`).join("");
+  let arcs = "", pins = "";
+  EXPLORE.forEach(([code]) => {
+    const a = AP[code], x = wx(a.lon), y = wy(a.lat), ok = fits(code), sel = X.sel===code, q = quote(code);
+    const mx = (sx+x)/2, my = (sy+y)/2 - Math.abs(x-sx)*.22 - 24*inv;
+    arcs += `<path d="M${sx} ${sy} Q${mx} ${my} ${x} ${y}" fill="none" stroke="${sel?"#ffdea5":ok?"#e9c176":"#34373b"}" stroke-width="${(sel?2.4:1.4)*inv}" stroke-dasharray="${sel?"none":`${3*inv} ${6*inv}`}" opacity="${ok||sel?.95:.6}"/>`;
+    const [ox,oy] = LBL_OFF[code];
+    pins += `<g class="city" data-city="${code}" tabindex="0" role="button" aria-label="${a.city}: ${q?money0(q.total):"sin vuelos"} ida y vuelta, ${ok?"te alcanza":"fuera de presupuesto"}" transform="translate(${x} ${y}) scale(${inv})">
+      <circle r="16" fill="transparent"/><circle r="${sel?8:ok?5.5:3.5}" fill="${sel?"#ffdea5":ok?"#e9c176":"#4a4d52"}"/>
+      <rect class="lbl" x="${ox}" y="${oy}" width="76" height="24" rx="12" fill="${sel?"#e9c176":ok?"rgba(255,255,255,.95)":"rgba(255,255,255,.07)"}"/>
+      <text x="${ox+10}" y="${oy+16.5}" style="font:700 12.5px 'Plus Jakarta Sans',sans-serif" fill="${ok||sel?"#06080a":"#6b6e73"}">${code} <tspan fill="${sel?"#06080a":ok?"#775a19":"#6b6e73"}">${q?money0(q.total):"—"}</tspan></text></g>`;
   });
+  const home = `<g transform="translate(${sx} ${sy}) scale(${inv})" aria-hidden="true"><circle r="20" fill="rgba(233,193,118,.16)" stroke="#e9c176"/><circle r="7" fill="#fff"/><text x="-28" y="5" text-anchor="end" style="font:700 11px 'JetBrains Mono',monospace;letter-spacing:.08em" fill="#e9c176">SAL · TÚ ESTÁS AQUÍ</text></g>`;
+  svg.innerHTML = `<defs><pattern id="xdots" width="${7*inv}" height="${7*inv}" patternUnits="userSpaceOnUse"><circle cx="${3.5*inv}" cy="${3.5*inv}" r="${1.3*inv}" fill="rgba(233,193,118,.32)"/></pattern></defs>${land}${arcs}${pins}${home}`;
+}
+function renderPick(){
+  const el = $("#x-pick"), code = X.sel;
+  if (!code){ el.innerHTML = `<span class="empty">Toca un destino en el mapa para ver fechas y precio.</span>`; return; }
+  const a = AP[code], q = quote(code);
+  if (!q){ el.innerHTML = `<span class="empty">No hay vuelos a ${a.city} en ese mes.</span>`; return; }
+  const diff = X.budget - q.total;
+  el.innerHTML = `<div class="r1"><div><small>${VIBE[code]} · ${a.country}</small><div class="c">${a.city}</div></div><div class="p">${money0(q.total)}<span>ida y vuelta</span></div></div>
+    <div class="r2"><span>${dateRange(q)} · ${X.days} ${X.days===1?"día":"días"} · 1 adulto</span><span class="${diff>=0?"pill-ok":"pill-no"}">${diff>=0?`Te sobran ${money0(diff)}`:`Te faltan ${money0(-diff)}`}</span></div>
+    <button type="button" class="btn upper" id="x-go">Ver vuelos a ${a.city}</button>`;
+  $("#x-go").onclick = () => goExplore(code);
+}
+function renderFeed(){
+  const list = EXPLORE.map(([c]) => c).filter(fits).sort((a,b) => quote(a).total - quote(b).total);
+  $("#x-count").textContent = `${list.length} de ${EXPLORE.length} destinos te alcanzan · ida y vuelta, impuestos incluidos`;
+  $("#feed-title").textContent = list.length ? `${list.length} ${list.length===1?"destino":"destinos"} para ti, ordenados por lo que te sobra` : "Ningún destino cabe todavía";
+  $("#feed-sub").textContent = `${MONTHS.find(m => m.v===X.month).l} · ${X.days} días · por persona, impuestos incluidos`;
+  $("#feed").innerHTML = list.length ? list.slice(0,8).map(code => { const a = AP[code], q = quote(code);
+    return `<button class="tile" data-deal="${code}" aria-label="${a.city}: ${money0(q.total)} ida y vuelta, ${dateRange(q)}"><span class="tp"><span class="iata">${code}</span>${photo(code,`Vista de ${a.city}`)}<span class="vb">${VIBE[code]}</span></span>
+      <span class="tb"><span><b>${a.city}</b><small>${dateRange(q)}</small></span><span class="pr"><b>${money0(q.total)}</b><span class="pill-ok">Te sobran ${money0(X.budget-q.total)}</span></span></span></button>`; }).join("")
+    : `<div class="feed-empty">Sube tu presupuesto, prueba otro mes o cambia el tipo de viaje.</div>`;
+  $$("#feed [data-deal]").forEach(b => b.onclick = () => goExplore(b.dataset.deal));
+}
+function renderExplore(){
+  $("#x-bud-out").textContent = money0(X.budget);
+  $$(".xchip").forEach(c => c.setAttribute("aria-pressed",c.dataset.vibe===X.vibe));
+  renderMap(); renderPick(); renderFeed();
+}
+function goExplore(code){
+  const q = quote(code); if (!q) return;
+  setAirport("from","SAL"); setAirport("to",code); setTrip("rt");
+  S.dep = q.dep; S.ret = q.ret; syncDates();
+  startFlow();
+}
+function initExplore(){
+  const ms = $("#x-month");
+  ms.innerHTML = MONTHS.map(m => `<option value="${m.v}" ${m.v===X.month?"selected":""}>${m.l}</option>`).join("");
+  const affordable = EXPLORE.map(([c]) => c).filter(fits).sort((a,b) => quote(a).total - quote(b).total);
+  X.sel = affordable.includes("BOG") ? "BOG" : (affordable[0] || "BOG");
+  $("#x-budget").addEventListener("input",e => { X.budget = +e.target.value; renderExplore(); });
+  $("#x-bud-out").onclick = () => $("#x-budget").focus();
+  $("#x-days").addEventListener("change",e => { X.days = +e.target.value; renderExplore(); });
+  ms.addEventListener("change",e => { X.month = e.target.value; renderExplore(); });
+  $$(".xchip").forEach(c => c.onclick = () => { X.vibe = c.dataset.vibe; renderExplore(); });
+  $("#x-surprise").onclick = () => {
+    const opts = EXPLORE.map(([c]) => c).filter(fits);
+    if (!opts.length){ toast("Con ese presupuesto no hay destinos. Súbelo un poco."); return; }
+    X.sel = opts[Math.floor(Math.random()*opts.length)]; renderExplore(); toast(`¿Qué tal ${AP[X.sel].city}?`);
+  };
+  const svg = svgEl();
+  const zoom = (f,cx,cy) => {
+    const v = X.view, nw = Math.min(3000,Math.max(180,v.w/f)), k = nw/v.w;
+    cx ??= v.x+v.w/2; cy ??= v.y+v.h/2;
+    X.view = {x:cx-(cx-v.x)*k, y:cy-(cy-v.y)*k, w:nw, h:v.h*k}; X.scale /= k; renderMap();
+  };
+  $("#x-zin").onclick = () => zoom(1.4);
+  $("#x-zout").onclick = () => zoom(1/1.4);
+  $("#x-reset").onclick = () => { fitView(); renderMap(); };
+  svg.addEventListener("wheel",e => { if (!e.ctrlKey && !e.metaKey) return; e.preventDefault();
+    const r = svg.getBoundingClientRect(); zoom(e.deltaY<0?1.15:1/1.15, X.view.x+(e.clientX-r.left)/X.scale, X.view.y+(e.clientY-r.top)/X.scale); },{passive:false});
+  svg.addEventListener("pointerdown",e => { X.drag = {x:e.clientX,y:e.clientY,vx:X.view.x,vy:X.view.y,moved:false}; });
+  addEventListener("pointermove",e => { const d = X.drag; if (!d) return;
+    const dx = e.clientX-d.x, dy = e.clientY-d.y;
+    if (!d.moved && Math.hypot(dx,dy) < 5) return;
+    d.moved = true; svg.classList.add("drag");
+    X.view.x = d.vx - dx/X.scale; X.view.y = d.vy - dy/X.scale;
+    svg.setAttribute("viewBox",`${X.view.x} ${X.view.y} ${X.view.w} ${X.view.h}`); });
+  addEventListener("pointerup",() => { if (X.drag?.moved) X.justDragged = true; X.drag = null; svg.classList.remove("drag"); setTimeout(() => X.justDragged = false,0); });
+  svg.addEventListener("click",e => { if (X.justDragged) return; const g = e.target.closest(".city"); if (g){ X.sel = g.dataset.city; renderExplore(); } });
+  svg.addEventListener("keydown",e => { const g = e.target.closest?.(".city"); if (g && (e.key==="Enter"||e.key===" ")){ e.preventDefault(); X.sel = g.dataset.city; renderExplore(); $(`.city[data-city="${X.sel}"]`)?.focus(); } });
+  let rt; addEventListener("resize",() => { clearTimeout(rt); rt = setTimeout(() => { fitView(); renderMap(); },150); });
+  renderExplore();
 }
 
 /* =================== Inicio =================== */
 // Los popovers van al <body>: un ancestro con animación de transform desplaza a los position:fixed.
 document.body.append($("#ac-from"),$("#ac-to"),paxPop);
 setAirport("from",S.from); setAirport("to",S.to); setTrip(S.trip); syncDates(); syncPax(); fit(inCls);
-renderDeals(); initBoard(); tickClock(); setInterval(tickClock,15000);
+initExplore(); initBoard(); tickClock(); setInterval(tickClock,15000);
 $("#cabin-ph").innerHTML = photo("cabina","Cabina de avión con asientos de cuero claro y luz cálida");
 document.fonts?.ready.then(fitAll);
 $("#year").textContent = new Date().getFullYear();
