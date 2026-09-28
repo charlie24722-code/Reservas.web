@@ -1291,7 +1291,7 @@ footer button.lnk:hover{color:var(--led-gold);text-decoration:underline}
     <div class="xpanel reveal d1">
       <span class="eyebrow">Explora desde San Salvador</span>
       <h1 class="xq">Tengo <button type="button" class="xblank" id="x-bud-out" aria-label="Presupuesto: ajusta con el control de abajo">$400</button> y <select class="xblank" id="x-days" aria-label="Duración del viaje"><option value="3">3 días</option><option value="4" selected>4 días</option><option value="7">1 semana</option><option value="14">2 semanas</option></select> en <select class="xblank" id="x-month" aria-label="Mes del viaje"></select>. <em>¿A dónde voy?</em></h1>
-      <div class="xrange"><label for="x-budget"><span>Presupuesto por persona</span><span>$150 — $1,500</span></label><input id="x-budget" type="range" min="150" max="1500" step="10" value="400"></div>
+      <div class="xrange"><label for="x-budget"><span>Presupuesto por persona</span><span>$150 — $3,000</span></label><input id="x-budget" type="range" min="150" max="3000" step="10" value="400"></div>
       <div class="xchips" role="group" aria-label="Tipo de viaje">
         <button type="button" class="xchip" data-vibe="Todo" aria-pressed="true">Todo</button><button type="button" class="xchip" data-vibe="Playa" aria-pressed="false">Playa</button><button type="button" class="xchip" data-vibe="Ciudad" aria-pressed="false">Ciudad</button><button type="button" class="xchip" data-vibe="Montaña" aria-pressed="false">Montaña</button><button type="button" class="xchip" data-vibe="Cultura" aria-pressed="false">Cultura</button>
       </div>
@@ -1542,10 +1542,39 @@ const AIRPORTS = [
   ["IAH","Houston","Estados Unidos","Aeropuerto George Bush",29.98,-95.34],
   ["LAX","Los Ángeles","Estados Unidos","Aeropuerto de Los Ángeles",33.94,-118.41],
   ["MAD","Madrid","España","Aeropuerto Adolfo Suárez Madrid-Barajas",40.47,-3.56],
-  ["BCN","Barcelona","España","Aeropuerto El Prat",41.30,2.08]
+  ["BCN","Barcelona","España","Aeropuerto El Prat",41.30,2.08],
+  ["YYZ","Toronto","Canadá","Aeropuerto Pearson",43.68,-79.63],
+  ["ORD","Chicago","Estados Unidos","Aeropuerto O'Hare",41.97,-87.91],
+  ["SFO","San Francisco","Estados Unidos","Aeropuerto de San Francisco",37.62,-122.38],
+  ["LAS","Las Vegas","Estados Unidos","Aeropuerto Harry Reid",36.08,-115.15],
+  ["MCO","Orlando","Estados Unidos","Aeropuerto de Orlando",28.43,-81.31],
+  ["HAV","La Habana","Cuba","Aeropuerto José Martí",22.99,-82.41],
+  ["PUJ","Punta Cana","República Dominicana","Aeropuerto de Punta Cana",18.57,-68.36],
+  ["RTB","Roatán","Honduras","Aeropuerto Juan Manuel Gálvez",16.32,-86.52],
+  ["GIG","Río de Janeiro","Brasil","Aeropuerto del Galeão",-22.81,-43.25],
+  ["CUZ","Cusco","Perú","Aeropuerto Velasco Astete",-13.54,-71.94],
+  ["CDG","París","Francia","Aeropuerto Charles de Gaulle",49.01,2.55],
+  ["LHR","Londres","Reino Unido","Aeropuerto de Heathrow",51.47,-0.45],
+  ["FCO","Roma","Italia","Aeropuerto de Fiumicino",41.8,12.25],
+  ["AMS","Ámsterdam","Países Bajos","Aeropuerto de Schiphol",52.31,4.76],
+  ["LIS","Lisboa","Portugal","Aeropuerto Humberto Delgado",38.78,-9.13],
+  ["IST","Estambul","Turquía","Aeropuerto de Estambul",41.26,28.74],
+  ["CAI","El Cairo","Egipto","Aeropuerto de El Cairo",30.12,31.41],
+  ["RAK","Marrakech","Marruecos","Aeropuerto Menara",31.61,-8.04],
+  ["CPT","Ciudad del Cabo","Sudáfrica","Aeropuerto de Ciudad del Cabo",-33.97,18.6],
+  ["DXB","Dubái","Emiratos Árabes Unidos","Aeropuerto de Dubái",25.25,55.36],
+  ["NRT","Tokio","Japón","Aeropuerto de Narita",35.77,140.39],
+  ["ICN","Seúl","Corea del Sur","Aeropuerto de Incheon",37.46,126.44],
+  ["BKK","Bangkok","Tailandia","Aeropuerto Suvarnabhumi",13.69,100.75],
+  ["SYD","Sídney","Australia","Aeropuerto de Sídney",-33.94,151.18]
 ].map(([code,city,country,name,lat,lon]) => ({code,city,country,name,lat,lon}));
 const AP = Object.fromEntries(AIRPORTS.map(a => [a.code,a]));
 const HUBS = ["SAL","BOG","PTY"];
+// Escalas según la región del extremo más lejano: Europa y África por MAD/MIA/IAH/JFK; Asia y Oceanía por LAX/IAH.
+function gateways(A,B){
+  const far = km(AP.SAL,A) > km(AP.SAL,B) ? A : B;
+  return far.lon > 60 || far.lon < -150 ? ["LAX","IAH"] : far.lon > -30 ? ["MAD","MIA","IAH","JFK"] : HUBS;
+}
 const BOARD_NAMES = {BOG:"BOGOTA",MIA:"MIAMI",CUN:"CANCUN",MAD:"MADRID",JFK:"NUEVA YORK",SJO:"SAN JOSE",LIM:"LIMA",MEX:"CD MEXICO",GUA:"GUATEMALA",PTY:"PANAMA",MDE:"MEDELLIN",LAX:"LOS ANGELES",SCL:"SANTIAGO",GRU:"SAO PAULO",CTG:"CARTAGENA",BCN:"BARCELONA",IAH:"HOUSTON",UIO:"QUITO"};
 
 /* Fotos generadas con Stitch. Se busca primero en assets/ y, si no existe, se usa el enlace de Stitch. */
@@ -1557,11 +1586,13 @@ const IMG = {
   SJO:["sanjose.jpg",""], PTY:["panama.jpg",""], LIM:["lima.jpg",""], MEX:["mexico.jpg",""], JFK:["nuevayork.jpg",""],
   CTG:["cartagena.jpg",""], GUA:["guatemala.jpg",""], LAX:["losangeles.jpg",""], SCL:["santiago.jpg",""], BCN:["barcelona.jpg",""],
   UIO:["quito.jpg",""], GRU:["saopaulo.jpg",""],
+  YYZ:["toronto.jpg",""], ORD:["chicago.jpg",""], SFO:["sanfrancisco.jpg",""], LAS:["lasvegas.jpg",""], MCO:["orlando.jpg",""], HAV:["lahabana.jpg",""], PUJ:["puntacana.jpg",""], RTB:["roatan.jpg",""], MDE:["medellin.jpg",""], EZE:["buenosaires.jpg",""], GIG:["riodejaneiro.jpg",""], CUZ:["cusco.jpg",""], CDG:["paris.jpg",""], LHR:["londres.jpg",""], FCO:["roma.jpg",""], AMS:["amsterdam.jpg",""], LIS:["lisboa.jpg",""], IST:["estambul.jpg",""], CAI:["elcairo.jpg",""], RAK:["marrakech.jpg",""], CPT:["ciudaddelcabo.jpg",""], DXB:["dubai.jpg",""], NRT:["tokio.jpg",""], ICN:["seul.jpg",""], BKK:["bangkok.jpg",""], SYD:["sidney.jpg",""],
   cabina:["cabina.jpg","https://lh3.googleusercontent.com/aida-public/AB6AXuDyFE4qydUUa1_mMNWhtKANba53Js5TMSjLnH-Eh4Y-8cI-7qEJ0mjJCryUZB5ZlObuo5sKdL71RbfbwgNRSNLsXb5fWpqUs4lrFf9wSUij7lU0b6xzZOiB_VV1COVRD4NIgjJuTkzfiWR1fv6fHq4_2EQj0mkHRe0X8Ho8f0yq3HMuODxNvaYSSoFdjtw-EICkgKMFWS33MeuMHsmLW7h9R9xctC7mUI1PvzazkmejhnhMRZ1ALdGNWA"]
 };
 const EXPLORE = [
   ["BOG","Ciudad"],["CUN","Playa"],["MIA","Ciudad"],["MAD","Cultura"],["SJO","Montaña"],["PTY","Ciudad"],["LIM","Cultura"],["MEX","Cultura"],
-  ["JFK","Ciudad"],["CTG","Playa"],["GUA","Montaña"],["LAX","Playa"],["SCL","Montaña"],["BCN","Playa"],["UIO","Montaña"],["GRU","Ciudad"]
+  ["JFK","Ciudad"],["CTG","Playa"],["GUA","Montaña"],["LAX","Playa"],["SCL","Montaña"],["BCN","Playa"],["UIO","Montaña"],["GRU","Ciudad"],
+  ["YYZ","Ciudad"],["ORD","Ciudad"],["SFO","Ciudad"],["LAS","Ciudad"],["MCO","Ciudad"],["HAV","Cultura"],["PUJ","Playa"],["RTB","Playa"],["MDE","Ciudad"],["EZE","Cultura"],["GIG","Playa"],["CUZ","Montaña"],["CDG","Cultura"],["LHR","Ciudad"],["FCO","Cultura"],["AMS","Ciudad"],["LIS","Cultura"],["IST","Cultura"],["CAI","Cultura"],["RAK","Cultura"],["CPT","Montaña"],["DXB","Ciudad"],["NRT","Cultura"],["ICN","Ciudad"],["BKK","Cultura"],["SYD","Playa"]
 ];
 const VIBE = Object.fromEntries(EXPLORE);
 
@@ -1655,9 +1686,9 @@ function flightsFor(o,d,date){
   const out = [];
   for (let i=0;i<n;i++){
     const dep = 330 + Math.floor(r()*15)*60 + [0,15,30,45][Math.floor(r()*4)];
-    const stops = (HUBS.includes(o)||HUBS.includes(d)) && r() < directP ? 0 : (r() < directP ? 0 : 1);
+    const stops = dist > 9500 ? 1 : (HUBS.includes(o)||HUBS.includes(d)) && r() < directP ? 0 : (r() < directP ? 0 : 1);
     let via = null;
-    if (stops){ const opts = HUBS.filter(h => h!==o && h!==d); via = opts[Math.floor(r()*opts.length)]; }
+    if (stops){ const opts = gateways(A,B).filter(h => h!==o && h!==d); via = opts[Math.floor(r()*opts.length)]; }
     const flyKm = via ? km(A,AP[via]) + km(AP[via],B) : dist;
     const dur = Math.round((flyKm/790*60 + 38 + (via ? 65 + Math.floor(r()*110) : 0))/5)*5;
     const base = (48 + dist*.06) * (.82 + r()*.5) * dayF * leadF * (via ? .88 : 1);
@@ -2832,9 +2863,35 @@ const DEST = {
   SCL:["Cordillera nevada a la vista y viñedos a una hora de la ciudad.",["Cerro San Cristóbal","Viñedos del valle del Maipo","Barrio Lastarria"],15,6],
   BCN:["Gaudí, Mediterráneo y la mejor vida de barrio.",["Sagrada Familia","Barrio Gótico","Playa de la Barceloneta"],17,7.5],
   UIO:["Centro histórico colonial en plena línea ecuatorial.",["Centro Histórico","Mitad del Mundo","Teleférico al Pichincha"],14,.3],
-  GRU:["La gran metrópoli de Brasil: arte, música y gastronomía.",["Avenida Paulista","Parque Ibirapuera","Mercado Municipal"],20,3]
+  GRU:["La gran metrópoli de Brasil: arte, música y gastronomía.",["Avenida Paulista","Parque Ibirapuera","Mercado Municipal"],20,3],
+  YYZ:["Multicultural, frente al lago Ontario y a un paso de las cataratas.",["Torre CN","Cataratas del Niágara","Mercado St. Lawrence"],9,13],
+  ORD:["Arquitectura icónica, jazz y el lago Míchigan.",["Paseo en barco de arquitectura","Millennium Park","Pizza estilo Chicago"],10,12],
+  SFO:["Colinas, tranvías y el Golden Gate entre la niebla.",["Puente Golden Gate","Isla de Alcatraz","Tranvía por Nob Hill"],15,3],
+  LAS:["Espectáculos, desierto y el Gran Cañón a unas horas.",["El Strip de noche","Gran Cañón","Un show en vivo"],20,11],
+  MCO:["La capital mundial de los parques temáticos.",["Parques temáticos","Centro Espacial Kennedy","Outlets"],23,5],
+  HAV:["Autos clásicos, música en la calle y arquitectura colonial.",["La Habana Vieja","El Malecón al atardecer","Playas de Varadero"],25,3],
+  PUJ:["Playas de arena blanca y aguas turquesa en el Caribe.",["Isla Saona","Hoyo Azul","Playa Bávaro"],27,1.5],
+  RTB:["Isla caribeña junto al segundo arrecife más grande del mundo.",["Buceo en el arrecife","Playa West Bay","Tiburón ballena (en temporada)"],27,1.5],
+  MDE:["La ciudad de la eterna primavera, rodeada de montañas.",["Comuna 13","Metrocable al Parque Arví","Guatapé y su piedra"],22,0.5],
+  EZE:["Tango, cafés notables y parrillas de barrio.",["San Telmo y La Boca","Teatro Colón","Parrilla en Palermo"],18,6],
+  GIG:["Playas legendarias entre montañas, samba y alegría.",["Cristo Redentor","Pan de Azúcar","Copacabana e Ipanema"],24,3],
+  CUZ:["Antigua capital inca y puerta de entrada a Machu Picchu.",["Machu Picchu","Valle Sagrado","Montaña de Colores"],12,1.5],
+  CDG:["Museos, cafés y bulevares: la ciudad de la luz.",["Torre Eiffel","Museo del Louvre","Montmartre"],12.5,8],
+  LHR:["Historia real, teatros y mercados en cada barrio.",["Museo Británico","Torre de Londres","Mercado de Camden"],11.5,7],
+  FCO:["Veinte siglos de historia a cielo abierto.",["Coliseo","Ciudad del Vaticano","Fontana di Trevi"],16,8.5],
+  AMS:["Canales, bicicletas y los grandes maestros holandeses.",["Paseo por los canales","Museo Van Gogh","Casa de Ana Frank"],10.5,7],
+  LIS:["Colinas, tranvías amarillos y fado junto al Tajo.",["Tranvía 28","Belém y sus pasteles","Palacios de Sintra"],17.5,6],
+  IST:["Entre Europa y Asia: bazares, mezquitas y el Bósforo.",["Santa Sofía","Gran Bazar","Crucero por el Bósforo"],15,9.5],
+  CAI:["Las pirámides de Guiza y el Nilo milenario.",["Pirámides de Guiza","Museo Egipcio","Crucero por el Nilo"],22.5,7],
+  RAK:["Zocos, riads y la cordillera del Atlas en el horizonte.",["Plaza Jemaa el-Fna","Jardín Majorelle","Excursión al Atlas"],20,8],
+  CPT:["Montaña de la Mesa, pingüinos y viñedos junto al océano.",["Montaña de la Mesa","Cabo de Buena Esperanza","Viñedos de Stellenbosch"],17,4.5],
+  DXB:["Rascacielos imposibles, desierto dorado y mercados de especias.",["Burj Khalifa","Safari por el desierto","Zoco del Oro"],28,7],
+  NRT:["Templos, neón y algunas de las mejores cocinas del mundo.",["Cruce de Shibuya","Templo Senso-ji","Vista del monte Fuji"],16,10],
+  ICN:["Palacios, K-pop y barrios que nunca duermen.",["Palacio Gyeongbokgung","Compras en Myeongdong","Aldea Bukchon"],12.5,14],
+  BKK:["Templos dorados, mercados flotantes y comida callejera.",["Gran Palacio","Mercado flotante","Islas del sur"],29,1.5],
+  SYD:["La Ópera frente a la bahía y playas de surf.",["Ópera de Sídney","Playa Bondi","Montañas Azules"],18.5,5]
 };
-const COUNTRY = {"Colombia":["Peso colombiano","Español"],"México":["Peso mexicano","Español"],"Estados Unidos":["Dólar","Inglés"],"EE. UU.":["Dólar","Inglés"],"España":["Euro","Español"],"Costa Rica":["Colón","Español"],"Panamá":["Dólar y balboa","Español"],"Perú":["Sol","Español"],"Guatemala":["Quetzal","Español"],"Chile":["Peso chileno","Español"],"Ecuador":["Dólar","Español"],"Brasil":["Real","Portugués"]};
+const COUNTRY = {"Colombia":["Peso colombiano","Español"],"México":["Peso mexicano","Español"],"Estados Unidos":["Dólar","Inglés"],"EE. UU.":["Dólar","Inglés"],"España":["Euro","Español"],"Costa Rica":["Colón","Español"],"Panamá":["Dólar y balboa","Español"],"Perú":["Sol","Español"],"Guatemala":["Quetzal","Español"],"Chile":["Peso chileno","Español"],"Ecuador":["Dólar","Español"],"Brasil":["Real","Portugués"],"Canadá":["Dólar canadiense","Inglés y francés"],"Cuba":["Peso cubano","Español"],"República Dominicana":["Peso dominicano","Español"],"Honduras":["Lempira","Español"],"Argentina":["Peso argentino","Español"],"Francia":["Euro","Francés"],"Reino Unido":["Libra esterlina","Inglés"],"Italia":["Euro","Italiano"],"Países Bajos":["Euro","Neerlandés"],"Portugal":["Euro","Portugués"],"Turquía":["Lira turca","Turco"],"Egipto":["Libra egipcia","Árabe"],"Marruecos":["Dírham marroquí","Árabe y bereber"],"Sudáfrica":["Rand","Inglés y otras 11"],"Emiratos Árabes Unidos":["Dírham","Árabe"],"Japón":["Yen","Japonés"],"Corea del Sur":["Won","Coreano"],"Tailandia":["Baht","Tailandés"],"Australia":["Dólar australiano","Inglés"]};
 const D = {code:null, month:null};
 // Temperatura media aproximada del mes (modelo simple: media anual ± estacionalidad por hemisferio).
 const tempFor = (code,month) => { const [,, avg, amp] = DEST[code], m = +month.split("-")[1]-1, sgn = AP[code].lat >= 0 ? 1 : -1;
