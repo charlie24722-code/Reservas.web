@@ -346,9 +346,15 @@ footer .legal{border-top:1px solid var(--s-high);margin-top:36px;padding-top:18p
 .flight .t span{display:block;font-size:12.5px;color:var(--muted)}
 .flight .t sup{font-family:var(--f-sans);font-size:11px;color:var(--gold);margin-left:2px}
 .flight .path{display:flex;flex-direction:column;align-items:center;min-width:130px;font-size:11px;color:var(--muted)}
-.flight .line{position:relative;width:100%;height:1px;background:var(--outline-2);margin:8px 0}
-.flight .line i{position:absolute;top:-4px;left:50%;width:8px;height:8px;margin-left:-4px;transform:rotate(45deg);background:var(--outline)}
-.flight .line.direct i{background:var(--gold)}
+.flight .line{position:relative;width:100%;height:1px;background:var(--outline-2);margin:10px 0}
+.flight .line::before{content:"";position:absolute;left:0;top:0;height:1px;width:50%;background:linear-gradient(90deg,transparent,var(--gold));transition:width .9s cubic-bezier(.2,.7,.2,1);animation:linein 1.1s cubic-bezier(.2,.7,.2,1) backwards}
+.flight .line i{position:absolute;top:-8px;left:50%;width:16px;height:16px;margin-left:-8px;color:var(--outline);transition:left .9s cubic-bezier(.2,.7,.2,1);animation:planein 1.1s cubic-bezier(.2,.7,.2,1) backwards}
+.flight .line i svg{display:block;width:16px;height:16px;transform:rotate(90deg)}
+.flight .line.direct i{color:var(--gold)}
+.flight:hover .line i{left:calc(100% - 8px)}
+.flight:hover .line::before{width:100%}
+@keyframes planein{from{left:8px;opacity:0}}
+@keyframes linein{from{width:0}}
 .flight .path .dir{color:var(--sage);font-weight:600}
 .flight .side{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin-left:auto}
 .flight .info{text-align:right;font-size:12.5px;color:var(--muted)}
@@ -489,7 +495,11 @@ fieldset.card{min-width:0}
 .pass .route .h{font-size:19px;font-weight:600;color:var(--primary);margin-top:6px}
 .pass .route .mid{flex:1;text-align:center;font-size:11px;color:var(--muted)}
 .pass .route .mid .line{position:relative;height:1px;background:var(--outline-2);margin:8px 0}
-.pass .route .mid .line i{position:absolute;top:-4px;left:50%;width:8px;height:8px;margin-left:-4px;transform:rotate(45deg);background:var(--gold)}
+.pass .route .mid .line::before{content:"";position:absolute;left:0;top:0;height:1px;width:100%;background:linear-gradient(90deg,transparent,var(--gold));transform-origin:0 50%;animation:passline 1.6s 1s cubic-bezier(.2,.7,.2,1) backwards}
+.pass .route .mid .line i{position:absolute;top:-9px;left:calc(100% - 9px);width:18px;height:18px;color:var(--gold);animation:passfly 1.6s 1s cubic-bezier(.2,.7,.2,1) backwards}
+.pass .route .mid .line i svg{display:block;width:18px;height:18px;transform:rotate(90deg)}
+@keyframes passline{from{transform:scaleX(0)}}
+@keyframes passfly{from{left:-9px;opacity:0}}
 .pass .route .r{text-align:right}
 .facts{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
 .facts.three{grid-template-columns:repeat(3,1fr)}
@@ -546,10 +556,20 @@ fieldset.card{min-width:0}
 
 /* ---------- Explorar: mapa + presupuesto ---------- */
 .xhero{position:relative;min-height:720px;overflow:hidden;color:#fff;background-color:#06080a;background-image:radial-gradient(rgba(233,193,118,.10) 1px,transparent 1.4px);background-size:16px 16px}
-.xmap{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:pan-y;user-select:none}
-.xmap.drag{cursor:grabbing}
-.xmap .city{cursor:pointer;outline:none}
-.xmap .city:focus-visible .lbl,.xmap .city:hover .lbl{stroke:#ffdea5;stroke-width:2}
+.globe{position:absolute;inset:0;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.globe canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
+.globe.drag canvas{cursor:grabbing}
+.gpins{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.gpin{position:absolute;left:0;top:0;pointer-events:auto;display:flex;align-items:center;gap:5px;border:0;background:rgba(255,255,255,.95);color:#06080a;font:700 12.5px var(--f-sans);padding:5px 10px;border-radius:999px;white-space:nowrap;box-shadow:0 6px 18px rgba(0,0,0,.35);transition:opacity .35s,background .2s,box-shadow .2s;will-change:transform}
+.gpin b{color:var(--gold);font-weight:700}
+.gpin:hover{box-shadow:0 0 0 2px #ffdea5,0 6px 18px rgba(0,0,0,.35)}
+.gpin.off{background:rgba(255,255,255,.07);color:#8a8d92;box-shadow:none;backdrop-filter:blur(4px)}
+.gpin.off b{color:#8a8d92}
+.gpin.sel{background:linear-gradient(135deg,#ffdea5,#e9c176);box-shadow:0 0 24px rgba(233,193,118,.55)}
+.gpin.sel b{color:#06080a}
+.gpin.hid{opacity:0;pointer-events:none}
+.gpin.hid:focus-visible{opacity:1}
+.gpin:focus-visible{outline:2px solid #ffdea5;outline-offset:2px}
 .xpanel{position:relative;z-index:2;margin:40px 0;left:max(24px,calc((100% - var(--wrap))/2 + 24px));width:460px;box-sizing:border-box;padding:26px 26px 22px;background:rgba(12,14,17,.8);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.12);border-radius:18px;display:flex;flex-direction:column;gap:16px}
 .xpanel .eyebrow{color:var(--gold-fixed)}
 .xq{font-family:var(--f-serif);font-weight:400;font-size:38px;line-height:1.3;margin:0;color:#fff}
@@ -586,18 +606,57 @@ select.xblank option{color:#06080a}
 .xlegend i{display:inline-block;width:10px;height:10px;border-radius:50%;background:#4a4d52;margin-right:6px;vertical-align:-1px}
 .xlegend i.on{background:var(--led-gold)}
 /* Animación: rutas que se dibujan, avión, tarjetas y secciones que entran */
-.xmap .flow{animation:flow 1s linear infinite}
-@keyframes flow{to{stroke-dashoffset:calc(var(--d) * -1)}}
-.xmap .drawmask path{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.3s cubic-bezier(.5,0,.2,1) forwards}
-@keyframes draw{to{stroke-dashoffset:0}}
-.xmap.intro .city{opacity:0;animation:fadein .5s ease forwards}
-@keyframes fadein{to{opacity:1}}
 .xpick.x-in{animation:pickin .45s cubic-bezier(.2,.7,.2,1)}
 @keyframes pickin{from{opacity:0;transform:translateY(10px)}}
 .tile.in{animation:tilein .55s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i,0) * 70ms)}
 @keyframes tilein{from{opacity:0;transform:translateY(18px) scale(.98)}}
 .sr-on .sr{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--i,0) * 90ms)}
 .sr-on .sr.vis{opacity:1;transform:none}
+/* ---------- Toques premium ---------- */
+.sprog{position:fixed;left:0;top:0;width:100%;height:2px;z-index:calc(var(--z-header) + 1);background:linear-gradient(90deg,#775a19,#e9c176,#ffdea5);transform-origin:0 50%;transform:scaleX(0);pointer-events:none}
+.site-header{transition:box-shadow .3s}
+.site-header.scrolled{box-shadow:0 1px 0 rgba(119,90,25,.16),0 10px 30px rgba(0,0,0,.06)}
+.btn{position:relative;overflow:hidden;isolation:isolate}
+.btn::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.3) 50%,transparent 65%);transform:translateX(-110%);transition:transform .8s cubic-bezier(.2,.7,.2,1);pointer-events:none}
+.btn:hover::after{transform:translateX(110%)}
+.xpanel{box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.xpanel::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(160deg,rgba(233,193,118,.5),transparent 45%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.sec-head .eyebrow{display:flex;align-items:center;gap:10px}
+.sec-head .eyebrow::before{content:"";width:28px;height:1px;background:currentColor;transition:width .9s .25s cubic-bezier(.2,.7,.2,1)}
+.sr-on .sec-head.sr:not(.vis) .eyebrow::before{width:0}
+.tile:hover{box-shadow:0 0 0 1px rgba(233,193,118,.6),0 24px 48px -12px rgba(6,8,10,.3)}
+.tile .tp::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.3) 50%,transparent 60%);transform:translateX(-100%);transition:transform 1s cubic-bezier(.2,.7,.2,1);pointer-events:none}
+.tile:hover .tp::after{transform:translateX(100%)}
+.perks4 .pi{background:linear-gradient(135deg,#775a19,#e9c176);-webkit-background-clip:text;background-clip:text;color:transparent}
+.band-dark{position:relative;overflow:hidden}
+.band-dark::before{content:"";position:absolute;width:720px;height:720px;left:-15%;top:-70%;background:radial-gradient(circle,rgba(233,193,118,.13),transparent 60%);animation:glow 16s ease-in-out infinite alternate;pointer-events:none}
+.band-dark .bd-grid{position:relative}
+@keyframes glow{to{transform:translate(65vw,35%)}}
+#cabin-ph img{transform:translateY(var(--py,0px)) scale(1.12);will-change:transform}
+/* Aviones en el flujo */
+.hz-fly{position:relative;width:110px;height:18px;flex:none}
+.hz-fly::before{content:"";position:absolute;left:0;right:0;top:50%;border-top:1.5px dashed var(--outline-2)}
+.hz-fly i{position:absolute;top:50%;left:0;width:18px;height:18px;margin:-9px 0 0 -9px;animation:hzfly 3.4s cubic-bezier(.45,0,.55,1) infinite}
+.horizon .hz-fly svg{display:block;width:18px;height:18px;color:var(--gold);transform:rotate(90deg)}
+@keyframes hzfly{0%{left:0;opacity:0}12%,88%{opacity:1}100%{left:100%;opacity:0}}
+.hz-fly.rt i{animation:hzrt 6.4s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes hzrt{0%{left:0;transform:none}46%{left:100%;transform:none}54%{left:100%;transform:scaleX(-1)}100%{left:0;transform:scaleX(-1)}}
+.stepper li.done::after{background:var(--gold)}
+.stepper li.now::after{background:repeating-linear-gradient(90deg,var(--gold) 0 4px,transparent 4px 8px);background-size:16px 1px;animation:stepflow 1s linear infinite}
+@keyframes stepflow{to{background-position:16px 0}}
+.stepper li.now::before{animation:ring 2s ease-out infinite}
+@keyframes ring{0%{box-shadow:0 0 0 0 rgba(233,193,118,.6)}100%{box-shadow:0 0 0 9px rgba(233,193,118,0)}}
+.orbit{position:relative;width:72px;height:72px;margin:0 auto 18px;border:1.5px dashed rgba(119,90,25,.45);border-radius:50%;animation:spin 1.6s linear infinite}
+.orbit i{position:absolute;top:-10px;left:50%;margin-left:-10px;width:20px;height:20px;color:var(--gold)}
+.orbit i svg{display:block;width:20px;height:20px;transform:rotate(90deg)}
+.orbit::after{content:"";position:absolute;inset:20px;border-radius:50%;background:radial-gradient(circle,var(--gold-soft),transparent 70%)}
+.pbar{height:3px;border-radius:3px;background:var(--s-high);margin-top:16px;overflow:hidden}
+.pbar i{display:block;height:100%;background:linear-gradient(90deg,#775a19,#e9c176);animation:pbar 1.5s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes pbar{from{width:0}to{width:100%}}
+.takeoff{height:70px;margin:-20px 0 6px;color:var(--gold)}
+.takeoff svg{display:block;width:100%;height:100%;overflow:visible}
+#done-main .pass{animation:printin 1s .6s cubic-bezier(.2,.7,.2,1) backwards}
+@keyframes printin{from{clip-path:inset(0 0 100% 0);transform:translateY(-14px)}to{clip-path:inset(0 0 0 0)}}
 .feed{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
 .tile{display:flex;flex-direction:column;text-align:left;border:0;padding:0;background:var(--card);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-sm);transition:box-shadow .25s,transform .25s;color:inherit}
 .tile:hover{box-shadow:var(--sh-xl);transform:translateY(-3px)}
@@ -643,7 +702,7 @@ select.xblank option{color:#06080a}
   .xhero{height:auto;display:flex;flex-direction:column}
   .xpanel{position:relative;top:auto;left:auto;width:auto;margin:16px 16px 0;padding:20px 18px;order:-1}
   .xq{font-size:30px}
-  .xmap{position:relative;inset:auto;height:380px}
+  .globe{position:relative;inset:auto;height:440px}
   .xctrl{flex-direction:row;right:16px;bottom:16px}
   .xlegend{left:16px;right:auto;bottom:24px;flex-direction:column;gap:4px}
   .xlegend .hint{display:none}
@@ -700,6 +759,7 @@ select.xblank option{color:#06080a}
   .flight .main{padding:16px;gap:16px}
   .flight .route{gap:14px;width:100%;justify-content:space-between}
   .flight .path{min-width:90px}
+  .hz-fly{width:64px}
   .flight .t b{font-size:26px}
   .flight .side{width:100%;justify-content:space-between;margin-left:0}
   .flight .info{text-align:left}
@@ -725,12 +785,13 @@ select.xblank option{color:#06080a}
   .reveal{opacity:1;transform:none}
 }
 @media print{
-  .strip,.site-header,footer,.done-actions,.wallets,.alerts,.mobile-total,.toast{display:none !important}
+  .sprog,.takeoff,.strip,.site-header,footer,.done-actions,.wallets,.alerts,.mobile-total,.toast{display:none !important}
   body{background:#fff}
 }
 </style>
 </head>
 <body>
+<div class="sprog" id="sprog" aria-hidden="true"></div>
 
 <div class="strip" role="note"><div class="wrap"><span><span class="dot"></span>Demo educativo · vuelos, precios y pagos simulados</span><span class="r"><b>Garantía Estela</b> · Tarifas con impuestos incluidos</span></div></div>
 
@@ -754,7 +815,7 @@ select.xblank option{color:#06080a}
 <!-- =================== INICIO =================== -->
 <section id="view-home">
   <div class="xhero dark" id="xhero">
-    <svg class="xmap" id="xmap" aria-label="Mapa interactivo de destinos desde San Salvador. Arrastra para moverlo y usa los botones para acercar o alejar."></svg>
+    <div class="globe" id="globe"><canvas id="gcv" aria-hidden="true"></canvas><div class="gpins" id="gpins" role="group" aria-label="Destinos en el globo desde San Salvador. Arrastra el globo para girarlo y usa los botones para acercar o alejar."></div></div>
     <div class="xpanel reveal d1">
       <span class="eyebrow">Explora desde San Salvador</span>
       <h1 class="xq">Tengo <button type="button" class="xblank" id="x-bud-out" aria-label="Presupuesto: ajusta con el control de abajo">$400</button> y <select class="xblank" id="x-days" aria-label="Duración del viaje"><option value="3">3 días</option><option value="4" selected>4 días</option><option value="7">1 semana</option><option value="14">2 semanas</option></select> en <select class="xblank" id="x-month" aria-label="Mes del viaje"></select>. <em>¿A dónde voy?</em></h1>
@@ -767,7 +828,7 @@ select.xblank option{color:#06080a}
       <div class="xlinks"><button type="button" id="x-surprise">Sorpréndeme</button><button type="button" data-scroll="buscar">¿Ya sabes a dónde? Buscar por destino ↓</button></div>
     </div>
     <div class="xctrl"><button type="button" id="x-zin" aria-label="Acercar mapa">+</button><button type="button" id="x-zout" aria-label="Alejar mapa">−</button><button type="button" id="x-reset" aria-label="Centrar mapa">⟲</button></div>
-    <div class="xlegend" aria-hidden="true"><span><i class="on"></i>Te alcanza</span><span><i></i>Fuera de presupuesto</span><span class="hint">Arrastra para mover el mapa</span></div>
+    <div class="xlegend" aria-hidden="true"><span><i class="on"></i>Te alcanza</span><span><i></i>Fuera de presupuesto</span><span class="hint">Arrastra para girar el globo</span></div>
   </div>
 
   <section class="block" id="ofertas">
@@ -1013,17 +1074,6 @@ const EXPLORE = [
   ["JFK","Ciudad"],["CTG","Playa"],["GUA","Montaña"],["LAX","Playa"],["SCL","Montaña"],["BCN","Playa"],["UIO","Montaña"],["GRU","Ciudad"]
 ];
 const VIBE = Object.fromEntries(EXPLORE);
-const LBL_OFF = {GUA:[-84,-32],SJO:[-88,4],PTY:[2,12],CUN:[-88,-30],MEX:[-90,-12],BOG:[16,-8],CTG:[14,-32],UIO:[-90,-6],MIA:[14,-16],JFK:[14,-14],LIM:[14,-12],LAX:[14,-14],SCL:[14,-12],GRU:[14,-12],MAD:[-90,-28],BCN:[-90,6]};
-/* Continentes simplificados (lon, lat), dibujados a mano para el estilo de puntos */
-const LAND = [
-  [[-135,60],[-130,55],[-124,48],[-124,42],[-120,34],[-117,32.5],[-114,30],[-112,29],[-110,23],[-106,23],[-105,20],[-102,18],[-97,16],[-94,16],[-92,14.5],[-89,13.3],[-87.5,13],[-86,11.5],[-85.7,10],[-83.5,8.5],[-82,8.3],[-79.5,9],[-77.5,8],[-77,9],[-79,9.5],[-81.5,9],[-83,10.8],[-83.5,12.5],[-83.2,15],[-85,16],[-88,16],[-88.3,18.5],[-87.5,21.5],[-90.4,21],[-90.5,19.5],[-92,18.6],[-94.5,18],[-96,19.5],[-97.5,21.5],[-97.5,25],[-97,27.8],[-94,29.5],[-90,29.2],[-89,30.2],[-85,29.7],[-83,29],[-82.6,27],[-81,25.2],[-80,26],[-81,30.5],[-79,33.5],[-76,35],[-76,37],[-74,40.5],[-70,41.5],[-70,43.5],[-67,44.5],[-64,45.5],[-60,46],[-61,50],[-65,55],[-80,55],[-95,60]],
-  [[-85,21.8],[-82,23.2],[-78,22.5],[-74.2,20.2],[-77.5,19.9],[-80,21.5],[-84,21.5]],
-  [[-74.4,19.8],[-72,19.9],[-68.4,18.6],[-68.7,18.2],[-71.5,17.6],[-74.4,18.4]],
-  [[-77.2,8.5],[-75,11],[-71.5,12.4],[-68,10.6],[-64,10.6],[-61,10.5],[-58,7],[-52,5],[-50,1],[-48,-1],[-44,-2.5],[-38,-4],[-35,-6],[-35,-9],[-38.5,-13],[-39,-17.5],[-40.5,-20.5],[-42,-23],[-45,-23.8],[-48.5,-26],[-49,-28.5],[-51,-31],[-53.5,-34],[-57,-35],[-57.5,-38],[-62,-39],[-65,-41],[-65,-45],[-67.5,-46.5],[-66,-48.5],[-69,-51.5],[-68.5,-55],[-72,-54],[-75,-50],[-74,-44],[-73.5,-37],[-71.6,-33],[-71.4,-28],[-70.5,-23],[-70.2,-18.3],[-75,-15.5],[-76.3,-13],[-79.5,-7.5],[-81.2,-5],[-80,-2],[-80.5,0],[-78.8,1.5],[-77.5,4],[-77.4,7]],
-  [[-9.5,43],[-1.8,43.4],[-1.2,46],[-4.7,48.5],[-1.6,48.7],[1.5,50.5],[8,54],[20,54],[20,40],[7.5,43.8],[3.2,43.1],[3.2,41.9],[0.5,40.5],[-0.3,39],[-2,36.7],[-5.5,36],[-7.5,37.1],[-8.9,37],[-9.5,38.7],[-8.8,40.8]],
-  [[-5.7,50],[1.5,51.2],[1.7,52.8],[-0.2,54],[-3,55.9],[-5,55],[-3,53.4],[-5.2,51.7]],
-  [[-5.9,35.8],[-2,35.1],[3,36.9],[10,37.3],[20,32],[20,5],[-8,4.4],[-13,8],[-17.2,14.7],[-16.5,19.5],[-17,21],[-13,27.7],[-9.8,30],[-9.5,32.5],[-6.8,34]]
-];
 
 const FARES = [
   {id:"basic",name:"Básica",mult:1,desc:"Vuela ligero, con lo esencial.",
@@ -1385,7 +1435,7 @@ const legs = () => S.trip==="rt" ? 2 : 1;
 function renderHorizon(){
   const A = AP[S.from], B = AP[S.to];
   $("#horizon").innerHTML = `<div class="wrap">
-    <div class="rt"><b>${A.code}</b><small>${A.city}</small>${S.trip==="rt"?ICON.swap:ICON.arrow}<b>${B.code}</b><small>${B.city}</small></div>
+    <div class="rt"><b>${A.code}</b><small>${A.city}</small><span class="hz-fly${S.trip==="rt"?" rt":""}" aria-hidden="true"><i>${ICON.plane}</i></span><b>${B.code}</b><small>${B.city}</small></div>
     <div class="meta"><span>${ICON.cal}${fmtDate(S.dep,{day:"numeric",month:"short"})}${S.trip==="rt" ? ` — ${fmtDate(S.ret,{day:"numeric",month:"short"})}` : " · solo ida"}</span><span>${ICON.user}${paxLabel()}</span><span>${ICON.seat}${S.cls==="bus"?"Business":"Económica"}</span>
     <button class="btn ghost sm" id="modify">${ICON.tune}Modificar búsqueda</button></div></div>`;
   $("#modify").onclick = () => show("home");
@@ -1445,7 +1495,7 @@ function flightCard(f,i){
     <div class="main">
       <div class="route">
         <div class="t"><b>${fmtTime(f.dep)}</b><strong>${f.o}</strong><span>${AP[f.o].city}</span></div>
-        <div class="path">${fmtDur(f.dur)}<div class="line ${f.via?"":"direct"}"><i></i></div><span class="${f.via?"":"dir"}">${f.via ? `1 escala · ${f.via}` : "Directo sin escalas"}</span></div>
+        <div class="path">${fmtDur(f.dur)}<div class="line ${f.via?"":"direct"}"><i>${ICON.plane}</i></div><span class="${f.via?"":"dir"}">${f.via ? `1 escala · ${f.via}` : "Directo sin escalas"}</span></div>
         <div class="t"><b>${fmtTime(f.arr)}${nextDay?`<sup>+${nextDay}</sup>`:""}</b><strong>${f.d}</strong><span>${AP[f.d].city}</span></div>
       </div>
       <div class="side">
@@ -1645,7 +1695,7 @@ function renderPay(){
     $("#pay-btn").disabled = true;
     const ov = document.createElement("div");
     ov.className = "overlay"; ov.setAttribute("role","alert");
-    ov.innerHTML = `<div class="box"><div class="spinner"></div>${S.pay==="hold" ? "Apartando tu tarifa…" : "Conectando con la pasarela segura…"}<br><small style="color:var(--muted);font-weight:400">Simulación: no se realiza ningún cobro</small></div>`;
+    ov.innerHTML = `<div class="box"><div class="orbit" aria-hidden="true"><i>${ICON.plane}</i></div>${S.pay==="hold" ? "Apartando tu tarifa…" : "Conectando con la pasarela segura…"}<br><small style="color:var(--muted);font-weight:400">Simulación: no se realiza ningún cobro</small><div class="pbar"><i></i></div></div>`;
     document.body.appendChild(ov);
     setTimeout(() => { ov.remove(); confirmBooking(); },1500);
   };
@@ -1734,7 +1784,11 @@ function renderDone(b){
   const f = b.legs[0], B = AP[f.d], paid = b.status==="paid", depMs = fromISO(f.date).getTime() + f.dep*60e3;
   const row = (k,v) => v ? `<div class="row"><span>${k}</span><span>${money(v)}</span></div>` : "";
   const bd = b.breakdown || {fare:b.total};
-  $("#done-main").innerHTML = `
+  const fly = "M0 62H250C420 62 540 44 800 2";
+  $("#done-main").innerHTML = `${reduceMotion ? "" : `<div class="takeoff" aria-hidden="true"><svg viewBox="0 0 800 70" preserveAspectRatio="xMidYMid meet">
+      <path d="M0 62H250" stroke="currentColor" stroke-opacity=".35" stroke-width="2" stroke-dasharray="10 8"/>
+      <path d="${fly}" pathLength="1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="1" stroke-dashoffset="1"><animate attributeName="stroke-dashoffset" from="1" to="0" dur="2.2s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines=".5 0 .8 .6"/></path>
+      <g><animateMotion dur="2.2s" fill="freeze" rotate="auto" path="${fly}" calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines=".5 0 .8 .6"/><animate attributeName="opacity" values="1;1;0" keyTimes="0;.85;1" dur="2.4s" fill="freeze"/><path transform="scale(1.3)" fill="currentColor" d="M12 0c0-1-1-1.5-2-1.5H3L-3-9h-3l4 7.5h-5l-2.5-3h-2L-10 0l-1.5 4.5h2L-7 1.5h5L-6 9h3l6-7.5h7c1 0 2-.5 2-1.5z"/></g></svg></div>`}
     <div class="done-head">
       <div><span class="ok-chip ${paid?"":"held"}">${ICON.okc}${paid ? "Reserva confirmada" : "Tarifa apartada 24 h"}</span>
         <h2>${paid ? `Tu viaje a ${B.city} está confirmado.` : `Tu tarifa a ${B.city} está apartada.`}</h2>
@@ -1788,7 +1842,7 @@ function passCard(b){
     <div class="pb">
       ${b.legs.map((l,i) => `<div class="route">
         <div><small>${i===0?"Origen":"Regreso · origen"}</small><b>${l.o}</b><div class="c">${AP[l.o].city}</div><div class="h">${fmtTime(l.dep)}</div></div>
-        <div class="mid">${fmtDur(l.dur)} · ${l.via?`Escala en ${l.via}`:"Directo"}<div class="line"><i></i></div>Vuelo ${l.no.replace("EST ","ES ")} · ${l.aircraft}${i>0?`<br>${fmtDate(l.date)}`:""}</div>
+        <div class="mid">${fmtDur(l.dur)} · ${l.via?`Escala en ${l.via}`:"Directo"}<div class="line"><i>${ICON.plane}</i></div>Vuelo ${l.no.replace("EST ","ES ")} · ${l.aircraft}${i>0?`<br>${fmtDate(l.date)}`:""}</div>
         <div class="r"><small>Destino</small><b>${l.d}</b><div class="c">${AP[l.d].city}</div><div class="h">${fmtTime(l.arr)}</div></div>
       </div>`).join("")}
       <div class="facts">
@@ -1885,45 +1939,216 @@ function quote(code){
 }
 const fits = code => { const q = quote(code); return q && q.total <= X.budget && (X.vibe==="Todo" || VIBE[code]===X.vibe); };
 const dateRange = q => `${fmtDate(q.dep,{day:"numeric",month:"short"})} → ${fmtDate(q.ret,{day:"numeric",month:"short"})}`;
-const W0 = -135, N0 = 60, KW = 10;
-const wx = lon => (lon - W0)*KW, wy = lat => (N0 - lat)*KW;
-const svgEl = () => $("#xmap");
-function fitView(){
-  const svg = svgEl(), r = svg.getBoundingClientRect(), mobile = innerWidth <= 760;
-  if (!r.width) return;
-  const b = mobile ? [-112,32,-40,-36] : [-118,44,-36,-38];
-  const bx0 = wx(b[0]), by0 = wy(b[1]), bw = wx(b[2])-bx0, bh = wy(b[3])-by0;
-  const panel = mobile ? 0 : Math.min(r.width*.42, $(".xpanel").getBoundingClientRect().right + 20);
-  const aw = r.width - panel - 30, ah = r.height - 60;
-  const sc = Math.min(aw/bw, ah/bh);
-  X.scale = sc;
-  X.view = {w:r.width/sc, h:r.height/sc, x:bx0 - (panel+10)/sc - (aw/sc - bw)/2, y:by0 - 30/sc - (ah/sc - bh)/2};
+/* ---- Globo 3D: canvas con tierra real en puntos (máscara de 1°), rutas en arco y aviones ---- */
+const LAND_B64 = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB/gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP//8AFb///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA///+x/////76fAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/gD/p////////AAAAAAAAAACxBwAAAAHgAAAAAAAAAAAAAAAAAAAAAAAAAAA///uAf//////+AAAABrvwAAAAAAAAAAH8AAAAAAAAAAAAAAAAAAAAAAAAeHznn/h////////4AAAABXsAAAAAAAAAAAAD4AAAAAAAAAAAAAAAAAAAAAAEcIA5MfAI///////8AAAAAPFAAAAAAAAAAAAAcAAAAAAAAAAAAAAAAAAAAABoCGc8X/AH///////4AAAAAAAAAAAAAB4AAAAB9+AAAAAAAAAAAAAAAAAAAAAD/wMzz8AAAP/////2AAAAAAAAAAAAD4AAAA////AAAB/oAAAAAAAAAAAAAACAwACAcAAAAP/////+AAAAAAAAAAAAMAAAAX///6AAAAAAAAAAAAAAAAAAAAP+Ac8+M/gAAD////+8AAAAAAAAAAAA4AAAH///+O+HAAHAAAAAAAAAAAAAAAf/+4/Y/94AAD////+wAAAAAAAAAAABwAHhH///////8AHwAAAAAwAAAAAAAAON/8E4//9AADf////gAAAAAAAAAAABwAPZ+///////4nv/gAAAAAAAH8gAAAAAP+A8f//8AA3///ogAAAAAABtgAAAAAfv/////////////8AAAAAB///+B/2H/+DnDxf8AAz////AAAAAAA//wAAAA8Pv//////////////9H8wAP////////QsDPzwD8AAf///wAAAAAAG///wIBe/3+/////////////////+AD////////+//fz4Y/wA7//4AAAAAAAD///+I////v//////////////////4EP///////////5gD/8A///gAAAAAAAf//5+P///8//////////////////7w/////////////qAD+QAP/wABr8AAAAf8f+D///////////////////////AwAf///////////zwx/AAP/wAAP8AAAB/4/+f//////////////////////4AMAf//////////+DBAbwAH/AAADAAAAN/j/////////////////////////+AAH///////////4AwgHQAD/AAAAAAAAf/H///////////////////////n/6AAP///////////wAA/AAAB+AAAAAAAB/+H//////////////////////jP+AAAH/9z////////gAA/wAAAMAAAAAACB//D7////////////////////+A/YAAAA/xAD///////gAA/wQAAAAAAAAAAB9/Ab///////////////////+ODgAAAAAB0AAX//////4AA/94AAAAAAAAAYA5+C///////////////////4AAHQAAAAABcAAP//////8AAf/+AAAAAAAAB8AA+i///////////////////wAAfgAAAAAMAAAC///////wAf/+AAAAAAAAAYAOeH///////////////////AAA/gAAAABQAAADf//////8Af//AAAAAAAAAcAPQH//////////////////8AAA/AAAAAEAAAAAP///////z///4AAAAAAADuAEDv//////////////////+AAA+AAAAAAAAAABP///////x///8AAAAAAAPHAf/////////////////////4AA8AAAAAAAAAAAn///////x///8AAAAAAAPPx//////////////////////6AA4AAAAAAAAAAAD///////////6AAAAAAAAPH//////////////////////6AAwAAAAAAAAAAAC///////////kAAAAAAAAQP//////////////////////zAAAAAAAAAAAAAABv////////+MMAAAAAAAAC///////////////////////7AAAAAAAAAAAAAAAL////////7wPgAAAAAAAf///////////////////////yAAAAAAAAAAAAAAAP/////////gCgAAAAAAAD///////////////////////iAAAAAAAAAAAAAAAP/////////pAAAAAAAAAD/////vP////////////////BAAAAAAAAAAAAAAAP/////////+AAAAAAAAAB//v//GP///////////////+AAAAAAAAAAAAAAAAP////////8wAAAAAAAAAB//P/+EP///////////////8CAAAAAAAAAAAAAAAP////////wgAAAAAAAADj/jz/+AD///////////////4HgAAAAAAAAAAAAAAP////////gAAAAAAAAAH/4Fw/4AA//////////////+ACAAAAAAAAAAAAAAAP////////gAAAAAAAAAH/wAcP8PA//////////////8AAAAAAAAAAAAAAAAAP///////8AAAAAAAAAAH/gMHfV///////////////v4AMAAAAAAAAAAAAAAAP///////8AAAAAAAAAAH/IMCOH//////////////+ZwAMAAAAAAAAAAAAAAAH///////oAAAAAAAQAAH/AACGP//////////////8BwAMAAAAAAAAAAAAAAAH///////wAAAAAAAAAAH+AAYDH//////////////+g4AYAAAAAAAAAAAAAAAD///////wAAAAAAAAAAAgf+AABs//////////////g4D4AAAAAAAAAAAAAAAB///////wAAAAAAAAAAAh/+AAAA//////////////A4fwAAAAAAAAAAAAAAAB///////gAAAAAAAAAAB//8AAAA//////////////Ah2AAAAAAAAAAAAAAAAAP/////+AAAAAAAAAAAD//+AAAB//////////////gjwAAAAAAAAAAAAAAAAAH/////4AAAAAAAAAAQH///4GAB//////////////gBAAAAAAAAAAAAAAAAAAG/////4AAAAAAAAAAAP///8PwD//////////////gCAAAAAAAAAAAAAAAAAACf////4AAAAAAAAAAAP////v////////////////gAAAAAAAAAAAAAAAAAAABv//xAYAAAAAAAAAAAP//////3//H///////////gAAAAAAAAAAAAAAAAAAAAv//AAYAAAAAAAAAAAf/////////H///////////wAAAAAAAAAAAAAAAAAAAB3/+AAcAAAAAAAAAAB///////8//h///////////gAAAAAAAAAAAAAAAAAAAAZ/+AAMAAAAAAAAAAD///////8//wH//////////AAAAAAAAAAAAAAAAAAAAAJ/+AAEAAAAAAAAAAH///////+f/wB/f////////AAAAAAAAAAAAAAAAAAAAAI/8AAAAAAAAAAAAAH///////+f/44Af///////8QAAAAAAAAAAAAAAAAAAAACf8AAAAAAAAAAAAAP///////+H//+AP///////4gAAAAAAAAAAAAAAAAAAAAAP8AAvAAAAAAAAAAP////////H///AD///////ggAAAAAAAAAAAAAAAAAAAAAH8AQBggAAAAAAAAf////////n//+ADf/4P//YAAAAAAAAAAAAAAAAAAAAAAAH+A4AYAAAAAAAAAP////////j//+AAf/4H/+IAAAAAAAAAAAAAAAgAAAAAAAH/B4ABwAAAAAAAAP////////h//8AAf/gD/8YAAAAAAAAAAAAAAAAAAAAAAAD/lwAD8AAAAAAAAP////////x//4AAf/AD/8QAAAAAAAAAAAAAAAAAAAAAAAAf/wAAAAAAAAAAAP////////4//gAAf+AB/+AAwAAAAAAAAAAAAAAAAAAAAAAH/wAAAAAAAAAAAP////////4f+AAAf8AD//AAwAAAAAAAAAAAAAAAAAAAAAAAH/AAAAAAAAAAAf////////8/8AAAPwAAP/gAgAAAAAAAAAAAAAAAAAAAAAAAD/gAAAAAAAAAAf////////+fgAAAPwAAP/gAwAAAAAAAAAAAAAAAAAAAAAAAA/AAAAAAAAAAAf/////////eAAAAHwAAP/gAsAAAAAAAAAAAAAAAAAAAAAAAAHAAAAAAAAAAAf/////////gBAAAHwAAM/gAKAAAAAAAAAAAAAAAAAAAAAAAADABIAAAAAAAAH/////////gIAAADwAAEfgALAAAAAAAAAAAAAAAAAAAAAAAADgPfIAAAAAAAH/////////34AAADwAAIPABIAAAAAAAAAAAAAAAAAAAAAAAAAyPf+AAAAAAAD//////////4AAADoAAIEACBAAAAAAAAAAAAAAAAAAAAAAAAA8///AAAAAAAB//////////wAAABIAAMAAEHAAAAAAAAAAAAAAAAAAAAAAAAAE///gAAAAAAB//////////wAAAAMAAEAAADgIAAAAAAAAAAAAAAAAAAAAAAAAf//wAAAAAAAf/////////gAAAAMAADAAMDAAAAAAAAAAAAAAAAAAAAAAAAAA////gAAAAAAP/B///////gAAAAAABDgAeAAAAAAAAAAAAAAAAAAAAAAAAAAAf///wAAAAAACAA3//////AAAAAAAAxgA+AAAAAAAAAAAAAAAAAAAAAAAAAAAf///4AAAAAAAAAD/////+AAAAAAAAZgB8BAAAAAAAAAAAAAAAAAAAAAAAAAB////4AAAAAAAAAD/////8AAAAAAAAMwH8AIAAAAAAAAAAAAAAAAAAAAAAAAB////8AAAAAAAAAD/////wAAAAAAAAHQf8AIAAAAAAAAAAAAAAAAAAAAAAAAD////4AAAAAAAAAH/////gAAAAAAAAHgf8cIAAAAAAAAAAAAAAAAAAAAAAAAD/////AAAAAAAAAH/////AAAAAAAAAD4f8ASgAAAAAAAAAAAAAAAAAAAAAAAH////+4AAAAAAAAH/////AAAAAAAAABwP50QwAAAAAAAAAAAAAAAAAAAAAAAH/////+AAAAAAAAD////+AAAAAAAAAB8P5wAL4AgAAAAAAAAAAAAAAAAAAAAD//////4AAAAAAAB////8AAAAAAAAAA8AxQif/AAAAAAAAAAAAAAAAAAAAAAH//////8AAAAAAAA////4AAAAAAAAAAcAAQAD/gAAAAAAAAAAAAAAAAAAAAAH///////gAAAAAAA////4AAAAAAAAAAMABAAI/ywAAAAAAAAAAAAAAAAAAAAD///////gAAAAAAA////4AAAAAAAAAADgAAAIf8BAAAAAAAAAAAAAAAAAAAAD///////gAAAAAAAf///4AAAAAAAAAAB+AABA/4AAAAAAAAAAAAAAAAAAAAAB///////gAAAAAAAf///4AAAAAAAAAAAAfsgAOMAAAAAAAAAAAAAAAAAAAAAA///////AAAAAAAAf///8AAAAAAAAAAAABCAAAGgAAAAAAAAAAAAAAAAAAAAA///////AAAAAAAAP///+AAAAAAAAAAAAAAAAAAgBAAAAAAAAAAAAAAAAAAAAf/////+AAAAAAAAP///8AAAAAAAAAAAAAACgCAEAAAAAAAAAAAAAAAAAAAAAf/////8AAAAAAAAf///8AQAAAAAAAAAAAAB+CAAAAAAAQAAAAAAAAAAAAAAAP/////4AAAAAAAAf///+AQAAAAAAAAAAAAD8DAAAAAAAAAAAAAAAAAAAAAAAP/////4AAAAAAAA////+AwAAAAAAAAAAAA38DgAAAAAAAAAAAAAAAAAAAAAAH/////4AAAAAAAA////+BwAAAAAAAAAAAD/8HgAAAAAAAAAAAAAAAAAAAAAAB/////4AAAAAAAA////8PwAAAAAAAAAAAH//XgAABABAAAAAgAAAAAAAAAAAAf////4AAAAAAAA////wPgAAAAAAAAAAAP//3wAAAAAAAAAAAAAAAAAAAAAAAP////wAAAAAAAA////gPgAAAAAAAAAAAP///wAAAAAAAAAAAAAAAAAAAAAAAP////wAAAAAAAAf//+APgAAAAAAAAAAAf///8AAAAAAAAAAAAAAAAAAAAAAAP////wAAAAAAAAf//+APgEAAAAAAAAAD////+AAIAAAAAAAAAIAAAAAAAAAAP////gAAAAAAAAP//+AfAAAAAAAAAAAf////+AAEAAAAAAAAAAAAAAAAAAAAP////AAAAAAAAAP///AfAAAAAAAAAAA//////AAAAAAAAAAAAAAAAAAAAAAAP///4AAAAAAAAAP//+APAAAAAAAAAAA//////gAAAAAAAAAAAAAAAAAAAAAAf///gAAAAAAAAAH//+AOAAAAAAAAAAB//////wAAAAAAAAAAAAAAAAAAAAAAf//+AAAAAAAAAAH//4AEAAAAAAAAAAA//////4AAAAAAAAAAAAAAAAAAAAAAf//+AAAAAAAAAAH//4AAAAAAAAAAAAB//////4AAAAAAAAAAAAAAAAAAAAAAf///AAAAAAAAAAH//4AAAAAAAAAAAAA//////8AAAAAAAAAAAAAAAAAAAAAAf//+AAAAAAAAAAD//wAAAAAAAAAAAAAf/////8AAAAAAAAAAAAAAAAAAAAAAf//8AAAAAAAAAAB//gAAAAAAAAAAAAAf/////4AAAAAAAAAAAAAAAAAAAAAA///8AAAAAAAAAAB//gAAAAAAAAAAAAAf/////4AAAAAAAAAAAAAAAAAAAAAA///wAAAAAAAAAAA//AAAAAAAAAAAAAAP/////4AAAAAAAAAAAAAAAAAAAAAAf//wAAAAAAAAAAA/+AAAAAAAAAAAAAAP/AP//wAAAAAAAAAAAAAAAAAAAAAA//vgAAAAAAAAAAA/4AAAAAAAAAAAAAAP8AG//gAAAAAAAAAAAAAAAAAAAAAA//3AAAAAAAAAAAAQAAAAAAAAAAAAAAAOAAF//gAAAAAAAAAAAAAAAAAAAAAB//4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//AAABAAAAAAAAAAAAAAAAAAB//4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/AAAAgAAAAAAAAAAAAAAAAAD//4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/AAAAQAAAAAAAAAAAAAAAAAD//wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABYAAAAcAAAAAAAAAAAAAAAAAB/8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAAAAD/8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAD/gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcAAADQAAAAAAAAAAAAAAAAAD/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcAAAHAAAAAAAAAAAAAAAAAAB/gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAOAAAAAAAAAAAAAAAAAAF/gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAAAAAH+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4AAAAAAAAAAAAAAAAAAH+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8AAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4AwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/AAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAAAAAP4AAAAAAL+HgBj/AAAAAAAAAAAAAAAAAAAAAAAAAHAAAAAAAAAAAAAAAAAADf/gAAB//////////AAAAAAAAAAAAAAAAAAAAAAAABoAAAAAAAAAAAAAAAAB////8A////////////mAAAAAAAAAAAAAAAAAAAAAB38AAAAAAAAAAAAAAAGD////4D/////////////4AAAAAAAAAAAAAAAAAAAAAb+AAAAAAAAAAAM/gB//////4//////////////+gAAAAAAAAAAAAAAAAAAAD/8AAAAAAAA7+///////////5////////////////4AAAAAAAAAAAAAAHQABh5+AAAAAAAA//////////////////////////////gAAAAAAAAABgAAAP/+Gl/8AAAAAAAf/////////////////////////////+AAAAAAAAAAiARsAv/////+AAAAAAA//////////////////////////////sAAAAAAAAX////////////wAAAAAAF//////////////////////////////gAAAAAAAX///////////PwAAAAAAf///////////////////////////////gAAAAAD+P///////////8AAAAAAP////////////////////////////////zgAAAAAP///////////fgCAAD8A/////////////////////////////////+AAAAD4B///////////7wwAAD+AB///////////////////////////////+AAAAAAAA////////////wAAA/wAH///////////////////////////////+AAAAAAAP//////////////AAAA/////////////////////////////////+AAAAAAAH//////////////4D/n//////////////////////////////////8AAAAAH//////////////////////////////////////////////////////8A/wAP////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////";
+const D2R = Math.PI/180, HOME = {lat:13.44, lon:-89.06}, VIEW = {lat:9, lon:-63};
+const vec = (lat,lon) => { const c = Math.cos(lat*D2R); return [c*Math.sin(lon*D2R), Math.sin(lat*D2R), c*Math.cos(lon*D2R)]; };
+const wrap180 = d => ((d+540)%360)-180;
+const clamp = (v,a,b) => Math.min(b,Math.max(a,v));
+const PLANE = new Path2D("M12 0c0-1-1-1.5-2-1.5H3L-3-9h-3l4 7.5h-5l-2.5-3h-2L-10 0l-1.5 4.5h2L-7 1.5h5L-6 9h3l6-7.5h7c1 0 2-.5 2-1.5z");
+const G = {lat:VIEW.lat, lon:VIEW.lon, tLat:VIEW.lat, tLon:VIEW.lon, zoom:1, tZoom:1, vLon:0, vLat:0, drag:null,
+  w:0, h:0, R0:0, cx:0, cy:0, dots:null, stars:[], routes:{}, pins:{}, scr:{}, order:[], placed:{}, on:true, dirty:true, t0:null, lastSel:null};
+function landDots(step){
+  const bin = atob(LAND_B64), out = [], bit = i => bin.charCodeAt(i>>3) >> (7-(i&7)) & 1;
+  for (let r=0; r<180; r+=step){
+    const lat = 89.5-r, k = Math.max(step, Math.round(step/Math.cos(lat*D2R)));
+    for (let c=(r/step%2)*Math.floor(k/2); c<360; c+=k) if (bit(r*360+c)) out.push(...vec(lat,-179.5+c));
+  }
+  return new Float32Array(out);
+}
+function route(code){
+  const a = vec(HOME.lat,HOME.lon), b = vec(AP[code].lat,AP[code].lon), N = 56;
+  const ang = Math.acos(Math.min(1,a[0]*b[0]+a[1]*b[1]+a[2]*b[2])), s = Math.sin(ang), h = .025 + ang*.13, pts = [];
+  for (let i=0;i<=N;i++){ const t = i/N, k1 = Math.sin((1-t)*ang)/s, k2 = Math.sin(t*ang)/s, lift = 1 + h*Math.sin(Math.PI*t);
+    pts.push([(a[0]*k1+b[0]*k2)*lift,(a[1]*k1+b[1]*k2)*lift,(a[2]*k1+b[2]*k2)*lift]); }
+  return {pts, N, dur:3.2 + ang*5.5, phase:(hash(code)%1000)/1000};
+}
+// Apunta el globo hacia un destino sin perder de vista San Salvador.
+function aim(code,k){
+  const a = vec(HOME.lat,HOME.lon), b = vec(AP[code].lat,AP[code].lon), m = [a[0]+b[0],a[1]+b[1],a[2]+b[2]], n = Math.hypot(...m);
+  const mLat = Math.asin(m[1]/n)/D2R, mLon = Math.atan2(m[0],m[2])/D2R;
+  G.tLat = VIEW.lat + (mLat-VIEW.lat)*k; G.tLon = VIEW.lon + wrap180(mLon-VIEW.lon)*k; G.vLon = G.vLat = 0; G.dirty = true;
+}
+function sizeGlobe(){
+  const box = $("#globe"), cv = $("#gcv"), r = box.getBoundingClientRect(); if (!r.width) return;
+  const mobile = innerWidth <= 760, dpr = Math.min(2,devicePixelRatio||1);
+  G.w = r.width; G.h = r.height; cv.width = Math.round(r.width*dpr); cv.height = Math.round(r.height*dpr);
+  G.ctx = cv.getContext("2d"); G.ctx.setTransform(dpr,0,0,dpr,0,0);
+  const pr = mobile ? null : $(".xpanel").getBoundingClientRect(), left = pr ? pr.right - r.left + 24 : 0, aw = r.width - left;
+  G.R0 = mobile ? Math.min(r.width*.43, r.height*.44) : Math.min(aw*.43, r.height*.43);
+  G.cx = left + aw/2; G.cy = r.height/2 + (mobile ? 0 : 8);
+  G.panel = pr ? {x:pr.left-r.left, y:pr.top-r.top, w:pr.width, h:pr.height} : null;
+  if (!G.dots || G.step !== (mobile?2:1)){ G.step = mobile ? 2 : 1; G.dots = landDots(G.step); }
+  const rnd = rng(7); G.stars = Array.from({length:Math.round(r.width*r.height/4200)},() => ({x:rnd()*r.width, y:rnd()*r.height, s:rnd()*1.3+.3, a:rnd()*.5+.15, p:rnd()*6.3, f:rnd()*1.5+.4}));
+  G.dirty = true;
+}
+function drawGlobe(now){
+  const ctx = G.ctx, W = G.w, H = G.h; if (!ctx || !W) return;
+  const t = now/1000, el = reduceMotion ? 1e9 : now - G.t0;
+  const k = clamp(el/2600,0,1), e = 1-Math.pow(1-k,3);
+  if (!G.drag){
+    if (Math.abs(G.vLon)+Math.abs(G.vLat) > .002){ G.lon += G.vLon; G.lat = clamp(G.lat+G.vLat,-45,65); G.tLon = G.lon; G.tLat = G.lat; G.vLon *= .94; G.vLat *= .94; }
+    const f = reduceMotion ? 1 : .07;
+    G.lat += (G.tLat-G.lat)*f; G.lon += wrap180(G.tLon-G.lon)*f; G.zoom += (G.tZoom-G.zoom)*(reduceMotion?1:.12);
+  }
+  const drift = reduceMotion ? 0 : Math.sin(t*.22)*2.2;
+  const lon = G.lon + drift + (1-e)*150, lat = G.lat - (1-e)*14, R = G.R0*G.zoom*(.7+.3*e), cx = G.cx, cy = G.cy;
+  const cb = Math.cos(lon*D2R), sb = Math.sin(lon*D2R), ca = Math.cos(lat*D2R), sa = Math.sin(lat*D2R);
+  const P = v => { const x1 = v[0]*cb - v[2]*sb, z1 = v[0]*sb + v[2]*cb, y2 = v[1]*ca - z1*sa, z2 = v[1]*sa + z1*ca;
+    return {x:cx+R*x1, y:cy-R*y2, z:z2, vis:z2 > 0 || x1*x1+y2*y2 > 1}; };
+  ctx.clearRect(0,0,W,H);
+  // Estrellas
+  const sf = reduceMotion ? 1 : clamp(el/1400,0,1);
+  G.stars.forEach(s => { ctx.fillStyle = `rgba(255,236,200,${(s.a + (reduceMotion?0:Math.sin(t*s.f+s.p)*.15))*sf})`; ctx.fillRect(s.x,s.y,s.s,s.s); });
+  // Atmósfera y esfera
+  let g = ctx.createRadialGradient(cx,cy,R*.92,cx,cy,R*1.32);
+  g.addColorStop(0,"rgba(233,193,118,.22)"); g.addColorStop(.35,"rgba(233,193,118,.07)"); g.addColorStop(1,"rgba(233,193,118,0)");
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx,cy,R*1.32,0,7); ctx.fill();
+  g = ctx.createRadialGradient(cx-R*.4,cy-R*.45,R*.05,cx,cy,R*1.05);
+  g.addColorStop(0,"#1d222a"); g.addColorStop(.55,"#0c0f13"); g.addColorStop(1,"#050608");
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.fill();
+  // Retícula
+  ctx.strokeStyle = "rgba(233,193,118,.07)"; ctx.lineWidth = 1; ctx.beginPath();
+  const line = (fn,n) => { let pen = false; for (let i=0;i<=n;i++){ const p = P(fn(i/n)); if (p.z > 0){ pen ? ctx.lineTo(p.x,p.y) : ctx.moveTo(p.x,p.y); pen = true; } else pen = false; } };
+  for (let la=-60; la<=60; la+=30) line(u => vec(la,-180+u*360),90);
+  for (let lo=-180; lo<180; lo+=30) line(u => vec(-80+u*160,lo),60);
+  ctx.stroke();
+  // Tierra en puntos (tres tonos según la profundidad)
+  const d = G.dots, B = [[],[],[]], ds = Math.max(1.1,R/230);
+  for (let i=0;i<d.length;i+=3){
+    const x = d[i], y = d[i+1], z = d[i+2], x1 = x*cb - z*sb, z1 = x*sb + z*cb, z2 = y*sa + z1*ca;
+    if (z2 <= 0) continue;
+    B[z2 < .35 ? 0 : z2 < .7 ? 1 : 2].push(cx+R*x1, cy-R*(y*ca - z1*sa));
+  }
+  ["rgba(233,193,118,.26)","rgba(233,193,118,.5)","rgba(240,208,145,.8)"].forEach((c,b) => {
+    ctx.fillStyle = c; const s = ds*(.8+b*.18), a = B[b];
+    for (let i=0;i<a.length;i+=2) ctx.fillRect(a[i]-s/2,a[i+1]-s/2,s,s);
+  });
+  // Sombra y borde de luz
+  g = ctx.createRadialGradient(cx-R*.5,cy-R*.5,R*.2,cx,cy,R*1.02);
+  g.addColorStop(0,"rgba(0,0,0,0)"); g.addColorStop(1,"rgba(0,0,0,.45)");
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.fill();
+  g = ctx.createLinearGradient(cx-R,cy-R,cx+R,cy+R);
+  g.addColorStop(0,"rgba(255,222,165,.55)"); g.addColorStop(.5,"rgba(255,222,165,.08)"); g.addColorStop(1,"rgba(255,222,165,.18)");
+  ctx.strokeStyle = g; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.stroke();
+  // Rutas
+  const rp = reduceMotion ? 1 : clamp((el-1500)/1200,0,1), pa = reduceMotion ? 0 : clamp((el-2500)/700,0,1);
+  const codes = G.order.slice().reverse();
+  codes.forEach(code => {
+    const r = G.routes[code], sel = X.sel===code, ok = fits(code), n = Math.round(r.N*rp);
+    ctx.save();
+    if (sel){ ctx.strokeStyle = "#ffdea5"; ctx.lineWidth = 2.2; ctx.shadowColor = "rgba(233,193,118,.9)"; ctx.shadowBlur = 12; }
+    else if (ok){ ctx.strokeStyle = "rgba(233,193,118,.6)"; ctx.lineWidth = 1.3; ctx.setLineDash([4,7]); ctx.lineDashOffset = reduceMotion ? 0 : -t*22; }
+    else { ctx.strokeStyle = "rgba(150,154,160,.22)"; ctx.lineWidth = 1; ctx.setLineDash([2,6]); }
+    ctx.beginPath(); let pen = false;
+    for (let i=0;i<=n;i++){ const p = P(r.pts[i]); if (p.vis){ pen ? ctx.lineTo(p.x,p.y) : ctx.moveTo(p.x,p.y); pen = true; } else pen = false; }
+    ctx.stroke(); ctx.restore();
+  });
+  // Ciudades
+  G.scr = {};
+  EXPLORE.forEach(([code]) => {
+    const p = P(vec(AP[code].lat,AP[code].lon)); G.scr[code] = p; if (p.z < .02) return;
+    const sel = X.sel===code, ok = fits(code);
+    ctx.fillStyle = sel ? "#ffdea5" : ok ? "#e9c176" : "#4a4d52";
+    ctx.beginPath(); ctx.arc(p.x,p.y,sel?5.5:ok?3.8:2.6,0,7); ctx.fill();
+    if (sel && !reduceMotion){ const f = (t%1.8)/1.8; ctx.strokeStyle = `rgba(255,222,165,${.9*(1-f)})`; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(p.x,p.y,6+f*20,0,7); ctx.stroke(); }
+  });
+  // Aviones con estela
+  if (pa > 0) G.order.forEach(code => {
+    const sel = X.sel===code; if (!sel && !fits(code)) return;
+    const r = G.routes[code], u = ((t/r.dur) + r.phase) % 1, q = u < .5 ? 2*u*u : 1-2*(1-u)*(1-u);
+    const at = s => { const f = clamp(s,0,1)*r.N, i = Math.min(r.N-1,Math.floor(f)), w = f-i, A = r.pts[i], Bp = r.pts[i+1];
+      return P([A[0]+(Bp[0]-A[0])*w, A[1]+(Bp[1]-A[1])*w, A[2]+(Bp[2]-A[2])*w]); };
+    const p = at(q); if (!p.vis) return;
+    const nx = at(q+.012), tail = at(q-(sel?.16:.1)), fade = pa*Math.min(1,q/.07,(1-q)/.07);
+    if (fade <= 0) return;
+    const tg = ctx.createLinearGradient(tail.x,tail.y,p.x,p.y);
+    tg.addColorStop(0,"rgba(255,222,165,0)"); tg.addColorStop(1,`rgba(255,236,200,${(sel?.9:.55)*fade})`);
+    ctx.strokeStyle = tg; ctx.lineWidth = sel ? 2.4 : 1.6; ctx.beginPath();
+    for (let s=q-(sel?.16:.1); s<=q; s+=.01){ const m = at(s); ctx.lineTo(m.x,m.y); } ctx.lineTo(p.x,p.y); ctx.stroke();
+    const sc = (sel ? .82 : .56)*(.75+.25*Math.max(0,p.z));
+    ctx.save(); ctx.globalAlpha = fade; ctx.translate(p.x,p.y); ctx.rotate(Math.atan2(nx.y-p.y,nx.x-p.x)); ctx.scale(sc,sc);
+    ctx.shadowColor = "rgba(233,193,118,.9)"; ctx.shadowBlur = sel ? 14 : 8; ctx.fillStyle = sel ? "#fff" : "#f6e2b6"; ctx.fill(PLANE); ctx.restore();
+  });
+  // San Salvador
+  const h = P(vec(HOME.lat,HOME.lon));
+  if (h.z > 0){
+    if (!reduceMotion){ const f = (t%2.4)/2.4; ctx.strokeStyle = `rgba(233,193,118,${.8*(1-f)})`; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(h.x,h.y,9+f*24,0,7); ctx.stroke(); }
+    ctx.fillStyle = "rgba(233,193,118,.18)"; ctx.strokeStyle = "#e9c176"; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(h.x,h.y,10,0,7); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(h.x,h.y,4.5,0,7); ctx.fill();
+    ctx.font = "700 10.5px 'JetBrains Mono',monospace"; ctx.fillStyle = "#e9c176"; ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    const lbl = "SAL · TÚ ESTÁS AQUÍ", tw = ctx.measureText(lbl).width; ctx.fillText(lbl,h.x-18,h.y);
+    G.home = {x:h.x-18-tw-4, y:h.y-9, w:tw+30, h:18};
+  } else G.home = null;
+  placeLabels(el >= 2300 || reduceMotion);
+}
+// Etiquetas HTML (botones reales) sin encimarse: prueba 8 posiciones, primero la anterior.
+function placeLabels(ready){
+  const taken = [G.home, G.panel].filter(Boolean), hit = r => taken.some(o => r.x < o.x+o.w+3 && r.x+r.w+3 > o.x && r.y < o.y+o.h+3 && r.y+r.h+3 > o.y);
+  G.order.forEach(code => {
+    const el = G.pins[code], p = G.scr[code], w = el._w, h = el._h; let spot = null;
+    if (ready && p && p.z > .12){
+      const C = [[10,-h/2],[-w-10,-h/2],[7,-h-5],[7,5],[-w-7,-h-5],[-w-7,5],[-w/2,-h-11],[-w/2,11]], prev = G.placed[code] ?? 0;
+      for (const i of [prev,0,1,2,3,4,5,6,7]){ const r = {x:p.x+C[i][0], y:p.y+C[i][1], w, h};
+        if (r.x < 4 || r.y < 4 || r.x+w > G.w-4 || r.y+h > G.h-4 || hit(r)) continue; spot = r; G.placed[code] = i; break; }
+    }
+    if (spot){ taken.push(spot); el.style.transform = `translate(${Math.round(spot.x)}px,${Math.round(spot.y)}px)`; el.classList.remove("hid"); }
+    else el.classList.add("hid");
+  });
 }
 function renderMap(){
-  const svg = svgEl(); if (!X.view) fitView(); if (!X.view) return;
-  const v = X.view, sc = X.scale, inv = 1/sc, sx = wx(-89.06), sy = wy(13.44);
-  svg.setAttribute("viewBox",`${v.x} ${v.y} ${v.w} ${v.h}`);
-  const land = LAND.map(poly => `<polygon points="${poly.map(([lo,la]) => `${wx(lo).toFixed(1)},${wy(la).toFixed(1)}`).join(" ")}" fill="url(#xdots)" stroke="rgba(233,193,118,.2)" stroke-width="${inv}"/>`).join("");
-  const intro = X.intro; X.intro = false;
-  let arcs = "", pins = "", mask = "", plane = "", i = 0;
+  if (!G.pins.BOG) return;
   EXPLORE.forEach(([code]) => {
-    const a = AP[code], x = wx(a.lon), y = wy(a.lat), ok = fits(code), sel = X.sel===code, q = quote(code);
-    const mx = (sx+x)/2, my = (sy+y)/2 - Math.abs(x-sx)*.22 - 24*inv;
-    const d = `M${sx} ${sy} Q${mx} ${my} ${x} ${y}`, flow = ok && !sel && !reduceMotion;
-    if (intro) mask += `<path d="${d}" pathLength="1" fill="none" stroke="#fff" stroke-width="${10*inv}" style="animation-delay:${i*.04}s"/>`;
-    if (sel && !reduceMotion){ const dur = (2 + Math.hypot(x-sx,y-sy)/300).toFixed(2);
-      plane = `<g opacity="0" pointer-events="none"><animateMotion dur="${dur}s" begin="${intro?1.4:0}s" repeatCount="indefinite" rotate="auto" keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines=".45 0 .55 1"><mpath href="#x-arc-sel"/></animateMotion><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.12;.85;1" dur="${dur}s" begin="${intro?1.4:0}s" repeatCount="indefinite"/><path transform="scale(${inv})" d="M12 0c0-1-1-1.5-2-1.5H3L-3-9h-3l4 7.5h-5l-2.5-3h-2L-10 0l-1.5 4.5h2L-7 1.5h5L-6 9h3l6-7.5h7c1 0 2-.5 2-1.5z" fill="#fff"/></g>`; }
-    arcs += `<path ${sel?'id="x-arc-sel" ':""}${flow?`class="flow" style="--d:${(9*inv).toFixed(3)}px" `:""}d="${d}" fill="none" stroke="${sel?"#ffdea5":ok?"#e9c176":"#34373b"}" stroke-width="${(sel?2.4:1.4)*inv}" stroke-dasharray="${sel?"none":`${3*inv} ${6*inv}`}" opacity="${ok||sel?.95:.6}"/>`;
-    const [ox,oy] = LBL_OFF[code];
-    pins += `<g class="city" data-city="${code}" tabindex="0" role="button" aria-label="${a.city}: ${q?money0(q.total):"sin vuelos"} ida y vuelta, ${ok?"te alcanza":"fuera de presupuesto"}" transform="translate(${x} ${y}) scale(${inv})"${intro?` style="animation-delay:${(.9+i*.04).toFixed(2)}s"`:""}>
-      <circle r="16" fill="transparent"/>${sel && !reduceMotion ? `<circle r="8" fill="none" stroke="#ffdea5" stroke-width="2"><animate attributeName="r" values="8;26" dur="1.8s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;0" dur="1.8s" repeatCount="indefinite"/></circle>` : ""}<circle r="${sel?8:ok?5.5:3.5}" fill="${sel?"#ffdea5":ok?"#e9c176":"#4a4d52"}"/>
-      <rect class="lbl" x="${ox}" y="${oy}" width="76" height="24" rx="12" fill="${sel?"#e9c176":ok?"rgba(255,255,255,.95)":"rgba(255,255,255,.07)"}"/>
-      <text x="${ox+10}" y="${oy+16.5}" style="font:700 12.5px 'Plus Jakarta Sans',sans-serif" fill="${ok||sel?"#06080a":"#6b6e73"}">${code} <tspan fill="${sel?"#06080a":ok?"#775a19":"#6b6e73"}">${q?money0(q.total):"—"}</tspan></text></g>`;
-    i++;
+    const el = G.pins[code], q = quote(code), ok = fits(code), sel = X.sel===code;
+    el.classList.toggle("sel",sel); el.classList.toggle("off",!ok && !sel);
+    el.innerHTML = `${code} <b>${q?money0(q.total):"—"}</b>`;
+    el.setAttribute("aria-pressed",sel);
+    el.setAttribute("aria-label",`${AP[code].city}: ${q?money0(q.total):"sin vuelos"} ida y vuelta, ${ok?"te alcanza":"fuera de presupuesto"}`);
+    el._w = el.offsetWidth; el._h = el.offsetHeight;
   });
-  const home = `<g transform="translate(${sx} ${sy}) scale(${inv})" aria-hidden="true">${reduceMotion?"":`<circle r="12" fill="none" stroke="#e9c176" stroke-width="1.5"><animate attributeName="r" values="12;38" dur="2.4s" repeatCount="indefinite"/><animate attributeName="opacity" values=".8;0" dur="2.4s" repeatCount="indefinite"/></circle>`}<circle r="20" fill="rgba(233,193,118,.16)" stroke="#e9c176"/><circle r="7" fill="#fff"/><text x="-28" y="5" text-anchor="end" style="font:700 11px 'JetBrains Mono',monospace;letter-spacing:.08em" fill="#e9c176">SAL · TÚ ESTÁS AQUÍ</text></g>`;
-  svg.innerHTML = `<defs><pattern id="xdots" width="${7*inv}" height="${7*inv}" patternUnits="userSpaceOnUse"><circle cx="${3.5*inv}" cy="${3.5*inv}" r="${1.3*inv}" fill="rgba(233,193,118,.32)"/></pattern>${intro?`<mask id="xdraw" maskUnits="userSpaceOnUse" x="-100000" y="-100000" width="200000" height="200000"><g class="drawmask">${mask}</g></mask>`:""}</defs>${land}<g${intro?' mask="url(#xdraw)"':""}>${arcs}</g>${plane}${pins}${home}`;
-  if (intro){ svg.classList.add("intro"); setTimeout(() => svg.classList.remove("intro"),2400); }
+  G.order = [X.sel, ...EXPLORE.map(([c]) => c).filter(c => c!==X.sel).sort((a,b) => (fits(b)-fits(a)) || ((quote(a)?.total ?? 1e9) - (quote(b)?.total ?? 1e9)))].filter(Boolean);
+  if (X.sel !== G.lastSel){ if (G.lastSel !== null) aim(X.sel,.45); G.lastSel = X.sel; }
+  G.dirty = true;
+}
+function initGlobe(){
+  const box = $("#globe"), cv = $("#gcv"), pins = $("#gpins");
+  EXPLORE.forEach(([code]) => {
+    G.routes[code] = route(code);
+    const b = document.createElement("button"); b.type = "button"; b.className = "gpin hid"; b.dataset.city = code;
+    b.onclick = () => { X.sel = code; renderExplore(); };
+    b.onfocus = () => { if (b.classList.contains("hid")) aim(code,.8); };
+    pins.append(b); G.pins[code] = b;
+  });
+  const near = (x,y) => { let best = null, bd = 18; EXPLORE.forEach(([c]) => { const p = G.scr[c]; if (!p || p.z < .02) return; const dd = Math.hypot(p.x-x,p.y-y); if (dd < bd){ bd = dd; best = c; } }); return best; };
+  const local = e => { const r = box.getBoundingClientRect(); return [e.clientX-r.left, e.clientY-r.top]; };
+  cv.addEventListener("pointerdown",e => { G.drag = {x:e.clientX, y:e.clientY, lat:G.lat, lon:G.lon, moved:false, lx:e.clientX, ly:e.clientY}; G.vLon = G.vLat = 0; });
+  addEventListener("pointermove",e => {
+    const d = G.drag;
+    if (!d){ if (e.target === cv){ const [x,y] = local(e); cv.style.cursor = near(x,y) ? "pointer" : "grab"; } return; }
+    const dx = e.clientX-d.x, dy = e.clientY-d.y;
+    if (!d.moved && Math.hypot(dx,dy) < 5) return;
+    d.moved = true; box.classList.add("drag");
+    const deg = 1/(G.R0*G.zoom*D2R);
+    G.lon = d.lon - dx*deg; G.lat = clamp(d.lat + dy*deg,-45,65); G.tLon = G.lon; G.tLat = G.lat;
+    G.vLon = -(e.clientX-d.lx)*deg*.6; G.vLat = (e.clientY-d.ly)*deg*.6; d.lx = e.clientX; d.ly = e.clientY; G.dirty = true;
+  });
+  const end = e => { const d = G.drag; if (!d) return; G.drag = null; box.classList.remove("drag");
+    if (!d.moved && e.type === "pointerup"){ const [x,y] = local(e), c = near(x,y); if (c){ X.sel = c; renderExplore(); } } };
+  addEventListener("pointerup",end); addEventListener("pointercancel",end);
+  const zoom = f => { G.tZoom = clamp(G.tZoom*f,.8,3.2); G.dirty = true; };
+  $("#x-zin").onclick = () => zoom(1.35);
+  $("#x-zout").onclick = () => zoom(1/1.35);
+  $("#x-reset").onclick = () => { G.tZoom = 1; G.tLat = VIEW.lat; G.tLon = VIEW.lon; G.vLon = G.vLat = 0; G.dirty = true; };
+  box.addEventListener("wheel",e => { if (!e.ctrlKey && !e.metaKey) return; e.preventDefault(); zoom(e.deltaY < 0 ? 1.12 : 1/1.12); },{passive:false});
+  new ResizeObserver(sizeGlobe).observe(box);
+  if ("IntersectionObserver" in window) new IntersectionObserver(es => { G.on = es[0].isIntersecting; if (G.on && G.t0 === null) G.t0 = performance.now(); },{threshold:.25}).observe(box);
+  else G.t0 = performance.now();
+  sizeGlobe();
+  const tick = now => { requestAnimationFrame(tick);
+    if (!G.on || document.hidden || G.t0 === null) return;
+    if (reduceMotion && !G.dirty && !G.drag) return;
+    G.dirty = false; drawGlobe(now); };
+  requestAnimationFrame(tick);
 }
 function renderPick(){
   const el = $("#x-pick"), code = X.sel;
@@ -1994,29 +2219,7 @@ function initExplore(){
     if (!opts.length){ toast("Con ese presupuesto no hay destinos. Súbelo un poco."); return; }
     X.sel = opts[Math.floor(Math.random()*opts.length)]; renderExplore(); toast(`¿Qué tal ${AP[X.sel].city}?`);
   };
-  const svg = svgEl();
-  const zoom = (f,cx,cy) => {
-    const v = X.view, nw = Math.min(3000,Math.max(180,v.w/f)), k = nw/v.w;
-    cx ??= v.x+v.w/2; cy ??= v.y+v.h/2;
-    X.view = {x:cx-(cx-v.x)*k, y:cy-(cy-v.y)*k, w:nw, h:v.h*k}; X.scale /= k; renderMap();
-  };
-  $("#x-zin").onclick = () => zoom(1.4);
-  $("#x-zout").onclick = () => zoom(1/1.4);
-  $("#x-reset").onclick = () => { fitView(); renderMap(); };
-  svg.addEventListener("wheel",e => { if (!e.ctrlKey && !e.metaKey) return; e.preventDefault();
-    const r = svg.getBoundingClientRect(); zoom(e.deltaY<0?1.15:1/1.15, X.view.x+(e.clientX-r.left)/X.scale, X.view.y+(e.clientY-r.top)/X.scale); },{passive:false});
-  svg.addEventListener("pointerdown",e => { X.drag = {x:e.clientX,y:e.clientY,vx:X.view.x,vy:X.view.y,moved:false}; });
-  addEventListener("pointermove",e => { const d = X.drag; if (!d) return;
-    const dx = e.clientX-d.x, dy = e.clientY-d.y;
-    if (!d.moved && Math.hypot(dx,dy) < 5) return;
-    d.moved = true; svg.classList.add("drag");
-    X.view.x = d.vx - dx/X.scale; X.view.y = d.vy - dy/X.scale;
-    svg.setAttribute("viewBox",`${X.view.x} ${X.view.y} ${X.view.w} ${X.view.h}`); });
-  addEventListener("pointerup",() => { if (X.drag?.moved) X.justDragged = true; X.drag = null; svg.classList.remove("drag"); setTimeout(() => X.justDragged = false,0); });
-  svg.addEventListener("click",e => { if (X.justDragged) return; const g = e.target.closest(".city"); if (g){ X.sel = g.dataset.city; renderExplore(); } });
-  svg.addEventListener("keydown",e => { const g = e.target.closest?.(".city"); if (g && (e.key==="Enter"||e.key===" ")){ e.preventDefault(); X.sel = g.dataset.city; renderExplore(); $(`.city[data-city="${X.sel}"]`)?.focus(); } });
-  X.intro = !reduceMotion;
-  let rt; addEventListener("resize",() => { clearTimeout(rt); rt = setTimeout(() => { fitView(); renderMap(); },150); });
+  initGlobe();
   renderExplore();
 }
 
@@ -2024,7 +2227,14 @@ function initExplore(){
 // Los popovers van al <body>: un ancestro con animación de transform desplaza a los position:fixed.
 document.body.append($("#ac-from"),$("#ac-to"),paxPop);
 setAirport("from",S.from); setAirport("to",S.to); setTrip(S.trip); syncDates(); syncPax(); fit(inCls);
-initExplore(); initBoard(); initReveal(); tickClock(); setInterval(tickClock,15000);
+initExplore(); initBoard(); initReveal();
+// Barra de progreso, sombra del header y parallax suave de la cabina.
+(() => { const bar = $("#sprog"), hd = $(".site-header"); let q = false;
+  const upd = () => { q = false; const y = scrollY, max = document.documentElement.scrollHeight - innerHeight;
+    bar.style.transform = `scaleX(${max > 0 ? Math.min(1,y/max) : 0})`; hd.classList.toggle("scrolled",y > 8);
+    const img = !reduceMotion && $("#cabin-ph img");
+    if (img){ const r = img.parentElement.getBoundingClientRect(); if (r.bottom > 0 && r.top < innerHeight) img.style.setProperty("--py",`${((r.top + r.height/2 - innerHeight/2)*-.07).toFixed(1)}px`); } };
+  addEventListener("scroll",() => { if (!q){ q = true; requestAnimationFrame(upd); } },{passive:true}); upd(); })(); tickClock(); setInterval(tickClock,15000);
 $("#cabin-ph").innerHTML = photo("cabina","Cabina de avión con asientos de cuero claro y luz cálida");
 document.fonts?.ready.then(fitAll);
 $("#year").textContent = new Date().getFullYear();
