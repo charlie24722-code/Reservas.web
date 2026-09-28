@@ -18,6 +18,11 @@ Es un solo archivo: abre `index.html` en cualquier navegador (doble clic). No re
 6. **Pago**: tres opciones (tarjeta vía pasarela, cuotas, apartar 24 h). Se simula la conexión con la pasarela.
 7. **Confirmación**: código de reserva tipo aerolínea, compartir por WhatsApp e imprimir.
 8. **Mis viajes / Check-in**: buscar la reserva con el código y el apellido.
+9. **Ficha de destino**: tocar una tarjeta de *Caben en tu presupuesto* abre la ficha con clima aproximado, qué hacer y el calendario de precios del mes (el día más barato marcado con ★).
+10. **Pase de abordar 3D**: en la confirmación, *Voltear pase* muestra el reverso con el código QR; *Apple/Google Wallet* anima el pase hacia la billetera (simulado).
+11. **Panel de la aerolínea** (menú del avatar o *Panel*): indicadores del día, ocupación por vuelo, ingresos por tarifa y manifiesto de pasajeros con búsqueda. Las reservas hechas en el navegador aparecen marcadas como *web*.
+
+En viajes de ida y vuelta, al elegir la tarifa de ida la página pasa al **regreso** (la banda muestra el destino → SAL y el indicador *✓ Ida lista → 2 · Regreso*).
 
 ## Diseño: "serenidad editorial" (base Stitch + piezas propias)
 
