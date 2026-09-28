@@ -545,12 +545,12 @@ fieldset.card{min-width:0}
 
 
 /* ---------- Explorar: mapa + presupuesto ---------- */
-.xhero{position:relative;height:720px;overflow:hidden;color:#fff;background-color:#06080a;background-image:radial-gradient(rgba(233,193,118,.10) 1px,transparent 1.4px);background-size:16px 16px}
+.xhero{position:relative;min-height:720px;overflow:hidden;color:#fff;background-color:#06080a;background-image:radial-gradient(rgba(233,193,118,.10) 1px,transparent 1.4px);background-size:16px 16px}
 .xmap{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:pan-y;user-select:none}
 .xmap.drag{cursor:grabbing}
 .xmap .city{cursor:pointer;outline:none}
 .xmap .city:focus-visible .lbl,.xmap .city:hover .lbl{stroke:#ffdea5;stroke-width:2}
-.xpanel{position:absolute;z-index:2;top:40px;left:max(24px,calc((100% - var(--wrap))/2 + 24px));width:460px;box-sizing:border-box;padding:26px 26px 22px;background:rgba(12,14,17,.8);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.12);border-radius:18px;display:flex;flex-direction:column;gap:16px}
+.xpanel{position:relative;z-index:2;margin:40px 0;left:max(24px,calc((100% - var(--wrap))/2 + 24px));width:460px;box-sizing:border-box;padding:26px 26px 22px;background:rgba(12,14,17,.8);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.12);border-radius:18px;display:flex;flex-direction:column;gap:16px}
 .xpanel .eyebrow{color:var(--gold-fixed)}
 .xq{font-family:var(--f-serif);font-weight:400;font-size:38px;line-height:1.3;margin:0;color:#fff}
 .xq em{color:var(--led-gold)}
@@ -585,11 +585,25 @@ select.xblank option{color:#06080a}
 .xlegend{position:absolute;right:84px;bottom:32px;z-index:2;display:flex;gap:16px;font-size:12px;color:#a3a5a8;pointer-events:none}
 .xlegend i{display:inline-block;width:10px;height:10px;border-radius:50%;background:#4a4d52;margin-right:6px;vertical-align:-1px}
 .xlegend i.on{background:var(--led-gold)}
+/* Animación: rutas que se dibujan, avión, tarjetas y secciones que entran */
+.xmap .flow{animation:flow 1s linear infinite}
+@keyframes flow{to{stroke-dashoffset:calc(var(--d) * -1)}}
+.xmap .drawmask path{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.3s cubic-bezier(.5,0,.2,1) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.xmap.intro .city{opacity:0;animation:fadein .5s ease forwards}
+@keyframes fadein{to{opacity:1}}
+.xpick.x-in{animation:pickin .45s cubic-bezier(.2,.7,.2,1)}
+@keyframes pickin{from{opacity:0;transform:translateY(10px)}}
+.tile.in{animation:tilein .55s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes tilein{from{opacity:0;transform:translateY(18px) scale(.98)}}
+.sr-on .sr{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--i,0) * 90ms)}
+.sr-on .sr.vis{opacity:1;transform:none}
 .feed{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
 .tile{display:flex;flex-direction:column;text-align:left;border:0;padding:0;background:var(--card);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-sm);transition:box-shadow .25s,transform .25s;color:inherit}
 .tile:hover{box-shadow:var(--sh-xl);transform:translateY(-3px)}
 .tile .tp{position:relative;height:160px;background:linear-gradient(135deg,#1e2022,#775a19);overflow:hidden}
-.tile .tp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tile .tp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+.tile:hover .tp img{transform:scale(1.07)}
 .tile .iata{position:absolute;right:12px;bottom:0;font-family:var(--f-serif);font-size:68px;line-height:1;color:rgba(255,255,255,.22)}
 .tile .vb{position:absolute;left:12px;top:12px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.92);color:var(--primary);padding:3px 8px;border-radius:4px}
 .tile .tb{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;padding:14px 16px 16px}
@@ -741,7 +755,7 @@ select.xblank option{color:#06080a}
 <section id="view-home">
   <div class="xhero dark" id="xhero">
     <svg class="xmap" id="xmap" aria-label="Mapa interactivo de destinos desde San Salvador. Arrastra para moverlo y usa los botones para acercar o alejar."></svg>
-    <div class="xpanel">
+    <div class="xpanel reveal d1">
       <span class="eyebrow">Explora desde San Salvador</span>
       <h1 class="xq">Tengo <button type="button" class="xblank" id="x-bud-out" aria-label="Presupuesto: ajusta con el control de abajo">$400</button> y <select class="xblank" id="x-days" aria-label="Duración del viaje"><option value="3">3 días</option><option value="4" selected>4 días</option><option value="7">1 semana</option><option value="14">2 semanas</option></select> en <select class="xblank" id="x-month" aria-label="Mes del viaje"></select>. <em>¿A dónde voy?</em></h1>
       <div class="xrange"><label for="x-budget"><span>Presupuesto por persona</span><span>$150 — $1,500</span></label><input id="x-budget" type="range" min="150" max="1500" step="10" value="400"></div>
@@ -1890,46 +1904,74 @@ function renderMap(){
   const v = X.view, sc = X.scale, inv = 1/sc, sx = wx(-89.06), sy = wy(13.44);
   svg.setAttribute("viewBox",`${v.x} ${v.y} ${v.w} ${v.h}`);
   const land = LAND.map(poly => `<polygon points="${poly.map(([lo,la]) => `${wx(lo).toFixed(1)},${wy(la).toFixed(1)}`).join(" ")}" fill="url(#xdots)" stroke="rgba(233,193,118,.2)" stroke-width="${inv}"/>`).join("");
-  let arcs = "", pins = "";
+  const intro = X.intro; X.intro = false;
+  let arcs = "", pins = "", mask = "", plane = "", i = 0;
   EXPLORE.forEach(([code]) => {
     const a = AP[code], x = wx(a.lon), y = wy(a.lat), ok = fits(code), sel = X.sel===code, q = quote(code);
     const mx = (sx+x)/2, my = (sy+y)/2 - Math.abs(x-sx)*.22 - 24*inv;
-    arcs += `<path d="M${sx} ${sy} Q${mx} ${my} ${x} ${y}" fill="none" stroke="${sel?"#ffdea5":ok?"#e9c176":"#34373b"}" stroke-width="${(sel?2.4:1.4)*inv}" stroke-dasharray="${sel?"none":`${3*inv} ${6*inv}`}" opacity="${ok||sel?.95:.6}"/>`;
+    const d = `M${sx} ${sy} Q${mx} ${my} ${x} ${y}`, flow = ok && !sel && !reduceMotion;
+    if (intro) mask += `<path d="${d}" pathLength="1" fill="none" stroke="#fff" stroke-width="${10*inv}" style="animation-delay:${i*.04}s"/>`;
+    if (sel && !reduceMotion){ const dur = (2 + Math.hypot(x-sx,y-sy)/300).toFixed(2);
+      plane = `<g opacity="0" pointer-events="none"><animateMotion dur="${dur}s" begin="${intro?1.4:0}s" repeatCount="indefinite" rotate="auto" keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines=".45 0 .55 1"><mpath href="#x-arc-sel"/></animateMotion><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.12;.85;1" dur="${dur}s" begin="${intro?1.4:0}s" repeatCount="indefinite"/><path transform="scale(${inv})" d="M12 0c0-1-1-1.5-2-1.5H3L-3-9h-3l4 7.5h-5l-2.5-3h-2L-10 0l-1.5 4.5h2L-7 1.5h5L-6 9h3l6-7.5h7c1 0 2-.5 2-1.5z" fill="#fff"/></g>`; }
+    arcs += `<path ${sel?'id="x-arc-sel" ':""}${flow?`class="flow" style="--d:${(9*inv).toFixed(3)}px" `:""}d="${d}" fill="none" stroke="${sel?"#ffdea5":ok?"#e9c176":"#34373b"}" stroke-width="${(sel?2.4:1.4)*inv}" stroke-dasharray="${sel?"none":`${3*inv} ${6*inv}`}" opacity="${ok||sel?.95:.6}"/>`;
     const [ox,oy] = LBL_OFF[code];
-    pins += `<g class="city" data-city="${code}" tabindex="0" role="button" aria-label="${a.city}: ${q?money0(q.total):"sin vuelos"} ida y vuelta, ${ok?"te alcanza":"fuera de presupuesto"}" transform="translate(${x} ${y}) scale(${inv})">
-      <circle r="16" fill="transparent"/><circle r="${sel?8:ok?5.5:3.5}" fill="${sel?"#ffdea5":ok?"#e9c176":"#4a4d52"}"/>
+    pins += `<g class="city" data-city="${code}" tabindex="0" role="button" aria-label="${a.city}: ${q?money0(q.total):"sin vuelos"} ida y vuelta, ${ok?"te alcanza":"fuera de presupuesto"}" transform="translate(${x} ${y}) scale(${inv})"${intro?` style="animation-delay:${(.9+i*.04).toFixed(2)}s"`:""}>
+      <circle r="16" fill="transparent"/>${sel && !reduceMotion ? `<circle r="8" fill="none" stroke="#ffdea5" stroke-width="2"><animate attributeName="r" values="8;26" dur="1.8s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;0" dur="1.8s" repeatCount="indefinite"/></circle>` : ""}<circle r="${sel?8:ok?5.5:3.5}" fill="${sel?"#ffdea5":ok?"#e9c176":"#4a4d52"}"/>
       <rect class="lbl" x="${ox}" y="${oy}" width="76" height="24" rx="12" fill="${sel?"#e9c176":ok?"rgba(255,255,255,.95)":"rgba(255,255,255,.07)"}"/>
       <text x="${ox+10}" y="${oy+16.5}" style="font:700 12.5px 'Plus Jakarta Sans',sans-serif" fill="${ok||sel?"#06080a":"#6b6e73"}">${code} <tspan fill="${sel?"#06080a":ok?"#775a19":"#6b6e73"}">${q?money0(q.total):"—"}</tspan></text></g>`;
+    i++;
   });
-  const home = `<g transform="translate(${sx} ${sy}) scale(${inv})" aria-hidden="true"><circle r="20" fill="rgba(233,193,118,.16)" stroke="#e9c176"/><circle r="7" fill="#fff"/><text x="-28" y="5" text-anchor="end" style="font:700 11px 'JetBrains Mono',monospace;letter-spacing:.08em" fill="#e9c176">SAL · TÚ ESTÁS AQUÍ</text></g>`;
-  svg.innerHTML = `<defs><pattern id="xdots" width="${7*inv}" height="${7*inv}" patternUnits="userSpaceOnUse"><circle cx="${3.5*inv}" cy="${3.5*inv}" r="${1.3*inv}" fill="rgba(233,193,118,.32)"/></pattern></defs>${land}${arcs}${pins}${home}`;
+  const home = `<g transform="translate(${sx} ${sy}) scale(${inv})" aria-hidden="true">${reduceMotion?"":`<circle r="12" fill="none" stroke="#e9c176" stroke-width="1.5"><animate attributeName="r" values="12;38" dur="2.4s" repeatCount="indefinite"/><animate attributeName="opacity" values=".8;0" dur="2.4s" repeatCount="indefinite"/></circle>`}<circle r="20" fill="rgba(233,193,118,.16)" stroke="#e9c176"/><circle r="7" fill="#fff"/><text x="-28" y="5" text-anchor="end" style="font:700 11px 'JetBrains Mono',monospace;letter-spacing:.08em" fill="#e9c176">SAL · TÚ ESTÁS AQUÍ</text></g>`;
+  svg.innerHTML = `<defs><pattern id="xdots" width="${7*inv}" height="${7*inv}" patternUnits="userSpaceOnUse"><circle cx="${3.5*inv}" cy="${3.5*inv}" r="${1.3*inv}" fill="rgba(233,193,118,.32)"/></pattern>${intro?`<mask id="xdraw" maskUnits="userSpaceOnUse" x="-100000" y="-100000" width="200000" height="200000"><g class="drawmask">${mask}</g></mask>`:""}</defs>${land}<g${intro?' mask="url(#xdraw)"':""}>${arcs}</g>${plane}${pins}${home}`;
+  if (intro){ svg.classList.add("intro"); setTimeout(() => svg.classList.remove("intro"),2400); }
 }
 function renderPick(){
   const el = $("#x-pick"), code = X.sel;
   if (!code){ el.innerHTML = `<span class="empty">Toca un destino en el mapa para ver fechas y precio.</span>`; return; }
   const a = AP[code], q = quote(code);
-  if (!q){ el.innerHTML = `<span class="empty">No hay vuelos a ${a.city} en ese mes.</span>`; return; }
+  if (!q){ X.shown = null; el.innerHTML = `<span class="empty">No hay vuelos a ${a.city} en ese mes.</span>`; return; }
   const diff = X.budget - q.total;
-  el.innerHTML = `<div class="r1"><div><small>${VIBE[code]} · ${a.country}</small><div class="c">${a.city}</div></div><div class="p">${money0(q.total)}<span>ida y vuelta</span></div></div>
+  el.innerHTML = `<div class="r1"><div><small>${VIBE[code]} · ${a.country}</small><div class="c">${a.city}</div></div><div class="p"><b class="pv">${money0(X.shown ?? q.total)}</b><span>ida y vuelta</span></div></div>
     <div class="r2"><span>${dateRange(q)} · ${X.days} ${X.days===1?"día":"días"} · 1 adulto</span><span class="${diff>=0?"pill-ok":"pill-no"}">${diff>=0?`Te sobran ${money0(diff)}`:`Te faltan ${money0(-diff)}`}</span></div>
     <button type="button" class="btn upper" id="x-go">Ver vuelos a ${a.city}</button>`;
   $("#x-go").onclick = () => goExplore(code);
+  if (code !== X.lastPick){ el.classList.remove("x-in"); void el.offsetWidth; el.classList.add("x-in"); X.lastPick = code; }
+  countTo(el.querySelector(".pv"), X.shown, q.total); X.shown = q.total;
+}
+function countTo(el,from,to){
+  cancelAnimationFrame(X.raf);
+  if (reduceMotion || from == null || from === to){ el.textContent = money0(to); return; }
+  const t0 = performance.now(), step = t => { const k = Math.min(1,(t-t0)/450), e = 1-(1-k)**3;
+    el.textContent = money0(Math.round(from+(to-from)*e)); if (k < 1) X.raf = requestAnimationFrame(step); };
+  X.raf = requestAnimationFrame(step);
 }
 function renderFeed(){
   const list = EXPLORE.map(([c]) => c).filter(fits).sort((a,b) => quote(a).total - quote(b).total);
   $("#x-count").textContent = `${list.length} de ${EXPLORE.length} destinos te alcanzan · ida y vuelta, impuestos incluidos`;
   $("#feed-title").textContent = list.length ? `${list.length} ${list.length===1?"destino":"destinos"} para ti, ordenados por lo que te sobra` : "Ningún destino cabe todavía";
   $("#feed-sub").textContent = `${MONTHS.find(m => m.v===X.month).l} · ${X.days} días · por persona, impuestos incluidos`;
-  $("#feed").innerHTML = list.length ? list.slice(0,8).map(code => { const a = AP[code], q = quote(code);
-    return `<button class="tile" data-deal="${code}" aria-label="${a.city}: ${money0(q.total)} ida y vuelta, ${dateRange(q)}"><span class="tp"><span class="iata">${code}</span>${photo(code,`Vista de ${a.city}`)}<span class="vb">${VIBE[code]}</span></span>
+  const seen = X.feedSeen; let n = 0;
+  $("#feed").innerHTML = list.length ? list.slice(0,8).map((code,k) => { const a = AP[code], q = quote(code);
+    const anim = !seen ? `sr" style="--i:${k%4}` : seen.has(code) ? "" : `in" style="--i:${n++}`;
+    return `<button class="tile ${anim}" data-deal="${code}" aria-label="${a.city}: ${money0(q.total)} ida y vuelta, ${dateRange(q)}"><span class="tp"><span class="iata">${code}</span>${photo(code,`Vista de ${a.city}`)}<span class="vb">${VIBE[code]}</span></span>
       <span class="tb"><span><b>${a.city}</b><small>${dateRange(q)}</small></span><span class="pr"><b>${money0(q.total)}</b><span class="pill-ok">Te sobran ${money0(X.budget-q.total)}</span></span></span></button>`; }).join("")
     : `<div class="feed-empty">Sube tu presupuesto, prueba otro mes o cambia el tipo de viaje.</div>`;
   $$("#feed [data-deal]").forEach(b => b.onclick = () => goExplore(b.dataset.deal));
+  X.feedSeen = new Set(list.slice(0,8));
 }
 function renderExplore(){
   $("#x-bud-out").textContent = money0(X.budget);
   $$(".xchip").forEach(c => c.setAttribute("aria-pressed",c.dataset.vibe===X.vibe));
   renderMap(); renderPick(); renderFeed();
+}
+// Las secciones de la portada entran al hacer scroll (solo si el navegador lo soporta y no se pidió reducir movimiento).
+function initReveal(){
+  if (reduceMotion || !("IntersectionObserver" in window)) return;
+  ["#ofertas .sec-head","#buscar .sec-head","#buscar .console",".quick > *",".bd-grid > *",".perks4 > *",".cabin > *"].forEach(sel =>
+    $$(sel).forEach((el,k) => { el.classList.add("sr"); el.style.setProperty("--i",k); }));
+  document.documentElement.classList.add("sr-on");
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting){ e.target.classList.add("vis"); io.unobserve(e.target); } }),{rootMargin:"0px 0px -8% 0px",threshold:.12});
+  $$(".sr").forEach(el => io.observe(el));
 }
 function goExplore(code){
   const q = quote(code); if (!q) return;
@@ -1973,6 +2015,7 @@ function initExplore(){
   addEventListener("pointerup",() => { if (X.drag?.moved) X.justDragged = true; X.drag = null; svg.classList.remove("drag"); setTimeout(() => X.justDragged = false,0); });
   svg.addEventListener("click",e => { if (X.justDragged) return; const g = e.target.closest(".city"); if (g){ X.sel = g.dataset.city; renderExplore(); } });
   svg.addEventListener("keydown",e => { const g = e.target.closest?.(".city"); if (g && (e.key==="Enter"||e.key===" ")){ e.preventDefault(); X.sel = g.dataset.city; renderExplore(); $(`.city[data-city="${X.sel}"]`)?.focus(); } });
+  X.intro = !reduceMotion;
   let rt; addEventListener("resize",() => { clearTimeout(rt); rt = setTimeout(() => { fitView(); renderMap(); },150); });
   renderExplore();
 }
@@ -1981,7 +2024,7 @@ function initExplore(){
 // Los popovers van al <body>: un ancestro con animación de transform desplaza a los position:fixed.
 document.body.append($("#ac-from"),$("#ac-to"),paxPop);
 setAirport("from",S.from); setAirport("to",S.to); setTrip(S.trip); syncDates(); syncPax(); fit(inCls);
-initExplore(); initBoard(); tickClock(); setInterval(tickClock,15000);
+initExplore(); initBoard(); initReveal(); tickClock(); setInterval(tickClock,15000);
 $("#cabin-ph").innerHTML = photo("cabina","Cabina de avión con asientos de cuero claro y luz cálida");
 document.fonts?.ready.then(fitAll);
 $("#year").textContent = new Date().getFullYear();
