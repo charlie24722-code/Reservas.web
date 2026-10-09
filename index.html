@@ -8,7 +8,7 @@
 <meta name="description" content="Estela: demo de reservas de vuelos con tablero de salidas, buscador en forma de frase, tarifas, asientos, pago simulado y pase de abordar.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Archivo:wdth,wght@62..125,400..800&family=Martian+Mono:wdth,wght@75..112.5,400..700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
    ESTELA · Sistema de diseño "Serenidad editorial" (base Stitch)
@@ -39,11 +39,12 @@
   --error:#ba1a1a; --error-soft:#ffdad6;
   --board:#0b0d10; --led-ok:#7fe0b0; --led-gold:#e9c176; --led-late:#ffa07a;
 
-  /* Tipografía "era del jet": didona de revista para títulos, grotesca de ancho variable
-     (normal para leer, expandida para rótulos de boleto y señalética) y mono de tablero. */
-  --f-serif:"Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif;
+  /* Tipografía "Suiza de aviación": una sola grotesca de ancho variable (Archivo):
+     ancha y gruesa para títulos y cifras, normal para leer, expandida para rótulos;
+     DM Mono para tablero y códigos. --f-serif conserva el nombre pero ya es la de títulos. */
+  --f-serif:"Archivo", "Helvetica Neue", Arial, sans-serif;
   --f-sans:"Archivo", "Helvetica Neue", Arial, sans-serif;
-  --f-mono:"Martian Mono", ui-monospace, monospace;
+  --f-mono:"DM Mono", ui-monospace, monospace;
   --wide:118%;
 
   --r-sm:4px; --r-md:8px; --r-lg:14px;
@@ -1252,8 +1253,11 @@ footer button.lnk:hover{color:var(--led-gold);text-decoration:underline}
 /* =========== Tipografía =========== */
 body{font-optical-sizing:auto;font-feature-settings:"kern","liga"}
 .serif,.h-display,h1,h2,h3.h-display{font-optical-sizing:auto}
-.h-display,.xq,.sec-head h2,.flow-main h2,.done-head h2,.cine-in h2,.tband h2,.dd-hero h2,footer .fbig{font-weight:400;letter-spacing:-.018em}
-.xq em,footer .fbig em,.cine-in h2 em{font-style:italic;font-weight:400}
+/* Títulos y cifras: Archivo ancha y gruesa */
+.ac-list .code,.avatar-i,.back-body h4,.bd-title,.cabin h3,.cc .top,.cine-in h2,.day[aria-pressed="true"] b,.dd-facts b,.dd-hero h2,.dest .cap b,.dest-card .ov b,.done-head h2,.fare .ft b,.feed.bento .tile:first-child .tb b,.flight .from b,.flight .t b,.flow-main h2,.gpin b,.h-display,.hero h1,.horizon .rt b,.kpi b,.manage h2,.mobile-total b,.occ b,.ops-head .rt,.opsf .tm,.pass .ph-top .b b,.pass .route b,.pass .scan .gate b,.pax-tab b,.perks4 .pi,.pnr,.rev-tot b,.seat-detail b,.sec-head h2,.sentence,.serif,.side-card .tot b,.summary .rt,.summary .total b,.tband h2,.tile .iata,.tile .pr b,.trip-row .code,.vc-lbl,.xpick .c,.xpick .p,.xq,footer .fbig{font-weight:780;font-stretch:112%;letter-spacing:-.02em}
+.xq em,footer .fbig em,.cine-in h2 em,.dd-hero h2 em{font-style:normal}
+.tile .pr b,.from b,.fare .ft b,.summary .total b,.side-card .tot b,.kpi b,.occ b,.rev-tot b,.xpick .p,.day[aria-pressed="true"] b{font-stretch:118%;letter-spacing:-.03em}
+.avatar-i,.pnr,.trip-row .code,.gpin b{letter-spacing:.02em}
 /* Cifras: didona con números de forma alineada y tabulares donde se comparan */
 .tile .pr b,.xpick .p,.from b,.fare .ft b,.summary .total b,.side-card .tot b,.day b,.kpi b,.occ b,.rev-tot b,.opsf .tm,.flight .t b,.pass .route b,.pnr,.dd-facts b{font-variant-numeric:lining-nums tabular-nums}
 .day b,.flight .t b,.opsf .tm{letter-spacing:-.01em}
@@ -1262,10 +1266,10 @@ body{font-optical-sizing:auto;font-feature-settings:"kern","liga"}
 .btn.upper,.eyebrow{letter-spacing:.14em}
 .btn{font-weight:650}
 .board-clock,.b-head,.ch{font-stretch:87.5%}
-.ch{font-weight:600}
+.ch{font-weight:500}
 .gpin{font-weight:650;letter-spacing:.02em}
-.gpin b{font-family:var(--f-serif);font-weight:600;font-size:13.5px;letter-spacing:0}
-.pnr .pc,.trip-row .code{font-family:var(--f-mono);font-stretch:100%;font-weight:500;letter-spacing:.06em}
+.gpin b{font-family:var(--f-serif);font-weight:750;font-size:12.5px}
+.pnr .pc,.trip-row .code{font-family:var(--f-mono);font-weight:500;letter-spacing:.08em}
 .in input,.in select,.news input,.mf-tools input{font-family:var(--f-sans)}
 
 @media (prefers-reduced-motion:reduce){
@@ -2718,7 +2722,7 @@ function drawGlobe(now){
     if (!reduceMotion){ const f = (t%2.4)/2.4; ctx.strokeStyle = `rgba(233,193,118,${.8*(1-f)})`; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(h.x,h.y,9+f*24,0,7); ctx.stroke(); }
     ctx.fillStyle = "rgba(233,193,118,.18)"; ctx.strokeStyle = "#e9c176"; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(h.x,h.y,10,0,7); ctx.fill(); ctx.stroke();
     ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(h.x,h.y,4.5,0,7); ctx.fill();
-    ctx.font = "600 10px 'Martian Mono',monospace"; ctx.fillStyle = "#e9c176"; ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    ctx.font = "500 10.5px 'DM Mono',monospace"; ctx.fillStyle = "#e9c176"; ctx.textAlign = "right"; ctx.textBaseline = "middle";
     const lbl = "SAL · TÚ ESTÁS AQUÍ", tw = ctx.measureText(lbl).width; ctx.fillText(lbl,h.x-18,h.y);
     G.home = {x:h.x-18-tw-4, y:h.y-9, w:tw+30, h:18};
   } else G.home = null;
