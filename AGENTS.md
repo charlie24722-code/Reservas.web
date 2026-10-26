@@ -38,6 +38,8 @@ assets/               ← fotos de destinos (*.jpg, 1600×1200) y logos en uso (
 assets/estela-airline/← PROPUESTA de nueva marca (no integrada; ver su README)
 docs/                 ← documentos legales demo (equipaje, reembolsos, términos, privacidad) e investigacion.md
 tools/smoke.js        ← prueba rápida con Playwright (sin errores JS, sin scroll horizontal)
+tools/flujo.js        ← prueba de punta a punta: reserva completa en escritorio y celular
+agentes/              ← definiciones de subagentes (ver sección 7)
 README.md             ← guion de demo, sistema de diseño, créditos de fotos
 ```
 
@@ -85,11 +87,12 @@ Las líneas cambian; **busca por nombre** (`grep -n`), no por número.
 
 ## 5. Cómo verificar antes de entregar
 
-1. **Prueba automática** (requiere Node + Playwright):
+1. **Pruebas automáticas** (requieren Node + Playwright):
    ```bash
-   node tools/smoke.js
+   node tools/smoke.js   # sin errores JS y sin scroll horizontal (375 y 1280 px)
+   node tools/flujo.js   # reserva completa de punta a punta; debe terminar en "Flujo completo OK"
    ```
-   Debe imprimir `sin errores JS` y `scroll horizontal: false` en 375 px y 1280 px.
+   Si cambiaste algo del flujo de reserva, invoca además al subagente **Funcionalidad** (sección 7).
 2. **Prueba manual** del flujo que tocaste, siguiendo el guion del `README.md` (por ejemplo: buscar SAL → MAD, código `BIENVENIDO10`, elegir tarifa, asiento, pagar, ver pase).
 3. **Re-lee tu diff**: sin `console.log` olvidados, sin colores sueltos, sin texto en inglés en la interfaz.
 4. Si agregaste una función visible, **actualiza el `README.md`** (guion de demo o sección de diseño).
@@ -105,7 +108,26 @@ Las líneas cambian; **busca por nombre** (`grep -n`), no por número.
 
 ---
 
-## 7. Formato de tu respuesta final
+## 7. Subagentes
+
+Especialistas con una tarea concreta. Su definición oficial vive en `agentes/<nombre>.md`; cada herramienta tiene un acceso que apunta a ese archivo.
+
+| Subagente | Para qué | Cuándo usarlo |
+|---|---|---|
+| **Funcionalidad** (`agentes/funcionalidad.md`) | Inspector de funcionalidad: corre las pruebas, revisa la lista manual del demo y entrega un reporte con veredicto (✅ / ⚠️ / ❌) y hallazgos reproducibles. Por defecto solo revisa; corrige si se le pide. | Después de cambiar `index.html`, antes de un PR o de una presentación, o cuando algo "no funciona". |
+
+Cómo invocarlo según la herramienta:
+
+- **Claude Code:** subagente `funcionalidad` (`.claude/agents/funcionalidad.md`).
+- **Codex:** skill `funcionalidad` (`.agents/skills/funcionalidad/SKILL.md`), o pide "usa el subagente de funcionalidad".
+- **Antigravity:** workflow `/funcionalidad` (`.agent/workflows/funcionalidad.md`).
+- **Cualquier otro agente:** lee `agentes/funcionalidad.md` y actúa como ese subagente.
+
+Para crear un subagente nuevo: escribe `agentes/<nombre>.md` con el mismo esquema (quién eres, cuándo te invocan, modos, procedimiento, formato de reporte, reglas), agrega sus tres accesos y una fila en esta tabla.
+
+---
+
+## 8. Formato de tu respuesta final
 
 ```
 ✅ Qué cambió: (1–3 viñetas)

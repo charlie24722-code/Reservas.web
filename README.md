@@ -88,4 +88,4 @@ Ver [`docs/investigacion.md`](docs/investigacion.md): cómo lo hacen las aerolí
 
 ## Para agentes de IA
 
-Las reglas del proyecto para Codex, Antigravity, Claude Code y otros agentes están en [`AGENTS.md`](AGENTS.md) (`CLAUDE.md` y `GEMINI.md` apuntan a él). Prueba rápida antes de entregar: `node tools/smoke.js`.
+Las reglas del proyecto para Codex, Antigravity, Claude Code y otros agentes están en [`AGENTS.md`](AGENTS.md) (`CLAUDE.md` y `GEMINI.md` apuntan a él). Pruebas antes de entregar: `node tools/smoke.js` (carga) y `node tools/flujo.js` (reserva completa). El subagente **Funcionalidad** ([`agentes/funcionalidad.md`](agentes/funcionalidad.md)) revisa que todo el demo funcione y entrega un reporte.
