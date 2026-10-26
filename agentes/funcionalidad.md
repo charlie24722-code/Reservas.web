@@ -31,8 +31,10 @@ Alcance: `todo` (por defecto) o un área (`búsqueda`, `vuelos`, `pasajeros`, `e
 
 ```bash
 node tools/smoke.js    # carga sin errores JS y sin scroll horizontal (375 y 1280 px)
-node tools/flujo.js    # reserva completa de punta a punta en escritorio y celular
+node tools/flujo.js    # reserva completa: escritorio y celular (reducir movimiento) + escritorio con animaciones
 ```
+
+`flujo.js` imprime un conteo por corrida (por ejemplo `✓ 21/21 Escritorio`) y termina en `Flujo completo OK`.
 
 Si alguna falla, ese es tu hallazgo número uno. Revisa la captura `tools/fallo-*.png` y reproduce el error antes de reportarlo.
 
@@ -40,7 +42,12 @@ Si no hay Node o Playwright, dilo en el reporte y haz el Paso 2 completo a mano.
 
 ### Paso 2 · Lista de verificación manual
 
-`tools/flujo.js` cubre el recorrido principal. Lo que **no** cubre se revisa con esta lista (abre `index.html` en el navegador o usa Playwright):
+`tools/flujo.js` cubre el recorrido principal. Lo que **no** cubre se revisa con esta lista (abre `index.html` en el navegador o usa Playwright).
+
+Cómo probar con Playwright:
+- Todo el JavaScript de `index.html` vive dentro de una función que se ejecuta sola (IIFE): **no puedes leer el estado interno** (`S`, `flightsFor`…) con `page.evaluate`. Prueba por el DOM, como un usuario. Lo único accesible es `localStorage` (`estela-bookings`).
+- Escribe tus scripts en una carpeta temporal, **no en el repositorio**.
+- Para lo que depende del tiempo (temporizador, check-in) usa el reloj simulado de Playwright (`page.clock`) o fechas de salida cercanas.
 
 **Portada y globo**
 - [ ] Mover el presupuesto enciende o apaga destinos; el contador (`#x-count`) cambia.
@@ -69,25 +76,35 @@ Si no hay Node o Playwright, dilo en el reporte y haz el Paso 2 completo a mano.
 - [ ] Un asiento ocupado no se puede elegir; dos pasajeros no pueden tener el mismo asiento.
 - [ ] Tarifa Básica cobra el asiento estándar; Clásica y Flex no.
 - [ ] Cuotas muestra ≈ total / 12. *Apartar 24 h* cobra $10 y la confirmación dice "Tarifa apartada".
-- [ ] El temporizador del resumen se puede extender.
+- [ ] Una reserva **apartada** se puede pagar desde Mis viajes, no recibe pase con QR ni check-in, y su plazo de pago no pasa de la hora de salida.
+- [ ] El temporizador del resumen (15 min) llega a 0 y entonces aparece el botón para extenderlo. Usa `page.clock` para no esperar.
+- [ ] Antes de elegir vuelo el resumen no muestra un total engañoso (por ejemplo `$0.00`).
+- [ ] El texto de cada extra coincide con lo que se cobra (por ejemplo, maleta "por trayecto" en ida y vuelta).
 
 **Después de la compra**
-- [ ] *Voltear pase* muestra el reverso con QR; Apple/Google Wallet anima el pase.
+- [ ] *Voltear pase* muestra el reverso con QR; Apple/Google Wallet anima el pase (con animaciones activas; con reducir movimiento solo muestra el aviso).
 - [ ] *Compartir por WhatsApp* abre `wa.me` con el texto de la reserva.
-- [ ] Check-in con código + apellido responde (abierto o "aún no disponible" según la fecha).
-- [ ] Estado de vuelo con un número del tablero de salidas responde.
+- [ ] Check-in con código + apellido: con salida a más de 48 h dice "Aún no disponible"; para ver "Check-in abierto" haz una reserva con salida mañana. Apellido incorrecto → "Sin resultados".
+- [ ] Estado de vuelo con un número del tablero de salidas responde; con número inválido o **fecha vacía** muestra un aviso claro (nunca "Invalid Date").
 - [ ] El panel de la aerolínea muestra la reserva hecha marcada como **web** y el buscador del manifiesto la encuentra.
 
 **Transversal**
 - [ ] Con *reducir movimiento* activado: el globo queda quieto, sin aviones ni cortes animados, y todo sigue funcionando.
 - [ ] Se puede completar la búsqueda solo con teclado (Tab, flechas, Enter, Escape).
-- [ ] Ningún texto de la interfaz en inglés ni con `undefined`, `NaN` o `$0.00` donde no corresponde.
+- [ ] Ningún texto de la interfaz en inglés ni con `undefined`, `NaN`, `Invalid Date` o `$0.00` donde no corresponde. Se aceptan los términos de aviación y marcas de uso común: Check-in, Business, Flex, Wi-Fi, Apple Wallet, Google Wallet, WhatsApp, PDF. Cualquier otra palabra en inglés es hallazgo BAJO.
 - [ ] La consola no tiene errores.
 
 ### Paso 3 · Coherencia de precios
 
-El mismo vuelo debe costar lo mismo en todas partes. Compara al menos un destino:
-precio en el globo / tarjeta de la portada ≈ precio "Desde" del vuelo más barato (ida + regreso, tarifa Básica, impuestos incluidos) ≈ calendario de la ficha de destino. Si no cuadran, es un hallazgo **alto**.
+El mismo viaje debe costar lo mismo en todas partes. Compara al menos 3 destinos (uno de América, uno de Europa y uno de Asia u Oceanía):
+
+- Precio del destino en el globo (sube el presupuesto a $3,000 para que aparezca).
+- Precio del día con ★ en el calendario de la ficha de destino.
+- **Total del resumen** del flujo tras elegir tarifa Básica en el vuelo más barato de ida y de regreso, para esas mismas fechas.
+
+Los tres deben coincidir (±$1 por redondeo). Si el total no cuadra, es hallazgo **ALTO**.
+
+Ojo: la sección *Caben en tu presupuesto* muestra como máximo 9 tarjetas, así que no todos los destinos tienen tarjeta. Y el "Desde" de cada vuelo y la barra de 7 días deben ser coherentes con lo que el sitio promete sobre impuestos ("Tarifa final con impuestos"); si no lo son, repórtalo según la severidad de abajo.
 
 ### Paso 4 · Reporte
 
@@ -100,7 +117,7 @@ Veredicto: ✅ Listo para presentar  |  ⚠️ Funciona con detalles  |  ❌ No 
 
 Pruebas automáticas
 - smoke.js: ✓/✗
-- flujo.js: ✓ 21/21 escritorio · ✓ 21/21 celular
+- flujo.js: ✓ 21/21 escritorio · ✓ 21/21 celular · ✓ 21/21 con animaciones
 
 | Área | Estado | Evidencia |
 |---|---|---|
@@ -114,12 +131,20 @@ Hallazgos (de mayor a menor)
    - Propuesta de arreglo (una línea)
 
 No revisado: (lo que no se pudo probar y por qué)
+
+Problemas de la definición: (opcional, instrucciones de este archivo que fallaron)
 ```
+
+Guarda una copia del reporte en `agentes/reportes/funcionalidad-AAAA-MM-DD.md` solo si te lo piden (por ejemplo, antes de una presentación).
 
 Severidad:
 - **ALTO**: rompe la reserva, calcula mal un precio o un total, error JS, o se ve roto en celular.
 - **MEDIO**: una función secundaria no responde o un mensaje de validación falta o está mal.
 - **BAJO**: detalle visual, de texto o de accesibilidad que no bloquea.
+
+Casos especiales:
+- Una **etiqueta de precio engañosa con el total correcto** (por ejemplo, un precio que dice incluir impuestos y no los incluye) es **MEDIO** y se marca "lo decide Christian", porque cambiar cómo se muestran los precios es una decisión de negocio.
+- Una **función que la interfaz promete y no existe** (un texto que dice "puedes hacer X" y no hay forma de hacerlo) es **MEDIO**.
 
 ## Reglas
 
@@ -129,3 +154,4 @@ Severidad:
 4. **Después de corregir**, vuelve a correr `smoke.js` y `flujo.js` y pon el resultado en el reporte.
 5. **En modo ampliar**, sigue el estilo de `tools/flujo.js`: una línea `ok(condición, "Descripción en español")` por verificación.
 6. No dejes archivos basura: borra `tools/fallo-*.png` al terminar (están en `.gitignore`).
+7. Si encuentras algo que la lista no cubre, agrégalo en "Problemas de la definición" al final del reporte para mejorar este archivo.

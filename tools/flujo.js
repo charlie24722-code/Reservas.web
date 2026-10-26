@@ -1,7 +1,8 @@
 // Prueba funcional de punta a punta: recorre la reserva completa como un usuario real.
 // Búsqueda SAL → MAD (ida y vuelta, BIENVENIDO10) → tarifas → pasajeros (con validación)
 // → asiento, maleta y seguro → pago (con validación de términos) → confirmación
-// → Mis viajes → Panel de la aerolínea. Se ejecuta en escritorio (1280 px) y celular (375 px).
+// → Mis viajes → Panel de la aerolínea. Se ejecuta en escritorio y celular con "reducir movimiento"
+// y una vez más en escritorio con animaciones, que es lo que ve la mayoría de usuarios.
 // Uso: node tools/flujo.js [--headed]   (requiere Playwright con Chromium instalado)
 const path = require("path");
 const { chromium } = require("playwright");
@@ -9,8 +10,8 @@ const { chromium } = require("playwright");
 const URL = "file://" + path.resolve(__dirname, "..", "index.html");
 const money = s => Number(String(s).replace(/[^\d.]/g, ""));
 
-async function run(browser, width) {
-  const page = await browser.newPage({ viewport: { width, height: 900 }, reducedMotion: "reduce" });
+async function run(browser, width, motion) {
+  const page = await browser.newPage({ viewport: { width, height: 900 }, reducedMotion: motion });
   const errors = [], checks = [];
   page.on("pageerror", e => errors.push(e.message));
   const ok = (cond, label) => { checks.push([!!cond, label]); if (!cond) throw new Error(label); };
@@ -94,7 +95,7 @@ async function run(browser, width) {
     ok(!(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)), "Sin scroll horizontal");
   } catch (e) {
     if (!checks.length || checks[checks.length - 1][0]) checks.push([false, e.message.split("\n")[0]]);
-    await page.screenshot({ path: path.resolve(__dirname, `fallo-${width}.png`), fullPage: true }).catch(() => {});
+    await page.screenshot({ path: path.resolve(__dirname, `fallo-${width}-${motion}.png`), fullPage: true }).catch(() => {});
   }
   if (errors.length) checks.push([false, "Errores JS: " + errors.join(" | ")]);
   await page.close();
@@ -104,12 +105,14 @@ async function run(browser, width) {
 (async () => {
   const browser = await chromium.launch({ headless: !process.argv.includes("--headed") });
   let failed = 0;
-  for (const width of [1280, 375]) {
-    console.log(`\n── ${width === 375 ? "Celular" : "Escritorio"} (${width} px)`);
-    for (const [pass, label] of await run(browser, width)) {
-      console.log(`${pass ? "✓" : "✗"} ${label}`);
-      if (!pass) failed++;
-    }
+  const runs = [[1280, "reduce", "Escritorio"], [375, "reduce", "Celular"], [1280, "no-preference", "Escritorio con animaciones"]];
+  for (const [width, motion, name] of runs) {
+    console.log(`\n── ${name} (${width} px)`);
+    const checks = await run(browser, width, motion);
+    for (const [pass, label] of checks) console.log(`${pass ? "✓" : "✗"} ${label}`);
+    const bad = checks.filter(c => !c[0]).length;
+    console.log(`${bad ? "✗" : "✓"} ${checks.length - bad}/${checks.length} ${name}`);
+    failed += bad;
   }
   await browser.close();
   console.log(failed ? `\n${failed} verificación(es) fallaron. Captura en tools/fallo-*.png` : "\nFlujo completo OK");
