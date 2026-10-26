@@ -85,3 +85,7 @@ Enlazados desde el pie de página y desde el paso de pago:
 ## Investigación de respaldo
 
 Ver [`docs/investigacion.md`](docs/investigacion.md): cómo lo hacen las aerolíneas de la región y qué haría falta para llevarlo a producción.
+
+## Para agentes de IA
+
+Las reglas del proyecto para Codex, Antigravity, Claude Code y otros agentes están en [`AGENTS.md`](AGENTS.md) (`CLAUDE.md` y `GEMINI.md` apuntan a él). Prueba rápida antes de entregar: `node tools/smoke.js`.
